@@ -1,0 +1,40 @@
+/* ============================================================
+   tokens.css — the whole design system in one place.
+   Change a value here and it changes everywhere on the site.
+   Nothing below this file should ever hard-code a colour.
+   ============================================================ */
+
+:root{
+  /* --- colour ------------------------------------------------
+     The palette is taken from the club, not from a generator:
+     black ice, bone paper, and the gold from the jerseys.
+     Gold is the ONLY warm colour. Everything cold is a neutral
+     with a slight blue bias so the page feels like a rink.      */
+  --ink:#0C0D0E;        /* page ground */
+  --ink2:#131518;       /* raised panel */
+  --ink3:#1B1E22;       /* hover / menu */
+  --bone:#EDEAE1;       /* paper sections + text on dark */
+  --bone2:#DFDBCF;      /* second paper tone */
+  --gold:#F7C325;       /* club accent — jerseys */
+  --ice:#93A9B8;        /* cold steel: labels, meta, data */
+  --edit:#62C9DE;       /* admin / CMS layer ONLY. Never club UI. */
+  --danger:#E06B5A;     /* destructive actions */
+  --ok:#8FD1B0;         /* granted permission, coach role */
+
+  --line-d:rgba(237,234,225,.13);  /* hairline on dark */
+  --line-l:rgba(12,13,14,.16);     /* hairline on paper */
+
+  /* --- type --------------------------------------------------
+     Archivo is a variable font: the width axis (font-stretch)
+     is what makes the display type condensed. IBM Plex Mono
+     carries every label, date, score and statistic — data
+     should never be set in the display face.                    */
+  --disp:"Archivo","Arial Narrow",Helvetica,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --disp-width:66%;     /* display condensation */
+  --disp-weight:800;
+
+  /* --- layout ------------------------------------------------ */
+  --maxw:1340px;
+  --pad:clamp(18px,4vw,56px);
+}

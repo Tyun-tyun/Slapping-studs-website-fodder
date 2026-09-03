@@ -1,0 +1,177 @@
+/* ============================================================
+   components.css — everything repeatable: achievement strip,
+   news posts, event rail, join cards, history timeline,
+   data tables, roster, gear, rules, albums, board, accounts.
+   ============================================================ */
+
+/* ---------------- achievements strip ----------------------- */
+.strip{background:var(--gold);color:#141210}
+.strip .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.stat{background:var(--gold);padding:26px 22px 24px;border-left:1px solid rgba(20,18,16,.22);position:relative}
+.stat:first-child{border-left:0}
+.stat .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(20,18,16,.62)}
+.stat .v{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;text-transform:uppercase;font-size:clamp(28px,3.2vw,44px);line-height:1;margin-top:10px}
+.stat .n{font-family:var(--mono);font-size:10px;letter-spacing:.1em;margin-top:8px;color:rgba(20,18,16,.72);text-transform:uppercase}
+
+/* ---------------- news feed + events rail ------------------ */
+.feedgrid{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(280px,.9fr);gap:clamp(28px,4vw,62px);align-items:start}
+.post{display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;padding:24px 0;border-top:1px solid var(--line-l);text-decoration:none;color:inherit;position:relative}
+.post .ph{aspect-ratio:4/3}
+.pmeta{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#6C7A84}
+.pmeta b{color:#8A6A00;font-weight:600}
+.ptitle{font-family:var(--disp);font-stretch:72%;font-weight:800;text-transform:uppercase;font-size:clamp(20px,2.2vw,29px);line-height:1;margin:9px 0;transition:color .15s}
+.post:hover .ptitle{color:#4A3A00}
+.pex{font-size:14.5px;line-height:1.55;color:rgba(12,13,14,.68);max-width:56ch;margin:0}
+.draftpill{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;padding:2px 6px;border:1px solid currentColor;color:var(--edit);margin-left:8px}
+
+.rail{border:1px solid var(--line-l);background:rgba(12,13,14,.03);position:sticky;top:96px}
+.rail.dark{border-color:var(--line-d);background:var(--ink2)}
+.railhead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--ink);color:var(--bone)}
+.ev{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;padding:15px 16px;border-top:1px solid var(--line-l);text-decoration:none;color:inherit;position:relative}
+.ev:hover{background:rgba(247,195,37,.16)}
+.evd{text-align:center;border:1px solid var(--line-l);padding:7px 0;height:fit-content}
+.evd .dd{font-family:var(--disp);font-stretch:72%;font-weight:800;font-size:22px;line-height:1}
+.evd .mm{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#6C7A84}
+.evt{font-family:var(--disp);font-stretch:80%;font-weight:700;text-transform:uppercase;font-size:14.5px;line-height:1.15}
+.evs{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#6C7A84;margin-top:5px;text-transform:uppercase}
+/* the dark member rail sits inside a paper band, so it has to
+   re-assert its own text colours or it inherits ink on ink */
+.rail.dark .ev{border-top-color:var(--line-d);color:var(--bone)}
+.rail.dark .railhead .mono{color:var(--bone)}
+.rail.dark .evd{border-color:var(--line-d)}
+.rail.dark .ev:hover{background:rgba(247,195,37,.08)}
+.rail.dark .evs,.rail.dark .evd .mm{color:var(--ice)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:3px 7px;border:1px solid currentColor}
+.tag.home{color:#8A6A00} .tag.away{color:#5D6C76}
+.rail.dark .tag.home{color:var(--gold)} .rail.dark .tag.away{color:var(--ice)}
+
+/* ---------------- join cards ------------------------------- */
+.joingrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--line-d);border:1px solid var(--line-d)}
+.jcard{background:var(--ink);padding:30px 26px 28px;display:flex;flex-direction:column;gap:12px;min-height:250px}
+.jcard .num{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--gold)}
+.jcard p{margin:0;font-size:14.5px;color:rgba(237,234,225,.7);line-height:1.55;flex:1}
+.jcard .tlink{align-self:flex-start}
+
+/* ---------------- history timeline -------------------------
+   The ruler is drawn by js/views.js: ticks every 1/60th, then
+   a diamond node + stem + year label positioned under each
+   entry below it. Resize and font-load both re-run it.        */
+.tlwrap{overflow-x:auto;padding-bottom:26px}
+.tl{min-width:1180px;position:relative;padding-top:56px}
+.tlaxis{position:relative;height:1px;background:rgba(237,234,225,.42)}
+.tick{position:absolute;top:0;width:1px;height:5px;background:rgba(237,234,225,.28)}
+.node{position:absolute;top:-4px;width:9px;height:9px;background:var(--bone);transform:rotate(45deg) translateX(-4px)}
+.node.gold{background:var(--gold)}
+.ylab{position:absolute;top:-26px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:rgba(237,234,225,.55);margin-left:-1px}
+.ylab.flag{background:var(--bone);color:var(--ink);padding:2px 6px;font-weight:600;margin-left:-6px}
+.stem{position:absolute;top:0;width:1px;height:52px;background:rgba(237,234,225,.22)}
+.tlitems{position:relative;display:flex;padding-top:52px}
+.tlitem{flex:0 0 auto;padding-right:44px;max-width:250px;position:relative}
+.tlitem .yr{font-family:var(--disp);font-stretch:88%;font-weight:500;font-size:40px;line-height:1}
+.tlitem .lb{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin:12px 0 10px}
+.tlitem p{margin:0;font-size:13.5px;line-height:1.55;color:rgba(237,234,225,.62)}
+.tlitem.faded .yr,.tlitem.faded p{color:rgba(237,234,225,.26)}
+.tlitem.faded .lb{color:rgba(247,195,37,.3)}
+
+/* ---------------- history chapters ------------------------- */
+.chapgrid{display:grid;grid-template-columns:200px minmax(0,1fr);gap:clamp(24px,5vw,70px);align-items:start}
+.chapnav{position:sticky;top:100px;display:flex;flex-direction:column;gap:2px}
+.chapnav a{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;text-decoration:none;color:rgba(237,234,225,.42);padding:9px 0 9px 14px;border-left:1px solid var(--line-d);cursor:pointer}
+.chapnav a.cur,.chapnav a:hover{color:var(--gold);border-left-color:var(--gold)}
+.chapter{padding-block:clamp(34px,5vw,64px);border-top:1px solid var(--line-d)}
+.chapter:first-child{border-top:0;padding-top:0}
+.chapmedia{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}
+.chapmedia .ph{aspect-ratio:4/3}
+.pull{font-family:var(--disp);font-stretch:92%;font-weight:400;font-size:clamp(19px,2.3vw,27px);line-height:1.25;color:var(--bone);border-left:2px solid var(--gold);padding-left:20px;margin:28px 0 0;max-width:34ch}
+
+/* ---------------- data tables -------------------------------
+   tabular-nums keeps score columns aligned. Never remove it.  */
+.tblwrap{overflow-x:auto;border:1px solid var(--line-d)}
+table{width:100%;border-collapse:collapse;min-width:620px;font-variant-numeric:tabular-nums}
+th{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;text-align:left;padding:13px 16px;color:var(--ice);background:var(--ink2);font-weight:500;white-space:nowrap}
+td{padding:13px 16px;border-top:1px solid var(--line-d);font-size:14px;white-space:nowrap}
+td.name{font-family:var(--disp);font-stretch:80%;font-weight:700;text-transform:uppercase;white-space:normal}
+td.num{font-family:var(--mono);font-size:12.5px;color:var(--ice)}
+tr:hover td{background:rgba(237,234,225,.03)}
+.res{font-family:var(--mono);font-weight:600;font-size:13px}
+.res.w{color:var(--gold)} .res.l{color:#8C7A6A}
+.matrix td.yes{color:var(--ok);font-family:var(--mono);font-size:13px}
+.matrix td.no{color:rgba(237,234,225,.2);font-family:var(--mono);font-size:13px}
+
+/* ---------------- roster ----------------------------------- */
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:1px;background:var(--line-d);border:1px solid var(--line-d)}
+.pl{background:var(--ink);text-decoration:none;color:inherit;display:block;position:relative}
+.pl .ph{aspect-ratio:3/4}
+.pl .no{position:absolute;top:10px;right:12px;font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;font-size:34px;line-height:1;color:rgba(237,234,225,.22)}
+.pl:hover .no{color:var(--gold)}
+.plb{padding:13px 14px 16px}
+.plb .pn{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:16px;line-height:1.05}
+.plb .pp{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ice);margin-top:7px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.filt{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--line-d);background:transparent;color:rgba(237,234,225,.66);cursor:pointer}
+.filt.on{background:var(--gold);border-color:var(--gold);color:#141210;font-weight:600}
+
+/* ---------------- gear, rules, steps ----------------------- */
+.gearlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line-d);border:1px solid var(--line-d)}
+.gear{background:var(--ink);padding:22px;position:relative}
+.gear .g1{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--gold)}
+.gear .g2{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:18px;margin-top:10px}
+.gear p{margin:8px 0 0;font-size:13.5px;color:rgba(237,234,225,.62);line-height:1.5}
+.rules{border-top:1px solid var(--line-d)}
+.rule-i{display:grid;grid-template-columns:64px minmax(0,1fr);gap:22px;padding:22px 0;border-bottom:1px solid var(--line-d);align-items:start;position:relative}
+.rule-i .rn{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);padding-top:5px}
+.rule-i h4{margin:0 0 7px;font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:19px}
+.rule-i p{margin:0;font-size:14.5px;color:rgba(237,234,225,.68);max-width:62ch;line-height:1.55}
+
+/* ---------------- gallery ---------------------------------- */
+.lockbox{border:1px solid var(--line-d);padding:clamp(28px,5vw,54px);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:34px;align-items:center;background:var(--ink2)}
+.albums{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:34px}
+.album{position:relative;text-decoration:none;color:inherit}
+.album .ph{aspect-ratio:4/3}
+.album.locked .ph{filter:blur(3px) saturate(.4)}
+.album .an{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:15px;margin-top:11px}
+.album .am{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ice);margin-top:6px}
+.padlock{position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gold);border:1px solid var(--gold);padding:3px 7px;background:rgba(12,13,14,.7)}
+
+/* ---------------- board ------------------------------------ */
+.boardgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--line-d);border:1px solid var(--line-d)}
+.bm{background:var(--ink);padding:0 0 22px;position:relative}
+.bm .ph{aspect-ratio:1/1}
+.bm .bmb{padding:18px 20px 0}
+.bm .bn{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:18px;line-height:1.05}
+.bm .br{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-top:9px}
+.bm .be{font-family:var(--mono);font-size:11px;color:var(--ice);margin-top:11px;word-break:break-all;text-decoration:none;display:block}
+.bm .be:hover{color:var(--bone)}
+
+/* ---------------- account chip & menu ---------------------- */
+.acct{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;border:1px solid var(--line-d);background:rgba(237,234,225,.03);cursor:pointer}
+.acct:hover{border-color:var(--bone)}
+.av{width:28px;height:28px;display:grid;place-items:center;font-family:var(--mono);font-size:10px;background:var(--ink3);color:var(--bone);border:1px solid var(--line-d)}
+.acct .an2{display:flex;flex-direction:column;gap:2px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;text-align:left;line-height:1.2}
+.acct .ar{display:block;font-size:8.5px;color:var(--ice)}
+.acctmenu{position:absolute;top:calc(100% - 6px);right:var(--pad);width:290px;background:var(--ink2);border:1px solid var(--line-d);box-shadow:0 26px 60px rgba(0,0,0,.6);display:none;z-index:80}
+.acctmenu.on{display:block}
+.amh{padding:16px;border-bottom:1px solid var(--line-d);display:flex;gap:12px;align-items:center}
+.amh .av{width:38px;height:38px;font-size:12px}
+.amn{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:16px;line-height:1.1}
+.amr{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-top:5px;display:flex;align-items:center;gap:6px;color:var(--ice)}
+.amlist{padding:7px}
+.amlist button,.amlist a{display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;background:none;border:0;text-align:left;padding:10px 11px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(237,234,225,.75);cursor:pointer;text-decoration:none}
+.amlist button:hover,.amlist a:hover{background:var(--ink3);color:var(--gold)}
+.amperm{padding:12px 16px 16px;border-top:1px solid var(--line-d);font-family:var(--mono);font-size:9.5px;line-height:1.8;color:var(--ice);letter-spacing:.06em}
+.amperm span{color:var(--ok)}
+
+/* ---------------- sign-in cards ---------------------------- */
+.signin{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--line-d);border:1px solid var(--line-d);margin-top:44px}
+.acard{background:var(--ink2);padding:26px 24px 24px;display:flex;flex-direction:column;gap:12px;text-align:left;border:0;cursor:pointer;color:var(--bone);font-family:inherit;transition:background .16s}
+.acard:hover{background:var(--ink3)}
+.acard .arole{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.acard .aname{font-family:var(--disp);font-stretch:70%;font-weight:800;text-transform:uppercase;font-size:30px;line-height:.95}
+.acard .acred{font-family:var(--mono);font-size:10.5px;color:var(--ice);line-height:1.8}
+.acard ul{margin:6px 0 0;padding-left:16px;font-size:13.5px;color:rgba(237,234,225,.66);line-height:1.6}
+.acard .go{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-top:auto;padding-top:12px}
+
+/* ---------------- gated block notice ----------------------- */
+.gatemsg{border:1px solid var(--line-d);background:var(--ink2);padding:26px;display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.gatemsg p{margin:0;font-size:14.5px;color:rgba(237,234,225,.68);max-width:52ch}

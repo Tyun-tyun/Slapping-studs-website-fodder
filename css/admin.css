@@ -1,0 +1,88 @@
+/* ============================================================
+   admin.css — the editing layer ("godmode").
+
+   Design rule: the club's colour is gold, the tooling's colour
+   is cyan (--edit). Nothing in this file may use gold, and
+   nothing outside this file may use cyan. That separation is
+   what stops the CMS chrome from reading as part of the site.
+
+   Second rule: admin controls live in a bar pinned to the
+   BOTTOM of the viewport. The site header deliberately hides
+   on scroll, so editing tools cannot live up there.
+   ============================================================ */
+
+body.god{padding-bottom:64px}
+body.god::before{content:"";position:fixed;top:0;left:0;right:0;height:3px;background:var(--edit);z-index:100;pointer-events:none}
+
+/* ---------------- bottom admin bar ------------------------- */
+.adminbar{position:fixed;left:0;right:0;bottom:0;z-index:95;background:#0A1417;border-top:1px solid rgba(98,201,222,.4);display:none;align-items:center;gap:8px;padding:10px var(--pad);flex-wrap:wrap}
+body.god .adminbar,body.isadmin .adminbar{display:flex}
+.abbrand{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--edit);margin-right:8px}
+.abbrand .pulse{width:6px;height:6px;border-radius:50%;background:var(--edit);animation:godpulse 2s infinite}
+@keyframes godpulse{0%{box-shadow:0 0 0 0 rgba(98,201,222,.5)}70%{box-shadow:0 0 0 7px rgba(98,201,222,0)}100%{box-shadow:0 0 0 0 rgba(98,201,222,0)}}
+.abtn{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;padding:8px 13px;border:1px solid rgba(98,201,222,.35);background:transparent;color:#BFEAF3;cursor:pointer}
+.abtn:hover{background:rgba(98,201,222,.14);border-color:var(--edit)}
+.abtn.on{background:var(--edit);color:#08181C;border-color:var(--edit);font-weight:600}
+.abspacer{flex:1}
+.abmeta{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:rgba(191,234,243,.55);text-transform:uppercase}
+.abrule{width:1px;height:20px;background:rgba(98,201,222,.25);margin:0 4px}
+
+/* ---------------- inline editing ---------------------------
+   [data-ed]   = a text block the admin can rewrite in place
+   [data-item] = one record in a collection (news post, player…)
+   Affordances stay at 30% until you hover the thing you want
+   to change, so edit mode does not shout over the design.     */
+body.editing [data-ed]{outline:1px dashed rgba(98,201,222,.45);outline-offset:4px;cursor:text;transition:outline-color .15s}
+body.editing [data-ed]:hover{outline-color:var(--edit);background:rgba(98,201,222,.06)}
+body.editing [data-ed]:focus{outline:1px solid var(--edit);background:rgba(98,201,222,.09)}
+body.editing [data-item]{outline:1px dashed rgba(98,201,222,.28);outline-offset:3px}
+
+.itools{position:absolute;top:6px;right:6px;display:none;gap:4px;z-index:12;opacity:.3;transition:opacity .15s}
+body.editing [data-item] .itools{display:flex}
+body.editing [data-item]:hover .itools{opacity:1}
+.itools button{width:23px;height:23px;display:grid;place-items:center;border:1px solid rgba(98,201,222,.5);background:#0A1417;color:#BFEAF3;font-family:var(--mono);font-size:11px;cursor:pointer;line-height:1}
+.itools button:hover{background:var(--edit);color:#08181C}
+
+.addtile{display:none;width:100%;padding:20px;border:1px dashed rgba(98,201,222,.5);background:rgba(98,201,222,.05);color:var(--edit);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;margin-top:14px}
+body.editing .addtile{display:block}
+.addtile:hover{background:rgba(98,201,222,.13)}
+
+/* ---------------- admin console ---------------------------- */
+.adgrid{display:grid;grid-template-columns:212px minmax(0,1fr);gap:clamp(20px,3vw,44px);align-items:start}
+.adnav{display:flex;flex-direction:column;gap:1px;position:sticky;top:100px}
+.adnav button{text-align:left;background:none;border:0;border-left:1px solid var(--line-d);padding:11px 0 11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(237,234,225,.45);cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+.adnav button.on,.adnav button:hover{color:var(--edit);border-left-color:var(--edit)}
+.adnav button i{font-style:normal;font-size:9px;opacity:.6}
+.adhead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.pill{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border:1px solid currentColor}
+.pill.pub{color:var(--ok)} .pill.draft{color:var(--edit)}
+.rowacts{display:flex;gap:6px}
+.rowacts button{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:5px 9px;border:1px solid var(--line-d);background:transparent;color:rgba(237,234,225,.6);cursor:pointer}
+.rowacts button:hover{border-color:var(--edit);color:var(--edit)}
+.rowacts button.del:hover{border-color:var(--danger);color:var(--danger)}
+
+/* ---------------- record drawer ---------------------------- */
+.scrim{position:fixed;inset:0;background:rgba(6,7,8,.72);z-index:110;opacity:0;visibility:hidden;transition:.22s}
+.scrim.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--ink2);border-left:1px solid rgba(98,201,222,.35);z-index:120;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,.02,.2,1);display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dwh{padding:22px var(--pad) 18px;border-bottom:1px solid var(--line-d);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.dwh h3{margin:0;font-family:var(--disp);font-stretch:70%;font-weight:800;text-transform:uppercase;font-size:28px;line-height:1}
+.dwh .sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--edit);margin-top:8px}
+.dwx{background:none;border:1px solid var(--line-d);color:var(--bone);width:32px;height:32px;cursor:pointer;font-family:var(--mono)}
+.dwx:hover{border-color:var(--edit);color:var(--edit)}
+.dwb{padding:22px var(--pad);overflow-y:auto;flex:1}
+.dwb form{max-width:100%}
+.dwf{padding:16px var(--pad);border-top:1px solid var(--line-d);display:flex;gap:8px;align-items:center}
+
+.btn-edit{background:var(--edit);border-color:var(--edit);color:#08181C;font-weight:600}
+.btn-edit:hover{background:#8adcec;border-color:#8adcec;color:#08181C}
+.btn-del{border-color:rgba(224,107,90,.6);color:var(--danger)}
+.btn-del:hover{background:var(--danger);border-color:var(--danger);color:var(--ink)}
+
+/* ---------------- toast ------------------------------------
+   Deletes use an undo toast, never a browser confirm() —
+   a modal dialog interrupts, an undo does not.                */
+.toast{position:fixed;left:50%;bottom:82px;transform:translate(-50%,20px);background:var(--ink3);border:1px solid rgba(98,201,222,.4);padding:13px 16px;display:flex;align-items:center;gap:16px;z-index:130;opacity:0;visibility:hidden;transition:.22s;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.toast.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.toast button{background:none;border:0;border-bottom:1px solid var(--edit);color:var(--edit);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:0 0 2px}

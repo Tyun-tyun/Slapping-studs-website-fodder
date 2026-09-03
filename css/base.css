@@ -1,0 +1,105 @@
+/* ============================================================
+   base.css — reset, typography scale, buttons, form controls,
+   and the photo placeholder. Nothing here is page-specific.
+   ============================================================ */
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--bone);
+  font-family:var(--disp);
+  font-stretch:100%;
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* --- display type ------------------------------------------
+   .d1 … .d4 is the whole scale. Do not invent sizes between
+   them; if something needs a new size, add it here.           */
+.disp{
+  font-family:var(--disp);
+  font-stretch:var(--disp-width);
+  font-weight:var(--disp-weight);
+  text-transform:uppercase;
+  line-height:.88;
+  margin:0;
+  text-wrap:balance;
+}
+.d1{font-size:clamp(52px,10.5vw,158px)}
+.d2{font-size:clamp(38px,6.2vw,90px)}
+.d3{font-size:clamp(26px,3.4vw,50px)}
+.d4{font-size:clamp(19px,2vw,28px)}
+
+/* --- utility type ------------------------------------------ */
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ice)}
+.eyebrow b{color:var(--gold);font-weight:500}
+.body{font-size:16px;line-height:1.62;max-width:64ch;color:rgba(237,234,225,.76);font-stretch:100%}
+.on-bone .body{color:rgba(12,13,14,.72)}
+
+/* --- buttons ------------------------------------------------ */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  padding:13px 20px;border:1px solid var(--bone);color:var(--bone);
+  text-decoration:none;background:transparent;cursor:pointer;
+  transition:background .18s,color .18s;
+}
+.btn:hover{background:var(--bone);color:var(--ink)}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:#141210;font-weight:600}
+.btn-gold:hover{background:#ffd257;border-color:#ffd257;color:#141210}
+.btn-sm{padding:9px 14px;font-size:10px}
+.on-bone .btn{border-color:var(--ink);color:var(--ink)}
+.on-bone .btn:hover{background:var(--ink);color:var(--bone)}
+
+/* text link with a rule under it — the site's only link style */
+.tlink{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  text-decoration:none;border:0;border-bottom:1px solid currentColor;padding-bottom:3px;
+  color:var(--gold);background:none;cursor:pointer;
+}
+.tlink:hover{color:var(--bone)}
+.on-bone .tlink:hover{color:var(--ink)}
+
+/* --- forms -------------------------------------------------- */
+form{display:grid;gap:14px;max-width:560px}
+label{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ice);display:block;margin-bottom:7px}
+input,select,textarea{
+  width:100%;background:var(--ink2);border:1px solid var(--line-d);color:var(--bone);
+  padding:12px 14px;font-family:var(--disp);font-size:15px;border-radius:0;
+}
+textarea{min-height:130px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);outline:none}
+
+/* --- photo slot ---------------------------------------------
+   Every image on the site is a .ph. While there is no photo it
+   draws a hatched slot with its caption, so a page never fakes
+   photography it does not have.
+   To drop a real photo in, add data-img:
+     <div class="ph" data-img="assets/photos/team-2026.jpg"></div>
+   js/views.js applies it as a background image.                */
+.ph{
+  position:relative;
+  background:repeating-linear-gradient(122deg,#15181b 0 9px,#111417 9px 18px);
+  background-size:cover;background-position:center;
+  border:1px solid var(--line-d);overflow:hidden;
+}
+.ph::after{
+  content:attr(data-ph);position:absolute;left:12px;bottom:11px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(147,169,184,.65);
+}
+.ph::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 70% 15%,rgba(147,169,184,.15),transparent 60%)}
+.ph.gold::before{background:radial-gradient(120% 90% at 30% 20%,rgba(247,195,37,.16),transparent 62%)}
+.ph.has-photo::before,.ph.has-photo::after{display:none}
+
+/* --- editorial note box (proposal only — delete when live) --- */
+.note{border:1px dashed rgba(247,195,37,.5);background:rgba(247,195,37,.05);padding:16px 18px;font-family:var(--mono);font-size:11px;line-height:1.7;color:rgba(237,234,225,.72)}
+.note b{color:var(--gold);letter-spacing:.14em;text-transform:uppercase;font-size:10px;display:block;margin-bottom:6px}
+
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}

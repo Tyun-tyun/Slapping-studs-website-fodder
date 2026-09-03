@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Slapping Studs — Student ice hockey, Enschede since 1982</title>
+<meta name="description" content="The oldest student ice hockey association in the Netherlands. Three teams, 50+ members, home ice at IJsbaan Twente. No experience needed.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<!-- Load order matters: tokens define the variables everything else uses. -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- hairline column grid, purely decorative -->
+<div class="gridlines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- invisible strip that brings the collapsed header back -->
+<div id="hotzone" aria-hidden="true"></div>
+
+<header id="hdr">
+  <div class="bar">
+    <a class="badge" href="#/home">
+      <span class="mark">
+        <!-- Placeholder mark. Replace with the real club badge:
+             assets/logo.svg, kept as SVG so it stays sharp. -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#EDEAE1" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 4c1.6 1.2 2.4 2.9 2.6 4.6.9-.6 2-.7 3-.3l2.6 1.1"/>
+          <path d="M6.6 8.6c-.6 1.9-.4 3.9.6 5.6l1.6 2.7"/>
+          <path d="M12.2 9.4l5.4 2.3c1.3.6 2 2 1.7 3.4l-.7 3.3"/>
+          <path d="M8.8 16.9l-1.3 3.2M19.4 18.4l1.1 2"/>
+        </svg>
+      </span>
+      <span class="wordmark"><span class="n">Slapping Studs</span><span class="s">EST. 1982 · ENSCHEDE</span></span>
+    </a>
+
+    <!-- nav and account chip are rendered by js/views.js because
+         their contents depend on who is signed in -->
+    <nav id="nav"></nav>
+    <div class="hactions" id="hactions"></div>
+  </div>
+  <div class="acctmenu" id="acctmenu"></div>
+</header>
+<div class="peekhint" aria-hidden="true"></div>
+
+<main>
+
+<!-- ==================== HOME ==================== -->
+<section class="page on" id="p-home">
+  <div class="hero">
+    <div class="ph gold" data-ph="Hero photo — full squad on the ice, IJsbaan Twente"></div>
+    <div class="veil"></div>
+    <div class="wrap">
+      <p class="eyebrow" data-ed="home.eyebrow">Est. 1982 · University of Twente · <b>Oldest student ice hockey club in the Netherlands</b></p>
+      <h1 class="disp d1" data-ed="home.h1">Coldest ice,<br>warmest <em>club</em></h1>
+      <div class="herofoot">
+        <p class="body" style="max-width:44ch;margin:0" data-ed="home.sub">Three teams, fifty-odd students, one rink in Enschede. No experience needed — most of us couldn't skate when we started.</p>
+        <div class="herocta">
+          <a class="btn btn-gold" href="#/training">Try a free practice</a>
+          <a class="btn" href="#/history">1982 → today</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="strip"><div class="wrap" id="statwrap"></div></div>
+
+  <div class="band bone on-bone">
+    <div class="wrap">
+      <div class="feedgrid">
+        <div>
+          <div class="secthead" style="margin-bottom:8px">
+            <h2 class="disp d3" data-ed="home.newsh">From the rink</h2>
+            <a class="tlink" href="#/archive" style="color:#8A6A00">All news &amp; archive</a>
+          </div>
+          <div id="homefeed"></div>
+          <button class="addtile" data-add="news">+ Add news post</button>
+        </div>
+        <aside>
+          <div class="rail">
+            <div class="railhead"><span class="mono">Upcoming</span><a class="mono" href="#/games" style="color:#F7C325;text-decoration:none">Full calendar</a></div>
+            <div id="homeevents"></div>
+          </div>
+          <button class="addtile" data-add="events">+ Add event</button>
+          <div id="memberrail"></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="wrap">
+      <div class="secthead">
+        <div>
+          <p class="eyebrow">Getting in</p>
+          <h2 class="disp d2" style="margin-top:14px" data-ed="home.joinh">You don't need<br>to know how to skate</h2>
+        </div>
+        <p class="body" style="max-width:38ch" data-ed="home.joinsub">Season runs October to end of March, two practices a week, ice split into groups so beginners and experienced players train at their own level.</p>
+      </div>
+      <div class="joingrid">
+        <div class="jcard"><div class="num">01 / Never played</div><h3 class="disp d4">Rookie</h3><p data-ed="join.1">Come to a free introduction practice. Gear and skates are waiting at the rink. Rookies get their own games against rookies from other student teams.</p><a class="tlink" href="#/training">Book an intro practice</a></div>
+        <div class="jcard"><div class="num">02 / Played before</div><h3 class="disp d4">Experienced</h3><p data-ed="join.2">Drop in on any regular training hour during the season. Mail a board member and we'll tell you which group and which slot fits you.</p><a class="tlink" href="#/contact">Mail the board</a></div>
+        <div class="jcard"><div class="num">03 / Membership</div><h3 class="disp d4">Campus Card</h3><p data-ed="join.3">We're subsidised by the University of Twente, so every member needs a UT Campus Card. Not a UT or Saxion student? You can still join — the card just costs more.</p><a class="tlink" href="#/about">What membership covers</a></div>
+        <div class="jcard"><div class="num">04 / Beyond the ice</div><h3 class="disp d4">Off-ice</h3><p data-ed="join.4">Night tournament, away trips, the end-of-season BBQ, the NSK student championship. The Off-Ice Committee runs a calendar that doesn't stop when the rink closes in April.</p><a class="tlink" href="#/about">See the year</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SIGN IN ==================== -->
+<section class="page" id="p-signin">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">Accounts / Demo</p>
+      <h1 class="disp d2" style="margin-top:16px">Four levels<br>of access</h1>
+      <p class="body" style="margin-top:22px">This prototype ships with three signed-in roles so the board can see exactly what each one gets. Pick an account — no password needed in the demo, though the form below accepts the printed ones.</p>
+
+      <div class="signin" id="signincards"></div>
+
+      <div class="two" style="margin-top:64px">
+        <div>
+          <p class="eyebrow">Or sign in properly</p>
+          <h2 class="disp d3" style="margin-top:14px">The real form</h2>
+          <form id="signinform" style="margin-top:26px">
+            <div><label for="si-em">E-mail</label><input id="si-em" type="email" placeholder="you@slappingstuds.nl"></div>
+            <div><label for="si-pw">Password</label><input id="si-pw" type="password" placeholder="••••••••"></div>
+            <div style="display:flex;gap:8px;align-items:center"><button class="btn btn-gold" type="submit">Sign in</button><span class="mono" id="si-msg" style="color:#E06B5A;letter-spacing:.08em"></span></div>
+          </form>
+        </div>
+        <div>
+          <p class="eyebrow">Permissions</p>
+          <h2 class="disp d3" style="margin-top:14px">Who can do what</h2>
+          <div class="tblwrap" style="margin-top:26px">
+            <table class="matrix">
+              <thead><tr><th>Capability</th><th>Public</th><th>Member</th><th>Coach</th><th>Admin</th></tr></thead>
+              <tbody id="matrixbody"></tbody>
+            </table>
+          </div>
+          <div class="note" style="margin-top:20px"><b>Not security</b>Every check runs in the browser and the passwords are in js/auth.js. This is a specification for the permission model, to be argued about now and enforced on a server later.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ADMIN CONSOLE ==================== -->
+<section class="page" id="p-admin">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <div class="adhead">
+        <div>
+          <p class="eyebrow" style="color:var(--edit)">Godmode / Admin console</p>
+          <h1 class="disp d2" style="margin-top:14px">Everything<br>on this site</h1>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-edit" data-act="newrecord">+ New record</button>
+          <button class="btn btn-sm" data-act="inlineedit">Edit on the page instead</button>
+        </div>
+      </div>
+      <div class="adgrid" style="margin-top:34px">
+        <div class="adnav" id="adnav"></div>
+        <div id="adbody"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== HISTORY ==================== -->
+<section class="page" id="p-history">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">Origins / 1982 → today</p>
+      <h1 class="disp d1" style="margin-top:18px" data-ed="hist.h1">A club built<br>by falling over</h1>
+      <p class="body" style="margin-top:26px" data-ed="hist.sub">Four decades of student ice hockey in Enschede: from a handful of students looking for some action to three teams, fifty-odd members and a division title.</p>
+
+      <div class="tlwrap" style="margin-top:60px">
+        <div class="tl"><div class="tlaxis" id="axis"></div><div class="tlitems" id="tlitems"></div></div>
+      </div>
+      <button class="addtile" data-add="timeline">+ Add timeline marker</button>
+
+      <div class="note" style="margin-top:14px"><b>Placeholder content</b>The 1990s / 2010 / 2018 markers are structure, not verified club history — replace them from the archive. 1982, the 2026 title and the current squad numbers come from the club's own pages.</div>
+    </div>
+  </div>
+
+  <div class="band ink2">
+    <div class="wrap">
+      <div class="chapgrid">
+        <div class="chapnav">
+          <a class="cur">01 — The founding</a><a>02 — Growing pains</a><a>03 — Going international</a><a>04 — The title</a><a>05 — Traditions</a>
+        </div>
+        <div>
+          <div class="chapter">
+            <p class="eyebrow">Chapter 01 · 1982</p>
+            <h2 class="disp d2" style="margin-top:16px" data-ed="ch1.h">Some students,<br>looking for action</h2>
+            <p class="body" style="margin-top:22px" data-ed="ch1.b">The Slapping Studs were not founded as a project or a plan. A group of students at the University of Twente wanted something faster than what the campus offered, found the ice rink, and started showing up. Four decades later that is still roughly how new members arrive.</p>
+            <p class="pull" data-ed="ch1.q">"We're an association first and a team second. The competition results are what happens along the way."</p>
+            <div class="chapmedia"><div class="ph" data-ph="Archive — first squad photo"></div><div class="ph" data-ph="Archive — early jersey"></div><div class="ph" data-ph="Archive — clipping"></div></div>
+          </div>
+          <div class="chapter">
+            <p class="eyebrow">Chapter 04 · 2026</p>
+            <h2 class="disp d2" style="margin-top:16px" data-ed="ch4.h">Down 3–1<br>after two periods</h2>
+            <p class="body" style="margin-top:22px" data-ed="ch4.b">The Striking Stallions went into the third period of the decisive game a goal short and finished it 4–3, in front of supporters who had travelled with the team. The first divisional title in the club's history.</p>
+            <div class="chapmedia"><div class="ph gold" data-ph="Photo — celebration on the ice"></div><div class="ph" data-ph="Photo — the travelling support"></div><div class="ph" data-ph="Scan — final game sheet"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PLAYERS ==================== -->
+<section class="page" id="p-players">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">Team / Rosters 2025–26</p>
+      <h1 class="disp d2" style="margin-top:16px" data-ed="pl.h1">Three teams,<br>one changing room</h1>
+      <div id="coachpanel"></div>
+      <div class="filters" style="margin-top:36px" id="plfilters"></div>
+      <div class="roster" id="roster"></div>
+      <button class="addtile" data-add="players">+ Add player</button>
+    </div>
+  </div>
+  <div class="band ink2">
+    <div class="wrap">
+      <div class="secthead">
+        <div><p class="eyebrow">Player page · what a single player looks like</p><h2 class="disp d3" style="margin-top:14px">Season scoring · Stallions</h2></div>
+        <a class="tlink" href="#/games">Game-by-game</a>
+      </div>
+      <div class="tblwrap"><table>
+        <thead><tr><th>#</th><th>Player</th><th>Pos</th><th>GP</th><th>G</th><th>A</th><th>Pts</th><th>PIM</th></tr></thead>
+        <tbody id="scoring"></tbody>
+      </table></div>
+      <div class="note" style="margin-top:16px"><b>Data placeholder</b>Names and figures are dummy rows showing the table shape. Columns follow standard IJshockey Nederland notation: GP games played, G goals, A assists, Pts points, PIM penalty minutes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== GAMES ==================== -->
+<section class="page" id="p-games">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">Games / Season 2025–26</p>
+      <h1 class="disp d2" style="margin-top:16px" data-ed="gm.h1">Fixtures,<br>results, sheets</h1>
+      <p class="body" style="margin-top:22px" data-ed="gm.sub">Every game links to its own sheet: the roster that dressed, the scoring, the penalties and a short report. Competitions the three teams play in are listed underneath.</p>
+      <div class="tblwrap" style="margin-top:44px"><table>
+        <thead><tr><th>Date</th><th>Team</th><th>Fixture</th><th>Venue</th><th>Result</th><th>Sheet</th></tr></thead>
+        <tbody id="gamesbody"></tbody>
+      </table></div>
+      <button class="addtile" data-add="games">+ Add game</button>
+    </div>
+  </div>
+  <div class="band ink2">
+    <div class="wrap">
+      <div class="secthead"><div><p class="eyebrow">Competitions</p><h2 class="disp d3" style="margin-top:14px">Who we play</h2></div></div>
+      <div class="two" id="comps"></div>
+      <button class="addtile" data-add="comps">+ Add competition</button>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== NEWS ==================== -->
+<section class="page" id="p-news">
+  <div class="band bone on-bone" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">News</p>
+      <h1 class="disp d2" style="margin-top:16px" data-ed="nw.h1">Everything<br>from the rink</h1>
+      <div class="feedgrid" style="margin-top:48px">
+        <div><div id="newsfeed"></div><button class="addtile" data-add="news">+ Add news post</button></div>
+        <aside class="rail">
+          <div class="railhead"><span class="mono">Archive</span><span class="mono" style="color:#F7C325">2010 → 2026</span></div>
+          <div id="archiverail"></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="p-archive">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">News / Archive</p>
+      <h1 class="disp d2" style="margin-top:16px" data-ed="ar.h1">Sixteen seasons<br>of posts</h1>
+      <p class="body" style="margin-top:22px" data-ed="ar.sub">The archive keeps everything published since 2010, grouped by season and searchable by team, author and tag. Nothing gets deleted when a season ends — that is where the club's own history comes from.</p>
+      <div class="tblwrap" style="margin-top:44px"><table>
+        <thead><tr><th>Season</th><th>Posts</th><th>Highlight</th><th>Tags</th></tr></thead>
+        <tbody id="archivebody"></tbody>
+      </table></div>
+      <div class="note" style="margin-top:16px"><b>Placeholder content</b>Season highlights below 2025–26 are invented to show the archive layout.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ABOUT ==================== -->
+<section class="page" id="p-about">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">Team / About us</p>
+      <h1 class="disp d2" style="margin-top:16px" data-ed="ab.h1">Competitive,<br>not serious</h1>
+      <p class="body" style="margin-top:24px" data-ed="ab.b1">SIJHV The Slapping Studs is a student ice hockey association affiliated with the University of Twente since 1982. We've done well in competition, but the results don't come before the association — hanging out and having fun is an important part of every Dutch student team, and it's an important part of this one.</p>
+      <div class="two" style="margin-top:56px">
+        <div><h3 class="disp d4">Members</h3><p class="body" style="margin-top:14px" data-ed="ab.b2">One coach and around 50 players, from complete beginners to advanced. More than a quarter are international students, which is why English is the working language on the ice and on this site. Membership requires a University of Twente Campus Card.</p></div>
+        <div><h3 class="disp d4">The board</h3><p class="body" style="margin-top:14px" data-ed="ab.b3">Four board positions — chairman, secretary, treasurer and game coordinator — elected each year, plus an Off-Ice Committee that runs the events calendar and a webmaster who keeps this site standing.</p><a class="tlink" href="#/contact" style="display:inline-block;margin-top:16px">Meet the board</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TRAINING ==================== -->
+<section class="page" id="p-training">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">Team / Training</p>
+      <h1 class="disp d2" style="margin-top:16px" data-ed="tr.h1">Twice a week,<br>October to March</h1>
+      <p class="body" style="margin-top:24px" data-ed="tr.sub">Practice covers skating, stick handling, tactics and rules. The ice is split into groups by level, so a first-timer and a player of ten years get a session that fits. All training is at IJsbaan Twente in Enschede.</p>
+      <div id="trainmember"></div>
+      <div class="rules" style="margin-top:56px" id="steps"></div>
+      <button class="addtile" data-add="steps">+ Add step</button>
+      <a class="btn btn-gold" href="#/contact" style="margin-top:34px">Sign up for the next intro practice</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== HOCKEY ==================== -->
+<section class="page" id="p-hockey">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">Hockey / For people who've never played</p>
+      <h1 class="disp d2" style="margin-top:16px" data-ed="hk.h1">The fastest<br>team sport there is</h1>
+      <p class="body" style="margin-top:24px" data-ed="hk.sub">Six players a side — three forwards, two defenders, a goaltender — on a 60 × 30 m sheet of ice, three periods of 20 minutes, shifts of 45 seconds because nobody can skate flat out for longer than that. The puck is 170 g of vulcanised rubber and moves faster than anything else in team sport.</p>
+    </div>
+  </div>
+  <div class="band ink2">
+    <div class="wrap">
+      <div class="secthead"><div><p class="eyebrow">Gear</p><h2 class="disp d3" style="margin-top:14px">What you wear</h2></div><p class="body" style="max-width:34ch" data-ed="hk.gearsub">Everything below is provided for intro practices. Buy it in this order once you stay.</p></div>
+      <div class="gearlist" id="gearlist"></div>
+      <button class="addtile" data-add="gear">+ Add gear item</button>
+    </div>
+  </div>
+  <div class="band">
+    <div class="wrap">
+      <p class="eyebrow">Rules</p>
+      <h2 class="disp d3" style="margin-top:14px" data-ed="hk.ruleh">Six rules that get you on the ice</h2>
+      <div class="rules" style="margin-top:36px" id="ruleslist"></div>
+      <button class="addtile" data-add="rules">+ Add rule</button>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PICTURES ==================== -->
+<section class="page" id="p-pictures">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow" id="picbrow">Pictures / Members only</p>
+      <h1 class="disp d2" style="margin-top:16px" id="pich1">The gallery<br>is behind the door</h1>
+      <div id="picgate"></div>
+      <div id="albumsarea"></div>
+      <div class="note" style="margin-top:34px"><b>Roles</b>Members: view and download. Coaches: view all teams, upload to team albums. Board / admin: create albums, moderate, publish an album to the public site.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CONTACT ==================== -->
+<section class="page" id="p-contact">
+  <div class="band" style="padding-top:150px">
+    <div class="wrap">
+      <p class="eyebrow">Contact / The board</p>
+      <h1 class="disp d2" style="margin-top:16px" data-ed="ct.h1">Talk to the<br>right person</h1>
+      <p class="body" style="margin-top:22px" data-ed="ct.sub">Pick a board member directly, or write to the board as a whole. Messages sent through the form below are routed to whoever handles that subject.</p>
+      <div class="boardgrid" style="margin-top:48px" id="boardgrid"></div>
+      <button class="addtile" data-add="board">+ Add board member</button>
+    </div>
+  </div>
+  <div class="band ink2">
+    <div class="wrap">
+      <div class="two">
+        <div>
+          <p class="eyebrow">Send a message</p>
+          <h2 class="disp d3" style="margin-top:14px">One form,<br>routed by subject</h2>
+          <form onsubmit="return false" style="margin-top:28px">
+            <div><label for="sub">What is it about</label><select id="sub">
+              <option>Joining the Studs — intro practice</option>
+              <option>Membership &amp; Campus Card</option>
+              <option>Games, rosters &amp; scheduling</option>
+              <option>Sponsorship or an offer</option>
+              <option>Website or e-mail problem</option>
+              <option>Complaint or confidential matter</option>
+            </select></div>
+            <div><label for="nm">Your name</label><input id="nm" type="text"></div>
+            <div><label for="em">Your e-mail</label><input id="em" type="email"></div>
+            <div><label for="ms">Message</label><textarea id="ms"></textarea></div>
+            <button class="btn btn-gold" type="submit">Send to the board</button>
+            <p class="mono" id="routeline" style="color:var(--ice);letter-spacing:.06em;text-transform:none">Routed to: voorzitter@slappingstuds.nl</p>
+          </form>
+        </div>
+        <div>
+          <p class="eyebrow">General</p>
+          <h2 class="disp d3" style="margin-top:14px">Where we are</h2>
+          <div class="rules" style="margin-top:28px">
+            <div class="rule-i"><div class="rn">Post</div><div><h4>SIJHV The Slapping Studs</h4><p data-ed="ct.post">Postbus 217, 7500 AE Enschede</p></div></div>
+            <div class="rule-i"><div class="rn">Ice</div><div><h4>IJsbaan Twente</h4><p data-ed="ct.ice">Home rink, Enschede. Season October – end of March.</p></div></div>
+            <div class="rule-i"><div class="rn">Mail</div><div><h4>bestuur@slappingstuds.nl</h4><p data-ed="ct.mail">General inquiries to the whole board.</p></div></div>
+            <div class="rule-i"><div class="rn">Web</div><div><h4>webcom@slappingstuds.nl</h4><p data-ed="ct.web">Anything to do with the website or e-mail facilities.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="fcol">
+        <div class="wordmark" style="margin-bottom:14px"><span class="n" style="font-size:24px">Slapping Studs</span><span class="s">SIJHV · EST. 1982 · ENSCHEDE</span></div>
+        <p class="body" style="font-size:13.5px;max-width:34ch" data-ed="ft.b">The oldest student ice hockey association in the Netherlands, affiliated with the University of Twente.</p>
+      </div>
+      <div class="fcol"><h5>Club</h5><a href="#/about">About us</a><a href="#/history">History</a><a href="#/training">Training</a><a href="#/players">Players</a></div>
+      <div class="fcol"><h5>Play</h5><a href="#/games">Fixtures &amp; results</a><a href="#/games">Competitions</a><a href="#/hockey">New to hockey</a><a href="#/hockey">Gear</a></div>
+      <div class="fcol"><h5>Members</h5><a href="#/pictures">Pictures</a><a href="#/signin">Sign in</a><a href="#/contact">Contact the board</a><a href="#/archive">News archive</a></div>
+    </div>
+    <div class="fbot">
+      <span>Design proposal · 2026 · not the live site</span>
+      <span>Postbus 217, 7500 AE Enschede · bestuur@slappingstuds.nl</span>
+    </div>
+  </div>
+</footer>
+
+<!-- admin layer: bar, drawer scrim, drawer, toast -->
+<div class="adminbar" id="adminbar"></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<div class="toast" id="toast"></div>
+
+<!-- Load order: content and roles, then the engine.
+     Plain scripts, not modules, so index.html can be opened
+     straight from disk without a local server. -->
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/core.js"></script>
+<script src="js/views.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
