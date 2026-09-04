@@ -88,7 +88,7 @@ section.page.on{display:block}
 .hero{position:relative;min-height:min(84vh,700px);display:flex;align-items:flex-end;padding-top:120px;padding-bottom:34px;overflow:hidden}
 .hero .ph{position:absolute;inset:0;border:0}
 .hero .ph::after{bottom:26px;left:var(--pad)}
-.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,13,14,.55) 0%,rgba(12,13,14,.18) 38%,rgba(12,13,14,.92) 100%)}
+.hero .veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(12,13,14,.55) 0%,rgba(12,13,14,.18) 38%,rgba(12,13,14,.92) 100%)}
 .hero .wrap{position:relative;width:100%}
 .hero .d1{margin-block:14px 20px}
 .hero .d1 em{font-style:normal;color:var(--gold)}
@@ -122,3 +122,8 @@ footer{background:#08090A;padding-block:56px 34px;border-top:1px solid var(--lin
   .chapmedia{grid-template-columns:1fr 1fr}
   .acct .an2{display:none}
 }
+
+/* "Want to join?" sits in the header next to sign-in, because a
+   first-time visitor is far more likely to want that than a login. */
+.chip-join{border-color:var(--gold);color:var(--gold)}
+.chip-join:hover{background:var(--gold);color:#141210}

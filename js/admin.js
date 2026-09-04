@@ -22,6 +22,8 @@
       else el.removeAttribute("contenteditable");
     });
     $$(".addtile").forEach(function(b){ b.style.display = S.state.editing ? "block" : "none"; });
+    /* photo slots grow (or lose) their upload button here */
+    S.applyPhotos();
     S.renderAdminBar();
     S.renderAccount();
   };
@@ -107,6 +109,10 @@
         '<p class="eyebrow" style="color:var(--danger)">Danger zone</p>'+
         '<h2 class="disp d3" style="margin:14px 0 20px">Reset the demo</h2>'+
         '<p class="body">Every change you make lives in this browser only — nothing is sent anywhere and no other visitor sees it. Reset puts all content back to the version in js/data.js.</p>'+
+        '<dl class="summary" style="margin-top:24px"><div><dt>Stored right now</dt><dd>'+esc(S.storageUsed())+
+          ' of roughly 5 MB</dd></div><div><dt>Uploaded photos</dt><dd>'+
+          (Object.keys(C().images||{}).length + C().albums.reduce(function(n,a){return n+(a.photos||[]).length;},0))+
+          '</dd></div></dl>'+
         '<div style="display:flex;gap:8px;margin-top:26px;flex-wrap:wrap">'+
         '<button class="btn btn-sm btn-del" data-act="reset">Reset all content</button>'+
         '<button class="btn btn-sm" data-act="export">Copy content as JSON</button></div>'+
@@ -258,5 +264,27 @@
   };
 
   S.drawerContext = function(){ return ctx; };
+
+  /* ---------------- photo slot menu -------------------------
+     A slot that already holds a photo offers replace or remove
+     instead of silently overwriting what is there. */
+  S.closePhotoMenu = function(){
+    var m = document.querySelector(".photomenu");
+    if(m) m.remove();
+  };
+
+  S.openPhotoMenu = function(anchor, slot){
+    S.closePhotoMenu();
+    var m = document.createElement("div");
+    m.className = "photomenu";
+    m.innerHTML =
+      '<button data-photoreplace="'+esc(slot)+'">Replace photo</button>'+
+      '<button data-photoremove="'+esc(slot)+'">Remove photo</button>';
+    document.body.appendChild(m);
+    var r = anchor.getBoundingClientRect();
+    m.style.top  = (r.bottom + window.pageYOffset + 6) + "px";
+    m.style.left = Math.min(r.left + window.pageXOffset,
+                            window.innerWidth - m.offsetWidth - 12) + "px";
+  };
 
 })(window.Studs);

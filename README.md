@@ -52,6 +52,7 @@ last. `index.html` documents both.
 | Who is allowed to do what | `js/auth.js` |
 | How the header hides and reappears | `js/app.js`, `bindHeader()` |
 | A new content collection | `js/core.js` schema, then a renderer in `js/views.js` |
+| Which sub-menu item goes where | `renderNav()` in `js/views.js` |
 
 ## Design rules worth keeping
 
@@ -71,7 +72,13 @@ window — editing tools cannot live in a bar that disappears.
 
 **Photos are never faked.** Anything without a real photograph renders as a
 hatched slot with a caption saying what belongs there. See
-`assets/photos/README.md` for how to fill them.
+`assets/photos/README.md` for how to fill them from the filesystem, and
+"Editing pictures" below for doing it from the site.
+
+**Every dropdown item goes somewhere.** Sub-menu links either open another page
+or scroll to a section (`#/hockey/gear`, `#/contact/find`) or set a filter
+(`#/pictures/tournaments`). A menu that does not move you is worse than no menu,
+so if you add an item, give it a real destination and a `data-sec` anchor.
 
 ## How content is stored
 
@@ -84,6 +91,26 @@ This is deliberate for a prototype whose passwords are printed on the sign-in
 page: anyone can log in as admin, delete everything, and hit reset. To make an
 edit permanent for everyone, use **Admin console → Danger zone → Copy content
 as JSON** and paste the result back into `js/data.js`.
+
+## Editing pictures from the site
+
+No code needed. Sign in as admin, turn on **Edit on page**, and hover any photo
+slot — hero, news post, player portrait, board portrait, history chapter. A
+button appears; pick a file and it is resized and saved. A slot that already has
+a photo offers replace or remove instead of overwriting silently.
+
+Album photos work differently, because members need them too: open any album in
+**Pictures** and use **Add photos** (multiple files at once). Members, coaches
+and the board can all upload; the first photo added becomes the album cover.
+
+Uploads are downscaled on a canvas before they are stored — 1600px for page
+slots, 1400px for album photos, JPEG quality 0.78. Full-size camera files would
+exhaust the browser's ~5 MB storage in three uploads. Current usage is shown in
+**Admin console → Danger zone**, and a failed write says so rather than
+pretending it worked.
+
+For photos that should ship with the project rather than live in one browser,
+put the file in `assets/photos/` and add `data-img` to the slot instead.
 
 ## Accounts
 
@@ -106,14 +133,17 @@ specification and the checks move server-side.
 - [ ] Real photographs (see `assets/photos/README.md`)
 - [ ] Real history: the 1990s / 2010 / 2018 timeline markers are invented
 - [ ] Resolve the championship date — U-Today reports a first title in 42 years (≈2024), the club's own news dates the 5th division title to March 2026
-- [ ] Real player names, numbers and statistics
+- [ ] Per-player statistics: the roster is real, the scoring figures are generated
+- [ ] Past results: `pastgames` in `js/data.js` is placeholder structure only
 - [ ] A mobile menu — `nav` is currently hidden below 980 px (`css/layout.css`)
 - [ ] A back end for accounts, the gallery, and the contact form
 - [ ] Remove every `.note` block; they are notes to the client, not site content
 
 ## Content sources
 
-Club facts are taken from [slappingstuds.nl](https://slappingstuds.nl) and
+The roster (names, numbers, positions, squads), the board and the rink address
+are the club's own published data. Club facts are taken from
+[slappingstuds.nl](https://slappingstuds.nl) and
 [U-Today](https://www.utoday.nl/united/74076/the-slapping-studs-on-and-off-the-ice-a-close-knit-group).
 Anything not from those two is marked as placeholder, on the page and in
 `js/data.js`.

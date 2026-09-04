@@ -24,8 +24,12 @@ window.Studs = window.Studs || {};
     defaults: {},     // original text of every [data-ed] block
     editing:  false,  // inline edit mode on/off
     plFilter: "All",  // roster team filter
+    picFilter:"all",  // gallery section filter (games/tournaments/promo/coach)
+    openAlbum:null,   // album id when an album is opened
+    pgSeason: "all",  // past-games season filter
     adTab:    "news", // admin console collection
-    lastDeleted: null // for the undo toast
+    lastDeleted: null,// for the undo toast
+    joinSent: null    // the sign-up just submitted, for the thank-you state
   };
 
   /* ---------- tiny helpers --------------------------------- */
@@ -54,7 +58,83 @@ window.Studs = window.Studs || {};
     }catch(e){ return S.clone(S.seed); }
   };
   S.save = function(){
-    try{ localStorage.setItem(S.KEY_CONTENT, JSON.stringify(S.state.content)); }catch(e){}
+    try{
+      localStorage.setItem(S.KEY_CONTENT, JSON.stringify(S.state.content));
+      return true;
+    }catch(e){
+      /* Almost always the 5 MB quota, hit by uploaded photos.
+         Fail loudly — silently dropping someone's upload is worse. */
+      S.toast("Storage full — delete some photos before adding more");
+      return false;
+    }
+  };
+
+  /* ---------- uploaded images ------------------------------
+     Photos live as data URLs in content.images, keyed by slot
+     ("hero", "news:n1", "player:pl01", "album:al1"). Album
+     photo arrays hold their data URLs directly. */
+  S.getImage = function(slot){ return (S.state.content.images||{})[slot] || ""; };
+  S.setImage = function(slot,dataUrl){
+    if(!S.state.content.images) S.state.content.images = {};
+    S.state.content.images[slot] = dataUrl;
+    return S.save();
+  };
+  S.clearImage = function(slot){
+    if(S.state.content.images) delete S.state.content.images[slot];
+    S.save();
+  };
+
+  /* Rough size of what we are storing, for the Danger zone. */
+  S.storageUsed = function(){
+    try{
+      var bytes = new Blob([JSON.stringify(S.state.content)]).size;
+      return (bytes/1048576).toFixed(2) + " MB";
+    }catch(e){ return "unknown"; }
+  };
+
+  /* Read a File, downscale it on a canvas and hand back a data
+     URL. Full-size camera files would blow the storage quota in
+     three uploads, so everything is resized on the way in. */
+  S.readImageFile = function(file, maxW, cb){
+    if(!file || !/^image\//.test(file.type)){ S.toast("That is not an image file"); return; }
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var img = new Image();
+      img.onload = function(){
+        var scale = Math.min(1, maxW / img.width);
+        var w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+        var c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img,0,0,w,h);
+        cb(c.toDataURL("image/jpeg",0.78));
+      };
+      img.onerror = function(){ S.toast("Could not read that image"); };
+      img.src = ev.target.result;
+    };
+    reader.onerror = function(){ S.toast("Could not read that file"); };
+    reader.readAsDataURL(file);
+  };
+
+  /* One reusable hidden file input for every uploader on the page. */
+  S.pickImage = function(opts){
+    var input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    if(opts.multiple) input.multiple = true;
+    input.style.display = "none";
+    document.body.appendChild(input);
+    input.addEventListener("change", function(){
+      var files = Array.prototype.slice.call(input.files || []);
+      var done = 0, results = [];
+      if(!files.length){ input.remove(); return; }
+      files.forEach(function(f,i){
+        S.readImageFile(f, opts.maxW || 1200, function(url){
+          results[i] = url; done++;
+          if(done === files.length){ opts.onPick(results.filter(Boolean)); input.remove(); }
+        });
+      });
+    });
+    input.click();
   };
   S.loadSession = function(){
     try{ var raw = localStorage.getItem(S.KEY_SESSION); return raw ? JSON.parse(raw) : null; }
@@ -132,22 +212,37 @@ window.Studs = window.Studs || {};
 
     players: {label:"Players", cols:["no","name","pos","team"], fields:[
                ["no","Number","text"],["name","Name","text"],
-               ["pos","Position","select:Forward,Defence,Goaltender"],
-               ["team","Team","select:Stallions,Studs 1,Studs 2,Rookies"],
-               ["gp","Games played","text"],["g","Goals","text"],
-               ["a","Assists","text"],["pim","Penalty minutes","text"]]},
+               ["pos","Position","select:Goaltender,Defence,Forward"],
+               ["team","Team","select:Studs 1,Studs 2,Stallions,Cadets"]]},
+
+    staff:   {label:"Coaching staff", cols:["name","role"], fields:[
+               ["name","Name","text"],["role","Role","text"]]},
 
     games:   {label:"Games", cols:["date","team","fixture","result"], fields:[
-               ["date","Date","text"],["team","Team","select:Stallions,Studs 1,Studs 2"],
+               ["date","Date","text"],["team","Team","select:Stallions,Studs 1,Studs 2,Cadets"],
+               ["fixture","Fixture","text"],["venue","Venue","text"],
+               ["result","Result","text"],["outcome","Outcome","select:,w,l"]]},
+
+    pastgames:{label:"Past games", cols:["season","date","team","fixture","result"], fields:[
+               ["season","Season","text"],["date","Date","text"],
+               ["team","Team","select:Stallions,Studs 1,Studs 2,Cadets"],
                ["fixture","Fixture","text"],["venue","Venue","text"],
                ["result","Result","text"],["outcome","Outcome","select:,w,l"]]},
 
     comps:   {label:"Competitions", cols:["title","body"], fields:[
                ["title","Title","text"],["body","Description","textarea"]]},
 
-    albums:  {label:"Photo albums", cols:["title","meta","vis"], fields:[
+    albums:  {label:"Photo albums", cols:["title","meta","cat","vis"], fields:[
                ["title","Album title","text"],["meta","Meta line","text"],
+               ["cat","Section","select:games,tournaments,promo,coach"],
                ["vis","Visible to","select:public,member,coach"]]},
+
+    signups: {label:"Sign-ups", cols:["name","email","experience","status"], fields:[
+               ["name","Name","text"],["email","E-mail","text"],
+               ["study","Student status","text"],["experience","Experience","text"],
+               ["session","Session wanted","text"],["note","Note","textarea"],
+               ["date","Received","text"],
+               ["status","Status","select:new,contacted,joined,declined"]]},
 
     board:   {label:"Board members", cols:["name","role","email"], fields:[
                ["name","Name","text"],["role","Role","text"],["email","E-mail","text"]]},

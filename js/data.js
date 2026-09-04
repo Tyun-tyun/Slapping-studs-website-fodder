@@ -19,7 +19,7 @@ window.Studs.seed = {
     {id:"s1",k:"Season 25/26 · 5th div. north",v:"Champions",n:"Striking Stallions"},
     {id:"s2",k:"Season 25/26 · 6th div. north",v:"2nd place",n:"Slapping Studs 1"},
     {id:"s3",k:"On the ice since",v:"1982",n:"44 seasons"},
-    {id:"s4",k:"Members",v:"50+",n:"3 teams · 25% international"}
+    {id:"s4",k:"Members",v:"50+",n:"4 squads · 25% international"}
   ],
 
   /* status: "published" is public, "draft" is admin-only and
@@ -46,15 +46,84 @@ window.Studs.seed = {
     {id:"e5",dd:"24",mm:"Aug",title:"Kick-In · Studs stand",meta:"All day · Campus UT",kind:""}
   ],
 
-  /* PLACEHOLDER — real names, numbers and figures needed.
-     gp/g/a/pim feed the scoring table; points are computed. */
+  /* REAL ROSTER, taken from slappingstuds.nl/players (names,
+     numbers, positions and squad are the club's own published
+     data). "#0" means no number assigned yet — rendered as "—".
+     Scoring figures are NOT public and are not stored here;
+     the scoring table generates illustrative numbers and says so.
+     pos:  Goaltender | Defence | Forward
+     team: Studs 1 | Studs 2 | Stallions | Cadets            */
   players:[
-    {id:"p1",no:"17",name:"Player name",pos:"Forward",team:"Stallions",gp:14,g:18,a:11,pim:6},
-    {id:"p2",no:"4", name:"Player name",pos:"Defence",team:"Stallions",gp:13,g:3, a:15,pim:22},
-    {id:"p3",no:"31",name:"Player name",pos:"Goaltender",team:"Studs 1",gp:12,g:0,a:1, pim:0},
-    {id:"p4",no:"9", name:"Player name",pos:"Forward",team:"Studs 1",gp:14,g:12,a:14,pim:10},
-    {id:"p5",no:"22",name:"Player name",pos:"Defence",team:"Studs 2",gp:14,g:2, a:9, pim:14},
-    {id:"p6",no:"88",name:"Player name",pos:"Forward",team:"Studs 2",gp:11,g:7, a:5, pim:4}
+    /* --- goaltenders --- */
+    {id:"pl01",no:"31",name:"Sean Lokerse",pos:"Goaltender",team:"Studs 2"},
+    {id:"pl02",no:"44",name:"Sylvio van Ditzhuyzen",pos:"Goaltender",team:"Stallions"},
+    {id:"pl03",no:"45",name:"Branislav Javor",pos:"Goaltender",team:"Studs 1"},
+    {id:"pl04",no:"48",name:"Tiemen English",pos:"Goaltender",team:"Studs 1"},
+
+    /* --- defence --- */
+    {id:"pl05",no:"2", name:"Kira Khalil",pos:"Defence",team:"Studs 2"},
+    {id:"pl06",no:"7", name:"Eva Bramer",pos:"Defence",team:"Studs 1"},
+    {id:"pl07",no:"10",name:"Bas Pellen",pos:"Defence",team:"Stallions"},
+    {id:"pl08",no:"12",name:"Elmer Lastdrager",pos:"Defence",team:"Cadets"},
+    {id:"pl09",no:"18",name:"Paul Harms",pos:"Defence",team:"Studs 2"},
+    {id:"pl10",no:"19",name:"Samuel Pozdech",pos:"Defence",team:"Studs 1"},
+    {id:"pl11",no:"50",name:"Casper Lastdrager",pos:"Defence",team:"Stallions"},
+    {id:"pl12",no:"66",name:"Benthe Evers",pos:"Defence",team:"Studs 1"},
+    {id:"pl13",no:"83",name:"Joël Harms",pos:"Defence",team:"Stallions"},
+    {id:"pl14",no:"88",name:"Mark Tool",pos:"Defence",team:"Studs 2"},
+    {id:"pl15",no:"96",name:"Ino Lambers",pos:"Defence",team:"Cadets"},
+    {id:"pl16",no:"97",name:"Emil Gravier",pos:"Defence",team:"Studs 1"},
+    {id:"pl17",no:"0", name:"Bas Bloemendal",pos:"Defence",team:"Cadets"},
+    {id:"pl18",no:"0", name:"Maud van Oost",pos:"Defence",team:"Studs 2"},
+    {id:"pl19",no:"0", name:"Sef Theunissen",pos:"Defence",team:"Studs 2"},
+    {id:"pl20",no:"0", name:"Lieke de Rooij",pos:"Defence",team:"Studs 2"},
+    {id:"pl21",no:"0", name:"Roos Heij",pos:"Defence",team:"Studs 2"},
+    {id:"pl22",no:"0", name:"Meike Gellweiler",pos:"Defence",team:"Cadets"},
+    {id:"pl23",no:"0", name:"Elisabeth van der Paardt",pos:"Defence",team:"Studs 2"},
+    {id:"pl24",no:"0", name:"Krištof Husár",pos:"Defence",team:"Stallions"},
+    {id:"pl25",no:"0", name:"Matthijs Deunk",pos:"Defence",team:"Studs 2"},
+    {id:"pl26",no:"0", name:"Thomas Ryder-Hansen",pos:"Defence",team:"Studs 2"},
+    {id:"pl27",no:"0", name:"Mees Visser",pos:"Defence",team:"Cadets"},
+    {id:"pl28",no:"0", name:"Janine Bosma",pos:"Defence",team:"Cadets"},
+    {id:"pl29",no:"0", name:"Puck Heijstek",pos:"Defence",team:"Cadets"},
+    {id:"pl30",no:"0", name:"Linda Borkhuis",pos:"Defence",team:"Cadets"},
+    {id:"pl31",no:"0", name:"Fenna van der Werff",pos:"Defence",team:"Studs 2"},
+    {id:"pl32",no:"0", name:"Meike Blaauw",pos:"Defence",team:"Cadets"},
+    {id:"pl33",no:"0", name:"Tomáš Bartošovič",pos:"Defence",team:"Stallions"},
+
+    /* --- forwards --- */
+    {id:"pl34",no:"5", name:"Zsombor Zoltan Ivanyi",pos:"Forward",team:"Cadets"},
+    {id:"pl35",no:"8", name:"Luca Patty",pos:"Forward",team:"Studs 1"},
+    {id:"pl36",no:"17",name:"Roxy Fokker",pos:"Forward",team:"Stallions"},
+    {id:"pl37",no:"21",name:"Kenzy Sanjaya",pos:"Forward",team:"Studs 2"},
+    {id:"pl38",no:"22",name:"Kim Zwart",pos:"Forward",team:"Stallions"},
+    {id:"pl39",no:"24",name:"David den Boer",pos:"Forward",team:"Cadets"},
+    {id:"pl40",no:"24",name:"Kylar de Boer",pos:"Forward",team:"Studs 2"},
+    {id:"pl41",no:"26",name:"Iris Kouwenberg",pos:"Forward",team:"Studs 1"},
+    {id:"pl42",no:"27",name:"Iris van Veldhuizen",pos:"Forward",team:"Studs 2"},
+    {id:"pl43",no:"33",name:"Ruben Bralts",pos:"Forward",team:"Stallions"},
+    {id:"pl44",no:"36",name:"Frank Lammers",pos:"Forward",team:"Stallions"},
+    {id:"pl45",no:"40",name:"Matthias Kruit",pos:"Forward",team:"Stallions"},
+    {id:"pl46",no:"44",name:"Daniel Simon",pos:"Forward",team:"Studs 1"},
+    {id:"pl47",no:"46",name:"Danny van der Goot",pos:"Forward",team:"Stallions"},
+    {id:"pl48",no:"52",name:"Roman Tyunkin",pos:"Forward",team:"Stallions"},
+    {id:"pl49",no:"58",name:"Roselieke Kuiken",pos:"Forward",team:"Studs 2"},
+    {id:"pl50",no:"61",name:"Vito Böke",pos:"Forward",team:"Stallions"},
+    {id:"pl51",no:"68",name:"Charlotte van Mourik",pos:"Forward",team:"Studs 1"},
+    {id:"pl52",no:"71",name:"Sean Berkenpas",pos:"Forward",team:"Studs 1"},
+    {id:"pl53",no:"75",name:"Andries-Jan van der Werff",pos:"Forward",team:"Studs 2"},
+    {id:"pl54",no:"77",name:"Wieland Nobel",pos:"Forward",team:"Studs 2"},
+    {id:"pl55",no:"93",name:"Are Jilesen",pos:"Forward",team:"Studs 1"},
+    {id:"pl56",no:"94",name:"Anthony Mammoliti",pos:"Forward",team:"Stallions"},
+    {id:"pl57",no:"95",name:"Alexandru Condu",pos:"Forward",team:"Studs 1"},
+    {id:"pl58",no:"99",name:"Daan Westerhof",pos:"Forward",team:"Stallions"},
+    {id:"pl59",no:"0", name:"Caitlin Snijders",pos:"Forward",team:"Cadets"}
+  ],
+
+  /* Coaching staff and mascot — shown under the roster. */
+  staff:[
+    {id:"sf1",name:"Tony Tran-Chau",role:"Coach"},
+    {id:"sf2",name:"Slappy the Stud",role:"Mascot"}
   ],
 
   /* outcome: "w" | "l" | "" (not played yet) */
@@ -67,6 +136,18 @@ window.Studs.seed = {
     {id:"g6",date:"22.02.26",team:"Studs 1",fixture:"Slapping Studs 1 — Slapping Studs 2",venue:"IJsbaan Twente",result:"5–3 W",outcome:"w"}
   ],
 
+  /* PLACEHOLDER — past results are not published anywhere we
+     could read them. Structure is real; fill from the club's
+     own records, season by season. */
+  pastgames:[
+    {id:"pg1",season:"2024–25",date:"29.03.25",team:"Studs 1",fixture:"Slapping Studs 1 — Zoetermeer Wild Panters",venue:"IJsbaan Twente",result:"3–2 W",outcome:"w"},
+    {id:"pg2",season:"2024–25",date:"15.03.25",team:"Stallions",fixture:"Loki Amsterdam — Slapping Studs",venue:"Jaap Eden, Amsterdam",result:"5–1 L",outcome:"l"},
+    {id:"pg3",season:"2024–25",date:"01.02.25",team:"Studs 2",fixture:"Slapping Studs 2 — OG Capitals Leeuwarden 6",venue:"IJsbaan Twente",result:"4–4 D",outcome:""},
+    {id:"pg4",season:"2023–24",date:"17.03.24",team:"Studs 1",fixture:"Blue Mountain Cougars Hoorn 3 — Slapping Studs 1",venue:"De Westfries, Hoorn",result:"2–6 W",outcome:"w"},
+    {id:"pg5",season:"2023–24",date:"03.02.24",team:"Stallions",fixture:"Slapping Studs — Slapstick Flyers Heerenveen",venue:"IJsbaan Twente",result:"2–3 L",outcome:"l"},
+    {id:"pg6",season:"2022–23",date:"11.03.23",team:"Studs 1",fixture:"NSK final round",venue:"Tilburg",result:"4th",outcome:""}
+  ],
+
   comps:[
     {id:"c1",title:"Fifth division North",body:"Striking Stallions. Slapstick Flyers Heerenveen, Leiden Blues, Leiden Key Town Tigers, Loki Amsterdam, OG Capitals Leeuwarden 5, Blue Mountain Cougars Hoorn 2, Gijs Groningen 4."},
     {id:"c2",title:"Sixth division North",body:"Slapping Studs 1 and 2. HELA Amsterdam, Blue Mountain Cougars Hoorn 3, OG Capitals Leeuwarden 6, Enschede Lions, Zoetermeer Wild Panters — and each other."},
@@ -74,13 +155,17 @@ window.Studs.seed = {
     {id:"c4",title:"Night tournament",body:"Our own end-of-season tournament at IJsbaan Twente. Hockey and a party, played into the night."}
   ],
 
-  /* vis: "public" | "member" | "coach" — drives who sees the album */
+  /* vis: "public" | "member" | "coach"  — who may open it
+     cat: "games" | "tournaments" | "promo" | "coach" — dropdown filter
+     cover / photos are filled by uploading through the site;
+     both hold data URLs, never file paths.                   */
   albums:[
-    {id:"al1",title:"Stallions — championship night",meta:"22 March 2026 · 148 photos",vis:"member"},
-    {id:"al2",title:"Night tournament '26",meta:"26 April 2026 · 312 photos",vis:"member"},
-    {id:"al3",title:"NSK weekend",meta:"Two days · 204 photos",vis:"member"},
-    {id:"al4",title:"Kick-In promo",meta:"August 2025 · 61 photos",vis:"public"},
-    {id:"al5",title:"Coach film — powerplay drills",meta:"Internal · 24 clips",vis:"coach"}
+    {id:"al1",title:"Stallions — championship night",meta:"22 March 2026 · 148 photos",vis:"member",cat:"games",cover:"",photos:[]},
+    {id:"al2",title:"Night tournament '26",meta:"26 April 2026 · 312 photos",vis:"member",cat:"tournaments",cover:"",photos:[]},
+    {id:"al3",title:"NSK weekend",meta:"Two days · 204 photos",vis:"member",cat:"tournaments",cover:"",photos:[]},
+    {id:"al4",title:"Kick-In promo",meta:"August 2025 · 61 photos",vis:"public",cat:"promo",cover:"",photos:[]},
+    {id:"al5",title:"Coach film — powerplay drills",meta:"Internal · 24 clips",vis:"coach",cat:"coach",cover:"",photos:[]},
+    {id:"al6",title:"Studs 2 vs. Enschede Lions",meta:"18 April 2026 · 96 photos",vis:"member",cat:"games",cover:"",photos:[]}
   ],
 
   /* Real board, from slappingstuds.nl. Update after each AGM. */
@@ -100,7 +185,7 @@ window.Studs.seed = {
     {id:"t3",yr:"2010",lb:"Second team",body:"Numbers outgrow one squad. Studs 1 and Studs 2 enter competition separately; the ice is split into training groups by level."},
     {id:"t4",yr:"2018",lb:"English on the ice",body:"International students pass a quarter of the membership. Practices, game sheets and the website switch to English as the working language."},
     {id:"t5",yr:"2026",lb:"First title",body:"The Striking Stallions take the 5th Division North. Studs 1 finish second in the 6th Division North the same season."},
-    {id:"t6",yr:"Today",lb:"Three teams",body:"50+ members, one coach, a rookie group every autumn and an Off-Ice Committee that keeps the calendar full when the rink is closed."}
+    {id:"t6",yr:"Today",lb:"Four squads",body:"50+ members across Studs 1, Studs 2, the Striking Stallions and the Cadets, one coach, and an Off-Ice Committee that keeps the calendar full when the rink is closed."}
   ],
 
   gear:[
@@ -123,7 +208,7 @@ window.Studs.seed = {
 
   steps:[
     {id:"st1",n:"Step 1",title:"Sign up for an intro practice",body:"Two free introduction practices run each year, usually early in the season. Skates, stick, helmet and full protective gear are provided at the rink — bring nothing but sports clothes."},
-    {id:"st2",n:"Step 2",title:"Come to a regular training",body:"Liked it? Join a normal training hour any time during the season. Mail a board member and we'll put you in the right group."},
+    {id:"st2",n:"Step 2",title:"Come to a regular training",body:"Liked it? Join a normal training hour any time during the season. The board puts you in the group that fits your level."},
     {id:"st3",n:"Step 3",title:"Get your Campus Card",body:"We're subsidised by the university, so all members need a UT Campus Card. Not a UT or Saxion student? Still possible — the card costs more."},
     {id:"st4",n:"Step 4",title:"Get your own gear",body:"Once you're staying, you'll want your own skates and protection. We'll tell you what to buy first, what to buy second, and what to borrow for another season."}
   ],
@@ -136,8 +221,19 @@ window.Studs.seed = {
     {id:"a4",season:"2022–23",posts:"21",highlight:"NSK hosted in Enschede",tags:"nsk · event"}
   ],
 
-  /* Overrides for inline-edited text blocks, keyed by the
-     data-ed attribute in index.html. Starts empty; the admin
-     fills it by editing on the page. */
-  copy:{}
+  /* Membership applications submitted through #/join. The board
+     reviews them in the admin console. Seeded with one example
+     so the review queue is not empty on a first look. */
+  signups:[
+    {id:"su1",name:"Example applicant",email:"example@student.utwente.nl",study:"UT student",
+     experience:"Never played",session:"Intro practice · 11 October",note:"Can I borrow skates in size 46?",
+     date:"03 September 2026",status:"new"}
+  ],
+
+  /* Overrides for inline-edited text blocks, keyed by data-ed. */
+  copy:{},
+
+  /* Uploaded images, keyed by slot name (hero, news:n1, player:pl01…).
+     Values are data URLs written by the in-browser uploader. */
+  images:{}
 };
