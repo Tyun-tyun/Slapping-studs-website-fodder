@@ -88,7 +88,14 @@ section.page.on{display:block}
 .hero{position:relative;min-height:min(84vh,700px);display:flex;align-items:flex-end;padding-top:120px;padding-bottom:34px;overflow:hidden}
 .hero .ph{position:absolute;inset:0;border:0}
 .hero .ph::after{bottom:26px;left:var(--pad)}
-.hero .veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(12,13,14,.55) 0%,rgba(12,13,14,.18) 38%,rgba(12,13,14,.92) 100%)}
+/* Two-axis scrim. The vertical pass seats the hero into the page;
+   the horizontal pass darkens the left third, where the headline
+   sits, so display type stays legible over a busy squad photo
+   while the right of the picture keeps its detail. */
+.hero .veil{position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(12,13,14,.86) 0%,rgba(12,13,14,.62) 34%,rgba(12,13,14,.12) 72%),
+    linear-gradient(180deg,rgba(12,13,14,.7) 0%,rgba(12,13,14,.38) 40%,rgba(12,13,14,.95) 100%)}
 .hero .wrap{position:relative;width:100%}
 .hero .d1{margin-block:14px 20px}
 .hero .d1 em{font-style:normal;color:var(--gold)}
