@@ -1,5 +1,5 @@
 /* ============================================================
-   app.js — router, header behaviour, the single delegated
+   app.js — page setup, header behaviour, the single delegated
    click handler, and boot. Loads last.
    ============================================================ */
 
@@ -7,79 +7,58 @@
   "use strict";
   var $ = S.$, $$ = S.$$;
 
-  /* ---------------- routing ---------------------------------
-     Hash routing keeps the whole site in one file so it can be
-     opened by double-clicking index.html, with no server and
-     no build step. When this becomes a real site with a back
-     end, each id below becomes its own URL.                    */
-  var PAGES = ["home","history","players","games","pastgames","news","archive","about",
-               "training","hockey","pictures","contact","join","signin","admin"];
+  /* ---------------- pages -----------------------------------
+     There is no client-side router any more. Every page is its
+     own document, the browser navigates between them, and each
+     one says what it is in <body data-page> / <body data-nav>.
+     Links are built by Studs.url() in js/routes.js.
 
-  /* which top-level nav item lights up for each page */
-  var NAVMAP = {home:"home", news:"news", archive:"news",
-                players:"team", about:"team", training:"team", history:"team",
-                games:"games", pastgames:"games", hockey:"hockey", pictures:"pictures",
-                contact:"contact", join:"contact", admin:"admin"};
+     Section anchors (hockey.html#gear) are plain fragments:
+     the browser scrolls to them and .band[id] carries a
+     scroll-margin-top so the fixed header does not cover the
+     heading. See css/layout.css.
 
-  /* A hash is #/page or #/page/section. The second segment is a
-     section on that page (Hockey, Contact) or a filter it sets
-     (Pictures). Without this the dropdowns are decoration. */
-  function parseHash(){
-    var raw = (location.hash || "#/home").replace(/^#\//,"");
-    var bits = raw.split("/");
-    return {page: bits[0] || "home", section: bits[1] || ""};
+     What is left here is the little that markup cannot do on
+     its own: refuse a gated page, pick the gallery's filter out
+     of the query string, and light up the right nav item.      */
+
+  /* Refuse a page this visitor may not open. Convenience, not
+     security — the real check belongs on the server. */
+  function guard(){
+    var gate = S.GATED[S.page()];
+    if(gate && !gate()){
+      location.replace(S.url("signin"));
+      return false;
+    }
+    return true;
   }
 
-  /* Scroll a section under the header rather than under the top
-     of the window — the fixed bar is 74px tall. */
-  function scrollToSection(name){
-    var el = document.querySelector('[data-sec="'+name+'"]');
-    if(!el) return;
-    var y = el.getBoundingClientRect().top + window.pageYOffset - 96;
-    window.scrollTo({top: y < 0 ? 0 : y, behavior: "smooth"});
+  /* The gallery reads its section filter and any open album out
+     of the query string, so both survive a reload and can be
+     pasted to someone else. */
+  function readGalleryUrl(){
+    if(S.page() !== "pictures") return;
+    var cats = ["games","tournaments","promo","coach"];
+    var cat  = S.query("cat");
+    S.state.picFilter = cats.indexOf(cat) > -1 ? cat : "all";
+    S.state.openAlbum = S.query("album") || null;
+  }
+
+  /* The sign-up form is on two pages now, and on the home page it
+     sits half way down — so after sending, or after asking for a
+     blank one, put the part that changed on screen instead of
+     throwing the reader back to the top of the document. */
+  function showJoin(sel){
+    var el = $(sel);
+    if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior:"smooth"});
+    else window.scrollTo(0,0);
   }
 
   S.markNav = function(){
-    var id = parseHash().page;
+    var current = document.body.dataset.nav || "";
     $$(".navitem").forEach(function(n){
-      n.classList.toggle("active", n.dataset.nav === NAVMAP[id]);
+      n.classList.toggle("active", n.dataset.nav === current);
     });
-  };
-
-  S.route = function(){
-    var h = parseHash(), id = h.page, section = h.section;
-    if(PAGES.indexOf(id) === -1) id = "home";
-    if(id === "admin" && !S.isAdmin()) id = "signin";   // gate the console
-
-    /* Pictures uses its second segment as an album filter, and
-       leaving the page closes whatever album was open. */
-    if(id === "pictures"){
-      var cats = ["games","tournaments","promo","coach"];
-      S.state.picFilter = cats.indexOf(section) > -1 ? section : "all";
-      S.state.openAlbum = null;
-      S.renderAlbums();
-    }else if(S.state.openAlbum){
-      S.state.openAlbum = null;
-      S.renderAlbums();
-    }
-
-    PAGES.forEach(function(p){
-      var el = document.getElementById("p-"+p);
-      if(el) el.classList.toggle("on", p === id);
-    });
-
-    S.markNav();
-    S.layoutTimeline();
-
-    if(section && id !== "pictures"){
-      window.scrollTo(0,0);
-      setHeader(0);
-      /* wait for the section to be laid out before measuring it */
-      requestAnimationFrame(function(){ scrollToSection(section); });
-    }else{
-      window.scrollTo(0,0);
-      setHeader(0);
-    }
   };
 
   /* ---------------- header ----------------------------------
@@ -96,6 +75,9 @@
 
   function bindHeader(){
     hdr = $("#hdr");
+    /* A page can open part-way down when the URL carries a
+       fragment, so set the initial state rather than assuming 0. */
+    setHeader(window.scrollY);
     window.addEventListener("scroll", function(){ setHeader(window.scrollY); }, {passive:true});
 
     document.addEventListener("mousemove", function(e){
@@ -122,7 +104,7 @@
     document.addEventListener("click", function(e){
       var t = e.target.closest(
         "[data-login],[data-act],[data-add],[data-edit],[data-del],[data-dup],"+
-        "[data-tab],[data-filt],[data-revert],[data-pgseason],[data-piccat],"+
+        "[data-tab],[data-filt],[data-revert],[data-pgseason],[data-piccat],[data-chapnav],"+
         "[data-album],[data-upload],[data-delphoto],[data-photoslot],"+
         "[data-photoreplace],[data-photoremove],#acctbtn,#scrim");
 
@@ -147,20 +129,21 @@
           if(S.drawerContext()) S.delRecord(S.drawerContext().col, S.drawerContext().id);
           return;
         case "signout": S.signOut(); return;
-        case "console":  location.hash = "#/admin"; S.route(); return;
+        case "console":  location.href = S.url("admin"); return;
         case "reset":    S.reset(); S.renderAll(); S.toast("Demo content reset"); return;
         case "export":   S.exportJSON(); return;
         case "joinagain":
           S.state.joinSent = null; S.renderJoin();
-          window.scrollTo(0,0);
+          showJoin("#joinform");
           return;
         case "newrecord":
           S.openDrawer(S.schema[S.state.adTab] ? S.state.adTab : "news", null);
           return;
         case "inlineedit":
+          /* setEditing stores the flag in the session, so it is
+             still on when the home page finishes loading. */
           S.setEditing(true);
-          location.hash = "#/home"; S.route();
-          S.toast("Inline editing on — click any headline or paragraph");
+          location.href = S.url("home");
           return;
         case "toggleedit":
           S.setEditing(!S.state.editing);
@@ -183,14 +166,30 @@
       if(d.del) { if(!S.isAdmin()) return; var b = d.del.split(":");  S.delRecord(b[0], b[1]); return; }
       if(d.dup) { if(!S.isAdmin()) return; var c = d.dup.split(":");  S.dupRecord(c[0], c[1]); return; }
 
+      /* history chapter nav — scroll to the chapter, open to all */
+      if(d.chapnav){
+        var chEl = document.getElementById("chap-"+d.chapnav);
+        if(chEl) chEl.scrollIntoView({behavior:"smooth", block:"start"});
+        return;
+      }
+
       if(d.tab){ S.state.adTab = d.tab; S.renderAdminNav(); S.renderAdminBody(); return; }
       if(d.filt){ S.state.plFilter = d.filt; S.renderPlayers(); S.applyPhotos(); return; }
       if(d.pgseason){ S.state.pgSeason = d.pgseason; S.renderPastGames(); return; }
-      if(d.piccat){ location.hash = "#/pictures/" + (d.piccat === "all" ? "" : d.piccat); return; }
+      /* Filtering and opening an album stay on this page, so they
+         rewrite the query string instead of navigating. */
+      if(d.piccat){
+        S.state.picFilter = d.piccat;
+        S.state.openAlbum = null;
+        S.replaceUrl(S.picturesUrl(d.piccat, null));
+        S.renderAlbums(); S.applyPhotos();
+        return;
+      }
 
       /* open / close an album */
       if("album" in d){
         S.state.openAlbum = d.album || null;
+        S.replaceUrl(S.picturesUrl(S.state.picFilter, S.state.openAlbum));
         S.renderAlbums(); S.applyPhotos();
         window.scrollTo(0,0);
         return;
@@ -278,7 +277,8 @@
 
     /* Membership application. In the demo it is filed straight
        into the sign-ups collection, which is what the board sees
-       in the admin console. On a real site this would POST. */
+       in the admin console. On a real site the form posts to the
+       back end and this handler goes away. */
     var join = $("#joinformel");
     if(join) join.addEventListener("submit", function(e){
       e.preventDefault();
@@ -300,7 +300,7 @@
       S.renderJoin();
       S.renderAdminNav();
       join.reset();
-      window.scrollTo(0,0);
+      showJoin("#joindone");
       S.toast("Sent to the board");
     });
 
@@ -312,12 +312,28 @@
                    "voorzitter","webcom","secretaris"][this.selectedIndex] || "bestuur";
       $("#routeline").textContent = "Routed to: " + inbox + "@slappingstuds.nl";
     });
+
+    /* Nothing is sent yet, so the contact form must not navigate.
+       Delete this whole handler once its action posts somewhere. */
+    var contact = $("#contactform");
+    if(contact) contact.addEventListener("submit", function(e){
+      e.preventDefault();
+      if(!$("#em").value.trim() || !$("#ms").value.trim()){
+        S.toast("An e-mail address and a message are required");
+        return;
+      }
+      contact.reset();
+      $("#routeline").textContent = "Routed to: voorzitter@slappingstuds.nl";
+      S.toast("Not connected yet — the form has no back end in this prototype");
+    });
   }
 
   /* ---------------- boot ------------------------------------ */
   function boot(){
-    S.state.content = S.load();
     S.state.session = S.loadSession();
+    if(!guard()) return;               // gated page: we are leaving
+
+    S.state.content = S.load();
 
     /* Forward-compatibility: a browser holding an older store
        still gets any collection added to data.js since. */
@@ -326,6 +342,9 @@
       if(!S.state.content[k]) S.state.content[k] = S.clone(S.seed[k]);
     });
 
+
+    readGalleryUrl();
+
     S.captureDefaults();
     S.bindInlineEditing();
     bindHeader();
@@ -333,12 +352,21 @@
     bindForms();
 
     S.renderAll();
-    S.route();
 
-    window.addEventListener("hashchange", S.route);
+    /* Inline edit mode is remembered in the session, so an admin
+       who turns it on keeps it while moving around the site. */
+    if(S.state.session && S.state.session.editing) S.setEditing(true);
+
     window.addEventListener("resize", S.layoutTimeline);
-    /* Webfonts change text width, which moves the timeline nodes */
+    /* Late layout shifts (webfonts, images) change the strip's
+       width, which changes how much room the pin needs. */
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(S.layoutTimeline);
+    window.addEventListener("load", S.layoutTimeline);
+    /* Only the history page has a #tltrack — no point listening
+       to scroll everywhere else for it. */
+    if($("#tltrack")) window.addEventListener("scroll", S.updateTimelineScroll, {passive:true});
+    /* Same idea for the chapter nav's active marker. */
+    if($("#chapbody")) window.addEventListener("scroll", S.updateChapterSpy, {passive:true});
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

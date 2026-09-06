@@ -47,43 +47,104 @@
 .rail.dark .tag.home{color:var(--gold)} .rail.dark .tag.away{color:var(--ice)}
 
 /* ---------------- join cards ------------------------------- */
-.joingrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--line-d);border:1px solid var(--line-d)}
-.jcard{background:var(--ink);padding:30px 26px 28px;display:flex;flex-direction:column;gap:12px;min-height:250px}
-.jcard .num{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--gold)}
-.jcard p{margin:0;font-size:14.5px;color:rgba(237,234,225,.7);line-height:1.55;flex:1}
-.jcard .tlink{align-self:flex-start}
 
-/* ---------------- history timeline -------------------------
-   The ruler is drawn by js/views.js: ticks every 1/60th, then
-   a diamond node + stem + year label positioned under each
-   entry below it. Resize and font-load both re-run it.        */
-.tlwrap{overflow-x:auto;padding-bottom:26px}
-.tl{min-width:1180px;position:relative;padding-top:56px}
-.tlaxis{position:relative;height:1px;background:rgba(237,234,225,.42)}
-.tick{position:absolute;top:0;width:1px;height:5px;background:rgba(237,234,225,.28)}
-.node{position:absolute;top:-4px;width:9px;height:9px;background:var(--bone);transform:rotate(45deg) translateX(-4px)}
-.node.gold{background:var(--gold)}
-.ylab{position:absolute;top:-26px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:rgba(237,234,225,.55);margin-left:-1px}
-.ylab.flag{background:var(--bone);color:var(--ink);padding:2px 6px;font-weight:600;margin-left:-6px}
-.stem{position:absolute;top:0;width:1px;height:52px;background:rgba(237,234,225,.22)}
-.tlitems{position:relative;display:flex;padding-top:52px}
-.tlitem{flex:0 0 auto;padding-right:44px;max-width:250px;position:relative}
-.tlitem .yr{font-family:var(--disp);font-stretch:88%;font-weight:500;font-size:40px;line-height:1}
-.tlitem .lb{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin:12px 0 10px}
-.tlitem p{margin:0;font-size:13.5px;line-height:1.55;color:rgba(237,234,225,.62)}
-.tlitem.faded .yr,.tlitem.faded p{color:rgba(237,234,225,.26)}
-.tlitem.faded .lb{color:rgba(247,195,37,.3)}
+/* ================ HISTORY PAGE ============================= */
 
-/* ---------------- history chapters ------------------------- */
-.chapgrid{display:grid;grid-template-columns:200px minmax(0,1fr);gap:clamp(24px,5vw,70px);align-items:start}
-.chapnav{position:sticky;top:100px;display:flex;flex-direction:column;gap:2px}
-.chapnav a{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;text-decoration:none;color:rgba(237,234,225,.42);padding:9px 0 9px 14px;border-left:1px solid var(--line-d);cursor:pointer}
-.chapnav a.cur,.chapnav a:hover{color:var(--gold);border-left-color:var(--gold)}
-.chapter{padding-block:clamp(34px,5vw,64px);border-top:1px solid var(--line-d)}
-.chapter:first-child{border-top:0;padding-top:0}
-.chapmedia{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}
-.chapmedia .ph{aspect-ratio:4/3}
-.pull{font-family:var(--disp);font-stretch:92%;font-weight:400;font-size:clamp(19px,2.3vw,27px);line-height:1.25;color:var(--bone);border-left:2px solid var(--gold);padding-left:20px;margin:28px 0 0;max-width:34ch}
+/* ---------------- history: timeline -----------------------
+   A dark, full-bleed strip of moments — big photo, punched
+   year, a line of copy. It is wider than the viewport; while
+   .tlpin is stuck to the top, js/views.js turns the page's
+   own vertical scroll into a horizontal translate of #tl
+   (updateTimelineScroll). #tltrack is given exactly enough
+   height for that pan. Nothing scrolls sideways on its own.
+   Below 980px / reduced motion: the pin is dropped and the
+   moments stack in a column (media query further down).      */
+.tltrack{position:relative;background:#0A0B0C;color:var(--bone);box-shadow:inset 0 1px 0 var(--line-d),inset 0 -1px 0 var(--line-d)}
+.tlpin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding-block:clamp(92px,15vh,146px) clamp(56px,9vh,88px)}
+
+/* slow parallax layer: oversized ghost years drifting behind */
+.tlghost{position:absolute;inset:0;display:flex;align-items:center;gap:16vw;padding-inline:8vw;will-change:transform;pointer-events:none}
+.tlghost span{flex:0 0 auto;font-family:var(--disp);font-stretch:58%;font-weight:800;font-size:40vh;line-height:.8;color:rgba(237,234,225,.055);white-space:nowrap}
+
+.tlhead{position:absolute;top:clamp(28px,6vh,60px);left:50%;translate:-50% 0;width:100%;max-width:var(--maxw);padding-inline:var(--pad);display:flex;align-items:center;gap:20px}
+.tlhead .eyebrow{color:rgba(237,234,225,.5)}
+.tlprog{flex:0 1 300px;height:2px;background:rgba(237,234,225,.14);position:relative}
+.tlprog i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--gold);transition:width .1s linear}
+
+.tl{position:relative;width:max-content;will-change:transform;padding-inline:max(var(--pad),9vw)}
+.tlitems{display:flex;align-items:center;gap:clamp(40px,6.5vw,110px)}
+.tlmoment{flex:0 0 auto;width:clamp(256px,37vw,430px);position:relative}
+.tlmoment.faded{opacity:.5}
+.tlshot{position:relative;height:clamp(296px,44vh,436px);overflow:hidden;border:1px solid var(--line-d)}
+.tlshot .ph{position:absolute;inset:0;border:0;background-size:118%}
+.tlyr{position:absolute;left:-.04em;top:-.46em;font-family:var(--disp);font-stretch:60%;font-weight:800;font-size:clamp(52px,6.6vw,104px);line-height:.8;color:#fff;mix-blend-mode:difference;pointer-events:none;letter-spacing:-.01em}
+.tlmeta{position:relative;margin-top:22px;max-width:40ch}
+.tllb{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.tlbody{margin:9px 0 0;font-size:13.5px;line-height:1.58;color:rgba(237,234,225,.62)}
+.tlcap{margin-top:12px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(147,169,184,.7)}
+.tlhint{position:absolute;bottom:clamp(18px,4vh,32px);left:50%;translate:-50% 0;margin:0;font-family:var(--mono);font-size:9px;letter-spacing:.34em;text-transform:uppercase;color:rgba(237,234,225,.34)}
+
+/* ---------------- history: chapters ----------------------
+   Paper. A sticky numbered list on the left, the story on the
+   right. renderChapters() builds both from the `chapters`
+   collection; `media` picks one of three photo layouts,
+   `shots` is how many slots (0–3).                            */
+.histchapters{border-top:3px solid var(--ink)}
+.histchapters>.wrap>.eyebrow{color:#5D6C76}
+.chapgrid{display:grid;grid-template-columns:210px minmax(0,1fr);gap:clamp(28px,6vw,84px);align-items:start;margin-top:34px}
+
+.chapnav{position:sticky;top:100px;display:flex;flex-direction:column}
+.chapnav a{display:flex;gap:11px;align-items:baseline;font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;text-decoration:none;color:rgba(12,13,14,.42);padding:11px 0 11px 16px;border-left:1px solid var(--line-l);cursor:pointer;transition:color .15s,border-color .15s}
+.chapnav a .ci{color:rgba(12,13,14,.3)}
+.chapnav a:hover{color:var(--ink)}
+.chapnav a.cur{color:var(--ink);border-left-color:var(--ink)}
+.chapnav a.cur .ci{color:#8A6A00}
+
+.chapter{position:relative;padding-block:clamp(40px,6vw,80px);border-top:1px solid var(--line-l);scroll-margin-top:104px}
+.chapter:first-child{border-top:0;padding-top:4px}
+.chapmark{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#5D6C76}
+.chapmark::before{content:"";flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--ink)}
+.chh{font-family:var(--disp);font-stretch:78%;font-weight:800;text-transform:uppercase;line-height:.92;font-size:clamp(30px,4.4vw,62px);margin:16px 0 0;color:var(--ink);text-wrap:balance}
+.chlead{font-family:var(--disp);font-stretch:100%;font-weight:400;font-size:clamp(18px,1.9vw,24px);line-height:1.42;color:rgba(12,13,14,.82);margin:22px 0 0;max-width:46ch}
+.chapter .body{margin-top:18px;max-width:60ch}
+.chapter .body+.body{margin-top:15px}
+.chquote{font-family:var(--disp);font-stretch:92%;font-weight:400;font-size:clamp(20px,2.4vw,30px);line-height:1.22;color:var(--ink);border-left:2px solid #8A6A00;padding-left:22px;margin:30px 0 0;max-width:30ch}
+
+.chapmedia{display:grid;gap:14px;margin-top:30px}
+.chapmedia .ph{background:repeating-linear-gradient(122deg,#e5e1d6 0 9px,#dbd7cb 9px 18px);border-color:var(--line-l)}
+.chapmedia .ph::after{color:rgba(12,13,14,.42)}
+.chapmedia .ph::before{background:radial-gradient(120% 90% at 70% 15%,rgba(12,13,14,.06),transparent 60%)}
+.chapmedia.row{grid-template-columns:repeat(3,1fr)}
+.chapmedia.row .ph{aspect-ratio:4/3}
+.chapmedia.wide{grid-template-columns:1fr}
+.chapmedia.wide .ph{aspect-ratio:16/7}
+.chapsplit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:clamp(22px,4vw,52px);align-items:start;margin-top:12px}
+.chapsplit .chapmedia{grid-template-columns:1fr;margin-top:0}
+.chapsplit .chapmedia .ph{aspect-ratio:3/4}
+.chapcap{margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#5D6C76}
+
+@media (max-width:980px),(prefers-reduced-motion:reduce){
+  .tltrack{height:auto !important}
+  .tlpin{position:static;height:auto;overflow:visible;padding-block:clamp(64px,10vw,110px)}
+  .tlghost,.tlhint{display:none}
+  .tlhead{position:static;translate:none;margin:0 auto clamp(40px,7vw,64px);flex-wrap:wrap}
+  .tlprog{display:none}
+  .tl{transform:none !important;width:auto;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--pad)}
+  .tlitems{flex-direction:column;gap:clamp(48px,9vw,80px)}
+  .tlmoment{width:100%;max-width:420px}
+  .tlshot{height:auto;aspect-ratio:4/5}
+  .tlshot .ph{background-size:cover !important;background-position:50% 50% !important}
+  .tlyr{font-size:clamp(44px,12vw,80px);top:-.5em}
+}
+@media (max-width:980px){
+  .chapnav{position:static;flex-direction:row;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .chapnav a{border-left:0;border-bottom:2px solid transparent;white-space:nowrap;padding:10px 18px 10px 0}
+  .chapnav a.cur{border-left-color:transparent;border-bottom-color:var(--ink)}
+}
+@media (max-width:640px){
+  .chapmedia.row{grid-template-columns:1fr 1fr}
+  .chapsplit{grid-template-columns:1fr}
+}
 
 /* ---------------- data tables -------------------------------
    tabular-nums keeps score columns aligned. Never remove it.  */
@@ -118,11 +179,26 @@ tr:hover td{background:rgba(237,234,225,.03)}
 .filt.on{background:var(--gold);border-color:var(--gold);color:#141210;font-weight:600}
 
 /* ---------------- gear, rules, steps ----------------------- */
-.gearlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line-d);border:1px solid var(--line-d)}
-.gear{background:var(--ink);padding:22px;position:relative}
-.gear .g1{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--gold)}
-.gear .g2{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:18px;margin-top:10px}
-.gear p{margin:8px 0 0;font-size:13.5px;color:rgba(237,234,225,.62);line-height:1.5}
+/* ---- gear ---------------------------------------------------
+   A numbered vertical list: index, name and description on the
+   left, a photograph of the piece on the right. The slots ship
+   empty on purpose — they are hatched placeholders until someone
+   photographs the real kit and uploads it. */
+.gearlist{border-top:1px solid var(--line-d)}
+.gear{
+  display:grid;
+  grid-template-columns:52px 1fr minmax(180px,260px);
+  gap:clamp(18px,3vw,40px);
+  align-items:start;
+  padding:26px 0;
+  border-bottom:1px solid var(--line-d);
+  position:relative;
+}
+.gnum{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:rgba(147,169,184,.55);padding-top:4px}
+.gear .g2{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:clamp(20px,2.2vw,27px);line-height:1;margin:0}
+.gear .g1{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-top:9px}
+.gear p{margin:12px 0 0;font-size:14px;color:rgba(237,234,225,.62);line-height:1.6;max-width:52ch}
+.gear .ph{aspect-ratio:4/3}
 .rules{border-top:1px solid var(--line-d)}
 .rule-i{display:grid;grid-template-columns:64px minmax(0,1fr);gap:22px;padding:22px 0;border-bottom:1px solid var(--line-d);align-items:start;position:relative}
 .rule-i .rn{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);padding-top:5px}
@@ -200,6 +276,13 @@ tr:hover td{background:rgba(237,234,225,.03)}
 .joinbody{padding:18px 16px 20px}
 .joinlead{margin:0 0 14px;font-size:14.5px;line-height:1.55;color:rgba(12,13,14,.78)}
 .joinlist{margin:0 0 18px;padding-left:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;line-height:2;color:#5D6C76;text-transform:uppercase}
+/* secondary action under the sign-up button: it needs to be a
+   block to drop onto its own line at all — the button is
+   inline-flex, so an inline-block sibling just sits next to it on
+   the same line no matter what margin-top says. width:fit-content
+   keeps it sized to its text instead of stretching full-width,
+   so the underline still hugs "How it works" rather than the rail. */
+.joinbody .joinmore{display:block;width:fit-content;margin-top:22px}
 
 /* ---------------- roster by position ------------------------ */
 .posgroup{margin-bottom:44px}
@@ -239,9 +322,33 @@ tr:hover td{background:rgba(237,234,225,.03)}
 .album[data-album]{cursor:pointer}
 .album[data-album]:hover .an{color:var(--gold)}
 
-/* ---------------- join page --------------------------------- */
+/* ---------------- sign-up ------------------------------------
+   Shared by join.html and the "Getting in" band on the home page. */
 .joingrid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.85fr);
   gap:clamp(28px,4vw,62px);align-items:start;margin-top:48px}
+
+/* Home page: the aside is a single window rather than a stack of
+   them, and it is held level with the form beside it. "stretch"
+   gives the card the row's full height and .visitcard's map takes
+   up whatever the text below it leaves. join.html keeps the
+   default "start" so its sidebar can stay sticky. */
+.joingrid2.even{align-items:stretch}
+.visitcard{display:flex;flex-direction:column;border:1px solid var(--line-d);background:var(--ink2)}
+.visitcard .ph{border:0;border-bottom:1px solid var(--line-d);flex:1 1 auto;min-height:150px}
+.visitbody{padding:22px 24px 24px}
+.visitbody .addr{margin:12px 0 10px}
+.visitmail{margin:20px 0 0;padding-top:16px;border-top:1px solid var(--line-d);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;line-height:1.7;color:var(--ice)}
+.visitmail a{color:var(--gold);text-decoration:none}
+.visitmail a:hover{text-decoration:underline}
+
+/* base.css caps a form at 560px, which is right for a form in a
+   column and too narrow for one that is the point of the section */
+.bigform{max-width:none;gap:18px}
+.fpair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bigform button[type="submit"]{justify-self:start;padding:15px 30px}
+.formnote{color:var(--ice);letter-spacing:.06em;text-transform:none;margin:0}
+@media (max-width:560px){ .fpair{grid-template-columns:1fr} }
 .joinside{display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
 .steps3{padding:6px 0}
 .s3{display:grid;grid-template-columns:34px minmax(0,1fr);gap:14px;padding:15px 16px;
@@ -255,6 +362,7 @@ tr:hover td{background:rgba(237,234,225,.03)}
 .costbox{border:1px solid var(--line-d);background:var(--ink2);padding:22px}
 .costbig{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;text-transform:uppercase;
   font-size:52px;line-height:1;margin:10px 0 0;color:var(--gold)}
+#joinform,#joindone{scroll-margin-top:104px}
 .donebox{border:1px solid rgba(143,209,176,.45);background:rgba(143,209,176,.06);padding:clamp(24px,4vw,40px)}
 .summary{margin:26px 0 0;display:grid;gap:1px;background:var(--line-d);border:1px solid var(--line-d)}
 .summary>div{background:var(--ink2);display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;padding:13px 16px}
@@ -278,4 +386,9 @@ tr:hover td{background:rgba(237,234,225,.03)}
 @media (max-width:980px){
   .joingrid2,.mapgrid{grid-template-columns:1fr}
   .homeaside,.joinside{position:static}
+  .visitcard .ph{min-height:240px}
+}
+@media (max-width:640px){
+  .gear{grid-template-columns:34px 1fr;gap:16px}
+  .gear .ph{grid-column:2;margin-top:16px}
 }

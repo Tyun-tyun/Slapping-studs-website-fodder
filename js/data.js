@@ -176,18 +176,89 @@ window.Studs.seed = {
     {id:"b4",name:"Danny van der Goot",role:"Game coordinator · Wedstrijdsecretaris",email:"wedstrijdsecretaris@slappingstuds.nl"}
   ],
 
-  /* PARTLY PLACEHOLDER — 1982, 2026 and "Today" are real.
-     The 1990s / 2010 / 2018 markers are invented structure and
-     must be replaced from the club archive before launch. */
+  /* The scrolling timeline on history.html. renderTimeline() in
+     js/views.js turns each row into a moment — photo + big year +
+     one line of copy. The photo uploads into images["timeline:<id>"].
+       yr    the punched year / label (kept short — it is set huge)
+       lb    the headline for the moment
+       body  one or two sentences, no more
+       cap   the small caption line under it (place — date)
+
+     PARTLY PLACEHOLDER — 1982, 2026 and "Today" are real. The
+     1990s / 2000s / 2018 moments are invented structure and must
+     be replaced from the club archive before launch. */
   timeline:[
-    {id:"t1",yr:"1982",lb:"Founded",body:"A group of University of Twente students goes looking for some action and finds it on the ice. The club is affiliated with the university from day one."},
-    {id:"t2",yr:"1990s",lb:"Home ice",body:"IJsbaan Twente becomes the permanent home rink. Season shape settles into October–March, ice out April to October."},
-    {id:"t3",yr:"2010",lb:"Second team",body:"Numbers outgrow one squad. Studs 1 and Studs 2 enter competition separately; the ice is split into training groups by level."},
-    {id:"t4",yr:"2018",lb:"English on the ice",body:"International students pass a quarter of the membership. Practices, game sheets and the website switch to English as the working language."},
-    {id:"t5",yr:"2026",lb:"First title",body:"The Striking Stallions take the 5th Division North. Studs 1 finish second in the 6th Division North the same season."},
-    {id:"t6",yr:"Today",lb:"Four squads",body:"50+ members across Studs 1, Studs 2, the Striking Stallions and the Cadets, one coach, and an Off-Ice Committee that keeps the calendar full when the rink is closed."}
+    {id:"t1",yr:"1982",lb:"Founded",cap:"Enschede · autumn 1982",
+     body:"A handful of University of Twente students go looking for some action and find it on the ice. The club is tied to the university from day one."},
+    {id:"t2",yr:"1990s",lb:"A home rink",cap:"IJsbaan Twente · Colosseum 90",
+     body:"IJsbaan Twente becomes the permanent home rink. The season settles into its lasting shape: on the ice October, off it April."},
+    {id:"t3",yr:"2000s",lb:"English on the ice",cap:"Enschede · mid-2000s",
+     body:"International students pass a quarter of the membership. Training, game sheets and eventually this website switch to English."},
+    {id:"t4",yr:"2018",lb:"Two squads",cap:"5th & 6th Division North",
+     body:"Numbers outgrow one team. Studs 1 and Studs 2 enter competition separately and the ice is split into groups by level."},
+    {id:"t5",yr:"2026",lb:"First title",cap:"5th Division North · March 2026",
+     body:"The Striking Stallions come from 3–1 down to win the decider 4–3 — the first divisional title in the club's history."},
+    {id:"t6",yr:"Today",lb:"Four squads",cap:"Studs 1 · Studs 2 · Stallions · Cadets",
+     body:"50+ members, one coach, and an Off-Ice Committee that keeps the calendar full when the rink is closed."}
   ],
 
+  /* The long-form history under the timeline. renderChapters() in
+     js/views.js turns each row into a <section> and a matching nav
+     link; the nav's current item tracks the scroll.
+       h      "\n" becomes a line break in the heading
+       lead   an optional larger opening line, set before the body
+       body   a blank line starts a new paragraph
+       quote  an optional pull quote
+       cap    an optional caption under the photos
+       shots  how many photo slots to draw (0–3)
+       media  where they sit: "row" (below), "side" (beside the
+              text) or "wide" (one full-width band). Photos upload
+              into images["chapter:<id>:<n>"].
+
+     PARTLY PLACEHOLDER — chapters 01 and 04 are built from the
+     club's own pages. 02, 03 and 05 are plausible structure only
+     and must be checked against the archive before launch. */
+  chapters:[
+    {id:"c1",yr:"01",nav:"The founding",kicker:"Chapter 01 · 1982",
+     h:"Some students,\nlooking for action",
+     lead:"The Slapping Studs were not founded as a project or a plan. They were founded because a rink was there and nobody had booked the ice.",
+     body:"A group of students at the University of Twente wanted something faster than what the campus offered, found IJsbaan Twente, and started showing up. The paperwork — a name, a board, a place in the student sport system — came afterwards.\n\nFour decades later that is still roughly how new members arrive: no tryout, no experience asked for, just the next introduction practice and a borrowed set of gear.",
+     quote:"We're an association first and a team second. The results are what happens along the way.",
+     cap:"Archive — first squads, jerseys, early clippings",
+     shots:"3",media:"row"},
+    {id:"c2",yr:"02",nav:"Growing pains",kicker:"Chapter 02 · 1990s",
+     h:"One rink,\ntoo many skaters",
+     lead:"",
+     body:"By the 1990s the club had outgrown a single training slot. IJsbaan Twente became the fixed home rink and the season took the shape it still has — on the ice from October, off it from April.\n\nThe ice was split into groups by level so a first-year who had never skated and a player with a club background could share the same hour without either standing around. That split is still how a practice is run.",
+     quote:"",
+     cap:"Archive — training nights, IJsbaan Twente",
+     shots:"2",media:"side"},
+    {id:"c3",yr:"03",nav:"Going international",kicker:"Chapter 03 · 2000s",
+     h:"English\non the ice",
+     lead:"A Dutch student club where nobody has to apologise for not speaking Dutch yet — new arrivals still mention it first.",
+     body:"As the University of Twente took in more international students, so did the Studs. Once roughly a quarter of the members were internationals, the working language on the ice, on the game sheets and eventually on this website switched to English.\n\nIt changed how the club recruits: an exchange student with one semester left will still come to an introduction practice, because there is nothing to lose in the language of it.",
+     quote:"",
+     cap:"Archive — a mixed squad, mid-2000s",
+     shots:"1",media:"wide"},
+    {id:"c4",yr:"04",nav:"The title",kicker:"Chapter 04 · 2026",
+     h:"Down 3–1\nafter two periods",
+     lead:"The first divisional title in forty-four seasons, won in the last twenty minutes of the last game.",
+     body:"The Striking Stallions went into the third period of the decisive game a goal short and finished it 4–3, in front of supporters who had travelled with the team.\n\nSlapping Studs 1 finished second in the 6th Division North the same season. It was, by some distance, the best year the club had put together.",
+     quote:"",
+     cap:"March 2026 — the decider, and the bus home",
+     shots:"3",media:"row"},
+    {id:"c5",yr:"05",nav:"Traditions",kicker:"Chapter 05",
+     h:"What happens\nwhen the rink shuts",
+     lead:"",
+     body:"The ice goes out in April and the club does not. The Off-Ice Committee runs the calendar through the summer — the night tournament, drinks, the board handover, the trip that gets planned every year and happens most years.\n\nMembers tend to describe the Studs as the fixed point in their week. The hockey is the excuse; the group is the point.",
+     quote:"",
+     cap:"Off-ice — the parts that are not hockey",
+     shots:"2",media:"side"}
+  ],
+
+  /* "when" is read as "<number> / <priority>": the number leads
+     the row and the priority sits under the name, so keep the
+     slash. Each item's photograph lives in images["gear:<id>"]. */
   gear:[
     {id:"ge1",when:"01 / buy first",title:"Skates",body:"The one thing you shouldn't borrow for long. Fit matters more than price; go a full size below your shoe."},
     {id:"ge2",when:"02 / buy first",title:"Helmet + cage",body:"Full cage or visor. Non-negotiable at every level of Dutch competition."},
@@ -221,7 +292,7 @@ window.Studs.seed = {
     {id:"a4",season:"2022–23",posts:"21",highlight:"NSK hosted in Enschede",tags:"nsk · event"}
   ],
 
-  /* Membership applications submitted through #/join. The board
+  /* Membership applications submitted through join.html. The board
      reviews them in the admin console. Seeded with one example
      so the review queue is not empty on a first look. */
   signups:[

@@ -1,10 +1,16 @@
 /* ============================================================
-   views.js — every render function. Each one owns exactly one
-   container in index.html and rebuilds it from Studs.state.content.
+   views.js — every render function. Each one owns one or more
+   containers and rebuilds them from Studs.state.content.
 
    Convention: a renderer writes innerHTML and nothing else. It
    never attaches listeners — all clicks go through the single
    delegated handler in app.js.
+
+   The site is one document per page, so a renderer only finds
+   its container on the page it belongs to. Each one therefore
+   opens by checking for that container and returning if it is
+   not in this document. That is what lets renderAll() stay a
+   single list which every page can call.
    ============================================================ */
 
 (function(S){
@@ -29,6 +35,7 @@
 
   /* ---------------- home: achievements ---------------------- */
   S.renderStats = function(){
+    if(!$("#statwrap")) return;
     $("#statwrap").innerHTML = C().stats.map(function(s){
       return '<div class="stat" data-item>'+
         '<div class="k">'+esc(s.k)+'</div>'+
@@ -48,13 +55,16 @@
       '<h3 class="ptitle">'+esc(n.title)+'</h3>'+
       '<p class="pex">'+esc(n.excerpt)+'</p></div>'+tools("news",n.id)+'</div>';
   }
+  /* The home page shows the four most recent posts, the news
+     page shows all of them. Neither container is on both. */
   S.renderNews = function(){
-    $("#homefeed").innerHTML = C().news.slice(0,4).map(postHTML).join("");
-    $("#newsfeed").innerHTML = C().news.map(postHTML).join("");
+    if($("#homefeed")) $("#homefeed").innerHTML = C().news.slice(0,4).map(postHTML).join("");
+    if($("#newsfeed")) $("#newsfeed").innerHTML = C().news.map(postHTML).join("");
   };
 
   /* ---------------- events rail ----------------------------- */
   S.renderEvents = function(){
+    if(!$("#homeevents")) return;
     $("#homeevents").innerHTML = C().events.map(function(e){
       var badge = e.kind ? ' · <span class="tag '+e.kind+'">'+(e.kind==="home"?"Home":"Away")+'</span>' : "";
       return '<div class="ev" data-item>'+
@@ -75,6 +85,7 @@
   ];
 
   S.renderPlayers = function(){
+    if(!$("#roster")) return;
     var f = S.state.plFilter;
     var teams = ["All","Studs 1","Studs 2","Stallions","Cadets"];
 
@@ -147,12 +158,13 @@
     return '<tr><td class="num">'+esc(g.date)+'</td><td class="num">'+esc(g.team)+'</td>'+
       '<td class="name">'+esc(g.fixture)+'</td><td class="num">'+esc(g.venue)+'</td>'+
       '<td class="res '+esc(g.outcome)+'">'+esc(g.result)+'</td>'+
-      '<td class="num">'+(g.outcome?'<a class="tlink" href="#/games">Sheet</a>':'&mdash;')+
+      '<td class="num">'+(g.outcome?'<a class="tlink" href="'+S.url("games")+'">Sheet</a>':'&mdash;')+
       (S.isAdmin()?' <span class="rowacts" style="display:inline-flex;margin-left:8px">'+
         '<button data-edit="'+col+':'+g.id+'">Edit</button></span>':'')+'</td></tr>';
   }
 
   S.renderGames = function(){
+    if(!$("#gamesbody")) return;
     $("#gamesbody").innerHTML = C().games.map(function(g){ return gameRow(g,"games"); }).join("");
     $("#comps").innerHTML = C().comps.map(function(c){
       return '<div data-item style="position:relative"><h3 class="disp d4">'+esc(c.title)+'</h3>'+
@@ -162,6 +174,7 @@
 
   /* ---------------- past games archive ---------------------- */
   S.renderPastGames = function(){
+    if(!$("#pastgamesbody")) return;
     var seasons = [];
     C().pastgames.forEach(function(g){ if(seasons.indexOf(g.season)<0) seasons.push(g.season); });
     var sel = S.state.pgSeason;
@@ -196,14 +209,16 @@
   };
 
   /* ---------------- news archive ---------------------------- */
+  /* The table is on the archive page, the rail beside the news
+     feed. Same data, two pages. */
   S.renderArchive = function(){
-    $("#archivebody").innerHTML = C().archive.map(function(a){
+    if($("#archivebody")) $("#archivebody").innerHTML = C().archive.map(function(a){
       return '<tr><td class="num">'+esc(a.season)+'</td><td class="num">'+esc(a.posts)+'</td>'+
         '<td class="name">'+esc(a.highlight)+'</td><td class="num">'+esc(a.tags)+'</td></tr>';
     }).join("");
 
-    $("#archiverail").innerHTML = C().archive.map(function(a){
-      return '<a class="ev" href="#/archive">'+
+    if($("#archiverail")) $("#archiverail").innerHTML = C().archive.map(function(a){
+      return '<a class="ev" href="'+S.url("archive")+'">'+
         '<div class="evd"><div class="dd">'+esc(String(a.season).slice(5))+'</div>'+
         '<div class="mm">\''+esc(String(a.season).slice(2,4))+'</div></div>'+
         '<div><div class="evt">Season '+esc(a.season)+'</div>'+
@@ -211,50 +226,195 @@
     }).join("");
   };
 
-  /* ---------------- history timeline ------------------------ */
+  /* ---------------- history timeline ------------------------
+     A horizontal strip of moments (photo + punched year + copy)
+     that pans as the page scrolls. See css/components.css for
+     the pin, and layoutTimeline / updateTimelineScroll below.  */
   S.renderTimeline = function(){
-    $("#tlitems").innerHTML = C().timeline.map(function(t,i){
-      var last = i === C().timeline.length - 1;   // "Today" is dimmed
-      return '<div class="tlitem'+(last?" faded":"")+'" data-item>'+
-        '<div class="yr">'+esc(t.yr)+'</div><div class="lb">'+esc(t.lb)+'</div>'+
-        '<p>'+esc(t.body)+'</p>'+tools("timeline",t.id)+'</div>';
+    var wrap = $("#tlitems");
+    if(!wrap) return;
+    var rows = C().timeline || [];
+
+    wrap.innerHTML = rows.map(function(t,i){
+      var last = i === rows.length - 1;                 // "Today" sits dimmed
+      return '<article class="tlmoment'+(last?" faded":"")+'" data-item>'+
+        '<div class="tlshot">'+
+          ph("timeline:"+t.id, "", (t.lb||"Archive")+" — photo")+
+        '</div>'+
+        '<span class="tlyr">'+esc(t.yr||"")+'</span>'+
+        '<div class="tlmeta">'+
+          '<div class="tllb">'+esc(t.lb||"")+'</div>'+
+          (t.body ? '<p class="tlbody">'+esc(t.body)+'</p>' : '')+
+          (t.cap  ? '<div class="tlcap">'+esc(t.cap)+'</div>' : '')+
+          tools("timeline",t.id)+
+        '</div></article>';
     }).join("");
+
+    var ghost = $("#tlghost");
+    if(ghost) ghost.innerHTML = rows.map(function(t){
+      return '<span>'+esc(t.yr||"")+'</span>';
+    }).join("");
+
     S.layoutTimeline();
   };
 
+  /* Stacked = the fallback (≤980px or reduced motion): the pin is
+     dropped and the moments stack in a column. Keep the width in
+     step with the media query in css/components.css. */
+  S.tlStacked = function(){
+    return window.innerWidth <= 980 ||
+      matchMedia("(prefers-reduced-motion: reduce)").matches;
+  };
+
+  /* Give #tltrack exactly enough height for the pan: one viewport
+     (while .tlpin is stuck) plus the horizontal overflow of #tl.
+     Then updateTimelineScroll maps scroll progress to translateX. */
   S.layoutTimeline = function(){
-    var axis = $("#axis");
-    if(!axis || !axis.offsetParent) return;      // page not visible
-    var w = axis.offsetWidth;
-    if(!w) return;
-    axis.innerHTML = "";
-    for(var i=0;i<=60;i++){
-      var tick = document.createElement("span");
-      tick.className = "tick";
-      tick.style.left = (i/60*100)+"%";
-      axis.appendChild(tick);
+    var track = $("#tltrack");
+    if(!track) return;
+    var pin = $(".tlpin", track), tl = $("#tl");
+    if(!pin || !tl) return;
+
+    if(S.tlStacked()){
+      track.style.height = "";
+      tl.style.transform = "";
+      S._tlOverflow = 0;
+      S.updateTimelineScroll();
+      return;
     }
-    var items = $$("#tlitems .tlitem");
-    items.forEach(function(it,idx){
-      var pct = ((it.offsetLeft+4)/w)*100;
-      var flagged = idx === items.length-2;      // the title year
-      ["node"+(flagged?" gold":""),"stem"].forEach(function(cls){
-        var el = document.createElement("span");
-        el.className = cls; el.style.left = pct+"%"; axis.appendChild(el);
-      });
-      var lab = document.createElement("span");
-      lab.className = "ylab"+(flagged?" flag":"");
-      lab.style.left = pct+"%";
-      lab.textContent = it.querySelector(".yr").textContent;
-      axis.appendChild(lab);
+
+    var overflow = Math.max(0, tl.scrollWidth - pin.clientWidth);
+    S._tlOverflow = overflow;
+    track.style.height = (window.innerHeight + overflow) + "px";
+    S.updateTimelineScroll();
+  };
+
+  /* Turn the page's vertical scroll through the pinned region into
+     a horizontal translate of #tl. #tltrack's rect.top runs from 0
+     (pin engages) to -overflow (pin releases); that ratio is the
+     progress. The ghost layer trails it for parallax, and each
+     photo drifts a little inside its frame toward centre screen. */
+  S.updateTimelineScroll = function(){
+    var track = $("#tltrack"), tl = $("#tl");
+    if(!track || !tl) return;
+    var ghost = $("#tlghost"), fill = $("#tlprogfill");
+
+    if(S.tlStacked() || !S._tlOverflow){
+      tl.style.transform = "";
+      if(ghost) ghost.style.transform = "";
+      if(fill) fill.style.width = "0%";
+      return;
+    }
+
+    var overflow = S._tlOverflow;
+    var p = -track.getBoundingClientRect().top / overflow;
+    p = p < 0 ? 0 : p > 1 ? 1 : p;
+
+    tl.style.transform = "translate3d("+(-(p*overflow)).toFixed(1)+"px,0,0)";
+    if(ghost) ghost.style.transform = "translate3d("+(-(p*overflow*0.4)).toFixed(1)+"px,0,0)";
+    if(fill)  fill.style.width = (p*100).toFixed(1)+"%";
+
+    var cx = window.innerWidth/2;
+    $$(".tlshot .ph", track).forEach(function(el){
+      var r = el.getBoundingClientRect();
+      var d = ((r.left + r.width/2) - cx) / window.innerWidth;   // -0.5 … 0.5
+      el.style.backgroundPositionX = (50 + d*16).toFixed(1)+"%";
+    });
+  };
+
+  /* ---------------- history chapters -----------------------
+     Paper, book-style: a sticky numbered nav and the story.
+     `media` = row | side | wide picks the photo layout,
+     `shots` (0–3) is how many slots.                           */
+  function brk(s){ return esc(s||"").replace(/\n/g,"<br>"); }
+
+  S.renderChapters = function(){
+    var body = $("#chapbody");
+    if(!body) return;                       // not the history page
+    var nav = $("#chapnav");
+    var rows = C().chapters || [];
+
+    if(nav){
+      nav.innerHTML = rows.map(function(c,i){
+        return '<a data-chapnav="'+esc(c.id)+'"'+(i===0?' class="cur"':'')+'>'+
+          '<span class="ci">'+esc(c.yr || ("0"+(i+1)))+'</span>'+
+          '<span>'+esc(c.nav || ("Chapter "+(i+1)))+'</span></a>';
+      }).join("");
+    }
+
+    body.innerHTML = rows.map(function(c){
+      var n = Math.max(0, Math.min(3, parseInt(c.shots,10) || 0));
+      var place = (c.media === "side" || c.media === "wide") ? c.media : "row";
+
+      var media = "";
+      if(n){
+        var slots = "";
+        for(var i=0;i<n;i++){
+          slots += ph("chapter:"+c.id+":"+i, "", "Archive — " + (c.nav || "chapter"));
+        }
+        media = '<div class="chapmedia '+place+'">'+slots+'</div>'+
+                (c.cap ? '<p class="chapcap">'+esc(c.cap)+'</p>' : '');
+      }
+
+      var mark  = '<div class="chapmark">'+esc(c.kicker || ("Chapter "+(c.yr||"")))+'</div>';
+      var h     = '<h3 class="chh">'+brk(c.h)+'</h3>';
+      var lead  = c.lead ? '<p class="chlead">'+esc(c.lead)+'</p>' : '';
+      var paras = esc(c.body||"").split(/\n{2,}/).filter(Boolean).map(function(p){
+        return '<p class="body">'+p.replace(/\n/g,"<br>")+'</p>';
+      }).join("");
+      var quote = c.quote ? '<p class="chquote">'+esc(c.quote)+'</p>' : "";
+      var text  = lead + paras + quote;
+
+      var inner = (place === "side" && media)
+        ? mark + h + '<div class="chapsplit"><div>'+text+'</div><div>'+media+'</div></div>'
+        : mark + h + text + media;
+
+      return '<section class="chapter" id="chap-'+esc(c.id)+'" '+
+             'data-item data-chap="'+esc(c.id)+'">'+inner+tools("chapters",c.id)+'</section>';
+    }).join("");
+
+    S.updateChapterSpy();
+  };
+
+  /* Which chapter is level with the top of the reading area gets
+     .cur in the nav. Runs on scroll (bound in js/app.js, history
+     page only) and once at the end of every render. */
+  S.updateChapterSpy = function(){
+    if(!$("#chapnav")) return;
+    var chs = $$("#chapbody .chapter");
+    if(!chs.length) return;
+    var line = 150, cur = chs[0].dataset.chap;
+    chs.forEach(function(ch){
+      if(ch.getBoundingClientRect().top - line <= 0) cur = ch.dataset.chap;
+    });
+    $$("#chapnav a").forEach(function(a){
+      a.classList.toggle("cur", a.dataset.chapnav === cur);
     });
   };
 
   /* ---------------- hockey: gear, rules, training ----------- */
+  /* Gear and rules live on the hockey page, the training steps
+     and the members-only panel on the training page. */
   S.renderHockey = function(){
-    $("#gearlist").innerHTML = C().gear.map(function(g){
-      return '<div class="gear" data-item><div class="g1">'+esc(g.when)+'</div>'+
-        '<div class="g2">'+esc(g.title)+'</div><p>'+esc(g.body)+'</p>'+tools("gear",g.id)+'</div>';
+    /* A numbered list, one piece per row, with an empty photo slot
+       waiting for a real photograph of the kit. Slots are filled
+       from the site itself: sign in as admin, turn on "Edit on
+       page" and use the button on the slot. */
+    if($("#gearlist")) $("#gearlist").innerHTML = C().gear.map(function(g,i){
+      /* "when" is written "01 / buy first" — the number leads the
+         row, the priority sits under the name. */
+      var half = String(g.when||"").split("/");
+      var num  = (half[0] || String(i+1)).trim();
+      var tier = (half[1] || "").trim();
+      return '<article class="gear" data-item>'+
+        '<div class="gnum">'+esc(num)+'</div>'+
+        '<div class="gbody">'+
+          '<h3 class="g2">'+esc(g.title)+'</h3>'+
+          (tier ? '<div class="g1">'+esc(tier)+'</div>' : '')+
+          '<p>'+esc(g.body)+'</p>'+
+        '</div>'+
+        '<div class="ph" data-slot="gear:'+esc(g.id)+'" data-ph="'+esc(g.title)+'"></div>'+
+        tools("gear",g.id)+'</article>';
     }).join("");
 
     function ruleRow(col){
@@ -263,22 +423,24 @@
           '<div><h4>'+esc(r.title)+'</h4><p>'+esc(r.body)+'</p></div>'+tools(col,r.id)+'</div>';
       };
     }
-    $("#ruleslist").innerHTML = C().rules.map(ruleRow("rules")).join("");
-    $("#steps").innerHTML     = C().steps.map(ruleRow("steps")).join("");
+    if($("#ruleslist")) $("#ruleslist").innerHTML = C().rules.map(ruleRow("rules")).join("");
+    if($("#steps"))     $("#steps").innerHTML     = C().steps.map(ruleRow("steps")).join("");
 
+    if(!$("#trainmember")) return;
     $("#trainmember").innerHTML = S.can("view.calendar") ?
       '<div class="gatemsg" style="margin-top:34px"><div>'+
       '<p class="mono" style="color:var(--ice);margin:0 0 8px">Members only · your next sessions</p>'+
       '<p><strong style="color:var(--bone)">Tue 21:15</strong> — Group B, IJsbaan Twente, Colosseum 90. '+
       '<strong style="color:var(--bone)">Thu 22:00</strong> — full squad, tactics.</p></div>'+
-      '<a class="btn btn-sm" href="#/pictures">Add to calendar</a></div>' :
+      '<a class="btn btn-sm" href="'+S.url("pictures")+'">Add to calendar</a></div>' :
       '<div class="gatemsg" style="margin-top:34px">'+
       '<p>Exact training times, rink addresses and the attendance list are visible to signed-in members.</p>'+
-      '<a class="btn btn-sm" href="#/signin">Sign in</a></div>';
+      '<a class="btn btn-sm" href="'+S.url("signin")+'">Sign in</a></div>';
   };
 
   /* ---------------- board ----------------------------------- */
   S.renderBoard = function(){
+    if(!$("#boardgrid")) return;
     $("#boardgrid").innerHTML = C().board.map(function(b){
       return '<div class="bm" data-item>'+ph("board:"+b.id,"","Portrait")+
         '<div class="bmb"><div class="bn">'+esc(b.name)+'</div>'+
@@ -305,6 +467,7 @@
   }
 
   S.renderAlbums = function(){
+    if(!$("#albumsarea")) return;
     var open = S.can("view.gallery");
 
     $("#picbrow").textContent = open ? "Pictures / Albums" : "Pictures / Members only";
@@ -314,7 +477,7 @@
       '<div class="lockbox" style="margin-top:44px"><div>'+
       '<h3 class="disp d4">Sign in to view albums</h3>'+
       '<p class="body" style="margin-top:14px">Photo albums from games, tournaments and promo events are visible to active members only. Coaches and board members see additional albums and upload rights.</p></div>'+
-      '<div><a class="btn btn-gold" href="#/signin">Sign in</a></div></div>';
+      '<div><a class="btn btn-gold" href="'+S.url("signin")+'">Sign in</a></div></div>';
 
     /* --- one album opened --- */
     var opened = S.state.openAlbum &&
@@ -385,6 +548,7 @@
 
   /* ---------------- sign-up page ---------------------------- */
   S.renderJoin = function(){
+    if(!$("#joinform")) return;
     var sent = S.state.joinSent;
     $("#joinform").style.display = sent ? "none" : "";
     $("#joindone").innerHTML = sent ?
@@ -399,7 +563,7 @@
         '<div><dt>Status</dt><dd>'+esc(sent.study)+'</dd></div>'+
       '</dl>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:26px">'+
-      '<a class="btn btn-sm" href="#/hockey">Read up on the game first</a>'+
+      '<a class="btn btn-sm" href="'+S.url("hockey")+'">Read up on the game first</a>'+
       '<button class="btn btn-sm" data-act="joinagain">Send another</button></div>'+
       '</div>' : "";
   };
@@ -409,6 +573,7 @@
      someone reading the news feed is a potential member, and
      "sign in" means nothing to them. */
   S.renderMemberRail = function(){
+    if(!$("#memberrail")) return;
     var s = S.state.session;
     $("#memberrail").innerHTML = s ?
       '<div class="rail dark">'+
@@ -429,56 +594,66 @@
       '<ul class="joinlist">'+
       '<li>No experience needed</li><li>Nothing to bring but sports clothes</li>'+
       '<li>Open to UT, Saxion and non-students</li></ul>'+
-      '<a class="btn btn-gold btn-sm" href="#/join">Sign up for a practice</a>'+
-      '<a class="tlink" href="#/training" style="display:inline-block;margin-top:16px">How it works</a>'+
+      '<a class="btn btn-gold btn-sm" href="'+S.url("join")+'">Sign up for a practice</a>'+
+      '<a class="tlink joinmore" href="'+S.url("training")+'">How it works</a>'+
       '</div></div>';
   };
 
   /* ---------------- header nav ------------------------------
-     Sub-menu items go to real destinations: either another page
-     or a section on the page they belong to (#/page/section).
-     A dropdown that does not move you is worse than no dropdown. */
+     Rendered rather than written into each document, because the
+     Drafts, Attendance and Admin items depend on who is signed in.
+
+     Sub-menu items go to real destinations: another page, or a
+     section anchor on the page they belong to. A dropdown that
+     does not move you is worse than no dropdown.
+
+     Every URL here comes from Studs.url() — see js/routes.js. */
   S.renderNav = function(){
+    if(!$("#nav")) return;
     var admin = S.isAdmin(), coach = S.can("roster.edit"), gallery = S.can("view.gallery");
     var live = C().news.filter(function(n){ return n.status !== "draft"; }).length;
-    var h = "";
+    var u = S.url, pic = S.picturesUrl, h = "";
 
-    h += '<div class="navitem" data-nav="home"><a href="#/home">Home</a></div>';
+    h += '<div class="navitem" data-nav="home"><a href="'+u("home")+'">Home</a></div>';
 
-    h += '<div class="navitem hasmenu" data-nav="news"><a href="#/news">News</a><div class="menu">'+
-         '<a href="#/news">Latest <i>'+live+'</i></a>'+
-         '<a href="#/archive">Archive <i>2010&ndash;26</i></a>'+
-         (admin?'<a href="#/admin">Drafts <span class="gate a">Admin</span></a>':'')+'</div></div>';
+    /* About us holds everything about the club itself, the news
+       pages included — they are the club telling its own story,
+       and they would be unreachable from the header otherwise. */
+    h += '<div class="navitem hasmenu" data-nav="about"><a href="'+u("about")+'">About us</a><div class="menu">'+
+         '<a href="'+u("about")+'">The association</a>'+
+         '<a href="'+u("history")+'">History <i>1982&ndash;</i></a>'+
+         '<a href="'+u("news")+'">News <i>'+live+'</i></a>'+
+         '<a href="'+u("archive")+'">Archive <i>2010&ndash;26</i></a>'+
+         (admin?'<a href="'+u("admin")+'">Drafts <span class="gate a">Admin</span></a>':'')+'</div></div>';
 
-    h += '<div class="navitem hasmenu" data-nav="team"><a href="#/players">Team</a><div class="menu">'+
-         '<a href="#/players">Players &amp; rosters <i>'+C().players.length+'</i></a>'+
-         '<a href="#/about">About us</a>'+
-         '<a href="#/training">Training</a><a href="#/history">History <i>1982&ndash;</i></a>'+
-         (coach?'<a href="#/players">Attendance <span class="gate c">Coach</span></a>':'')+'</div></div>';
+    h += '<div class="navitem hasmenu" data-nav="team"><a href="'+u("players")+'">Team</a><div class="menu">'+
+         '<a href="'+u("players")+'">Players &amp; rosters <i>'+C().players.length+'</i></a>'+
+         '<a href="'+u("training")+'">Training</a>'+
+         (coach?'<a href="'+u("players","staff")+'">Attendance <span class="gate c">Coach</span></a>':'')+'</div></div>';
 
-    h += '<div class="navitem hasmenu" data-nav="games"><a href="#/games">Games</a><div class="menu">'+
-         '<a href="#/games">This season <i>'+C().games.length+'</i></a>'+
-         '<a href="#/pastgames">Past seasons <i>'+C().pastgames.length+'</i></a>'+
-         '<a href="#/games/comps">Competitions</a></div></div>';
+    h += '<div class="navitem hasmenu" data-nav="games"><a href="'+u("games")+'">Games</a><div class="menu">'+
+         '<a href="'+u("games")+'">This season <i>'+C().games.length+'</i></a>'+
+         '<a href="'+u("pastgames")+'">Past seasons <i>'+C().pastgames.length+'</i></a>'+
+         '<a href="'+u("games","competitions")+'">Competitions</a></div></div>';
 
-    h += '<div class="navitem hasmenu" data-nav="hockey"><a href="#/hockey">Hockey</a><div class="menu">'+
-         '<a href="#/hockey/what">What is ice hockey</a>'+
-         '<a href="#/hockey/gear">Gear <i>'+C().gear.length+'</i></a>'+
-         '<a href="#/hockey/rules">Rules to start <i>'+C().rules.length+'</i></a></div></div>';
+    h += '<div class="navitem hasmenu" data-nav="hockey"><a href="'+u("hockey")+'">Hockey</a><div class="menu">'+
+         '<a href="'+u("hockey","what")+'">What is ice hockey</a>'+
+         '<a href="'+u("hockey","gear")+'">Gear <i>'+C().gear.length+'</i></a>'+
+         '<a href="'+u("hockey","rules")+'">Rules to start <i>'+C().rules.length+'</i></a></div></div>';
 
-    h += '<div class="navitem hasmenu" data-nav="pictures"><a href="#/pictures">Pictures</a><div class="menu">'+
-         '<a href="#/pictures/games">Games <span class="gate m">'+(gallery?"Open":"Members")+'</span></a>'+
-         '<a href="#/pictures/tournaments">Tournaments <span class="gate m">'+(gallery?"Open":"Members")+'</span></a>'+
-         '<a href="#/pictures/promo">Promo &amp; off-ice <span class="gate m">'+(gallery?"Open":"Members")+'</span></a>'+
-         '<a href="#/pictures/coach">Coach film <span class="gate c">Coach</span></a></div></div>';
+    h += '<div class="navitem hasmenu" data-nav="pictures"><a href="'+u("pictures")+'">Pictures</a><div class="menu">'+
+         '<a href="'+pic("games")+'">Games <span class="gate m">'+(gallery?"Open":"Members")+'</span></a>'+
+         '<a href="'+pic("tournaments")+'">Tournaments <span class="gate m">'+(gallery?"Open":"Members")+'</span></a>'+
+         '<a href="'+pic("promo")+'">Promo &amp; off-ice <span class="gate m">'+(gallery?"Open":"Members")+'</span></a>'+
+         '<a href="'+pic("coach")+'">Coach film <span class="gate c">Coach</span></a></div></div>';
 
-    h += '<div class="navitem hasmenu" data-nav="contact"><a href="#/contact">Contact</a><div class="menu">'+
-         '<a href="#/contact/board">The board</a>'+
-         '<a href="#/contact/message">Send a message</a>'+
-         '<a href="#/contact/find">Where to find us</a>'+
-         '<a href="#/join">Join the Studs</a></div></div>';
+    h += '<div class="navitem hasmenu" data-nav="contact"><a href="'+u("contact")+'">Contact</a><div class="menu">'+
+         '<a href="'+u("contact","board")+'">The board</a>'+
+         '<a href="'+u("contact","message")+'">Send a message</a>'+
+         '<a href="'+u("contact","find")+'">Where to find us</a>'+
+         '<a href="'+u("join")+'">Join the Studs</a></div></div>';
 
-    if(admin) h += '<div class="navitem admin" data-nav="admin"><a href="#/admin">Admin</a></div>';
+    if(admin) h += '<div class="navitem admin" data-nav="admin"><a href="'+u("admin")+'">Admin</a></div>';
 
     $("#nav").innerHTML = h;
   };
@@ -495,8 +670,8 @@
       '<span class="an2">'+esc(s.name.split(" ")[0])+
       '<span class="ar"><span class="dot '+(s.role==="admin"?"a":s.role==="coach"?"c":"m")+
       '" style="display:inline-block;margin-right:5px"></span>'+esc(s.role)+'</span></span></button>'
-      : '<a class="chip chip-join" href="#/join">Want to join?</a>'+
-        '<a class="chip" href="#/signin"><span class="dot"></span>Sign in</a>';
+      : '<a class="chip chip-join" href="'+S.url("join")+'">Want to join?</a>'+
+        '<a class="chip" href="'+S.url("signin")+'"><span class="dot"></span>Sign in</a>';
 
     if(!s){ $("#acctmenu").innerHTML = ""; return; }
 
@@ -509,10 +684,10 @@
       '<div class="amr"><span class="dot '+rc+'"></span>'+esc(s.role)+' · '+esc(s.sub)+'</div></div></div>'+
       '<div class="amlist">'+
       (S.isAdmin() ?
-        '<a href="#/admin">Admin console <i class="gate a">Godmode</i></a>'+
+        '<a href="'+S.url("admin")+'">Admin console <i class="gate a">Godmode</i></a>'+
         '<button data-act="toggleedit">'+(S.state.editing?"Stop editing the page":"Edit this page inline")+'</button>' : '')+
-      '<a href="#/pictures">Photo albums</a>'+
-      '<a href="#/signin">Switch account</a>'+
+      '<a href="'+S.url("pictures")+'">Photo albums</a>'+
+      '<a href="'+S.url("signin")+'">Switch account</a>'+
       '<button data-act="signout">Sign out</button></div>'+
       '<div class="amperm">You can:<br>'+
       acc.can.map(function(c){ return '<span>+</span> '+esc(c); }).join("<br>")+'</div>';
@@ -574,6 +749,7 @@
     S.renderPastGames();
     S.renderArchive();
     S.renderTimeline();
+    S.renderChapters();
     S.renderHockey();
     S.renderBoard();
     S.renderAlbums();
@@ -594,6 +770,7 @@
 
   /* ---------------- sign-in page ---------------------------- */
   S.renderSignin = function(){
+    if(!$("#signincards")) return;
     $("#signincards").innerHTML = S.accounts.map(function(a){
       var rc = a.role==="admin" ? "a" : a.role==="coach" ? "c" : "m";
       return '<button class="acard" data-login="'+esc(a.role)+'">'+

@@ -69,15 +69,29 @@ header.peek .badge{position:static;transform:none}
 header.peek .wordmark{opacity:1;max-width:320px}
 header.peek::before{opacity:1}
 
-/* faint gold line hinting that the bar is up there */
-.peekhint{position:fixed;top:74px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s;z-index:69;pointer-events:none}
-header.collapsed~.peekhint{opacity:.35}
-header.peek~.peekhint{opacity:0}
+/* hint line retired — the collapsed header relied on this gold
+   line to say "hover here", but it read as a stray yellow streak
+   against the vignette-less collapsed bar. The vignette itself
+   (header::before, above) still does its normal job: full opacity
+   while the header is up or peeking, gone while it's collapsed. */
+.peekhint{display:none}
 
-/* ---------------- pages & bands ---------------------------- */
-section.page{display:none;position:relative;z-index:2}
-section.page.on{display:block}
+/* ---------------- pages & bands ----------------------------
+   Each page is its own document now, so there is nothing to show
+   or hide — <main> just has to sit above the fixed .gridlines. */
+main{display:block;position:relative;z-index:2}
+
 .band{padding-block:clamp(56px,8vw,110px);position:relative}
+
+/* The first band on an inner page clears the fixed header. The
+   home page does not use it: its hero runs under the header on
+   purpose. */
+.band.top{padding-top:150px}
+
+/* Sub-menu items link to a band by id (hockey.html#gear). The
+   header is 74px and fixed, so anchors need to stop below it
+   rather than under it. */
+.band[id],[id].posgroup{scroll-margin-top:96px}
 .band.bone{background:var(--bone);color:var(--ink)}
 .band.ink2{background:var(--ink2)}
 .band.bone .eyebrow{color:#5D6C76}
@@ -85,7 +99,9 @@ section.page.on{display:block}
 .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:clamp(24px,4vw,56px)}
 
 /* ---------------- hero ------------------------------------- */
-.hero{position:relative;min-height:min(84vh,700px);display:flex;align-items:flex-end;padding-top:120px;padding-bottom:34px;overflow:hidden}
+.homeintro{min-height:100svh;display:flex;flex-direction:column}
+.homeintro .hero{flex:1;min-height:0}
+.hero{position:relative;display:flex;align-items:flex-end;padding-top:120px;padding-bottom:34px;overflow:hidden}
 .hero .ph{position:absolute;inset:0;border:0}
 .hero .ph::after{bottom:26px;left:var(--pad)}
 /* Two-axis scrim. The vertical pass seats the hero into the page;

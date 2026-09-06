@@ -4,6 +4,14 @@
    ============================================================ */
 
 *{box-sizing:border-box}
+
+/* In-page anchors glide rather than jump. Honour the system
+   setting for anyone who has asked for less motion. */
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
 body{
   margin:0;
   background:var(--ink);
@@ -64,6 +72,9 @@ a{color:inherit}
   color:var(--gold);background:none;cursor:pointer;
 }
 .tlink:hover{color:var(--bone)}
+/* gold has almost no contrast on the paper sections — drop to a
+   dark amber there (same value the news links already use inline) */
+.on-bone .tlink{color:#8A6A00}
 .on-bone .tlink:hover{color:var(--ink)}
 
 /* --- forms -------------------------------------------------- */
@@ -81,7 +92,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold);outline:none}
    draws a hatched slot with its caption, so a page never fakes
    photography it does not have.
    To drop a real photo in, add data-img:
-     <div class="ph" data-img="assets/photos/team-2026.jpg"></div>
+     <div class="ph" data-img="assets/photos/hero-squad-2026.jpg"></div>
    js/views.js applies it as a background image.                */
 .ph{
   position:relative;

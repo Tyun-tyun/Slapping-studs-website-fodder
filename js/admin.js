@@ -3,7 +3,7 @@
 
    Two surfaces on purpose:
      1. inline  — edit the real page in place (setEditing)
-     2. console — a table view of every collection (#/admin)
+     2. console — a table view of every collection (admin.html)
    Both write to the same store through the same drawer, so
    there is one create/update/delete path, not two.
    ============================================================ */
@@ -13,9 +13,16 @@
   var $ = S.$, $$ = S.$$, esc = S.esc;
   function C(){ return S.state.content; }
 
-  /* ---------------- inline edit mode ------------------------ */
+  /* ---------------- inline edit mode ------------------------
+     The flag is kept in the session, not just in memory, so an
+     admin who turns editing on still has it on after following
+     a link to another page. app.js reapplies it on boot. */
   S.setEditing = function(on){
     S.state.editing = !!on && S.isAdmin();
+    if(S.state.session){
+      S.state.session.editing = S.state.editing;
+      S.saveSession();
+    }
     document.body.classList.toggle("editing", S.state.editing);
     $$("[data-ed]").forEach(function(el){
       if(S.state.editing) el.setAttribute("contenteditable","true");
@@ -116,7 +123,7 @@
         '<div style="display:flex;gap:8px;margin-top:26px;flex-wrap:wrap">'+
         '<button class="btn btn-sm btn-del" data-act="reset">Reset all content</button>'+
         '<button class="btn btn-sm" data-act="export">Copy content as JSON</button></div>'+
-        '<p class="body" style="margin-top:20px;font-size:14px">Exporting gives you the whole content store as JSON. Paste it back into <code>js/data.js</code> to make your edits the default for everyone.</p>';
+        '<p class="body" style="margin-top:20px;font-size:14px">Exporting gives you the whole content store as JSON. Paste it back into <code>js/data.js</code> to make your edits the default for everyone — or hand it to whoever is building the back end as the seed for the real database.</p>';
       return;
     }
 

@@ -2,8 +2,8 @@
    core.js — shared state, storage, permission checks, helpers
    and the record schema used by the admin console.
 
-   Load order matters: data.js and auth.js must come first,
-   then this file, then views.js, admin.js, app.js.
+   Load order matters: data.js, auth.js and routes.js must come
+   first, then this file, then views.js, admin.js, app.js.
    ============================================================ */
 
 window.Studs = window.Studs || {};
@@ -20,9 +20,10 @@ window.Studs = window.Studs || {};
   /* ---------- runtime state -------------------------------- */
   S.state = {
     content:  null,   // the live copy of Studs.seed
-    session:  null,   // {role,name,sub,email} or null
+    session:  null,   // {role,name,sub,email,editing} or null
     defaults: {},     // original text of every [data-ed] block
-    editing:  false,  // inline edit mode on/off
+    editing:  false,  // inline edit mode on/off (kept in the session,
+                      //   so it survives moving between pages)
     plFilter: "All",  // roster team filter
     picFilter:"all",  // gallery section filter (games/tournaments/promo/coach)
     openAlbum:null,   // album id when an album is opened
@@ -157,24 +158,32 @@ window.Studs = window.Studs || {};
   };
   S.isAdmin = function(){ return S.role() === "admin"; };
 
+  /* Signing in from the sign-in page means "take me in", so it
+     navigates. From anywhere else — the account menu on a normal
+     page — it only changes what this page shows. */
   S.signIn = function(roleName){
     var acc = S.accounts.filter(function(a){ return a.role === roleName; })[0];
     if(!acc) return;
-    S.state.session = {role:acc.role, name:acc.name, sub:acc.sub, email:acc.email};
+    S.state.session = {role:acc.role, name:acc.name, sub:acc.sub, email:acc.email, editing:false};
     S.saveSession();
     S.setEditing(false);
+    if(S.page() === "signin"){
+      location.href = S.url(acc.role === "admin" ? "admin" : "home");
+      return;
+    }
     S.renderAll();
     S.toast("Signed in as " + acc.name + " · " + acc.role);
-    location.hash = acc.role === "admin" ? "#/admin" : "#/home";
-    S.route();
   };
+
+  /* Signing out of a gated page has to leave it; signing out of
+     a public one just re-renders it signed out. */
   S.signOut = function(){
+    var leaving = !!S.GATED[S.page()];
+    S.setEditing(false);
     S.state.session = null;
     S.saveSession();
-    S.setEditing(false);
+    if(leaving){ location.href = S.url("home"); return; }
     S.renderAll();
-    location.hash = "#/home";
-    S.route();
     S.toast("Signed out");
   };
 
@@ -248,7 +257,22 @@ window.Studs = window.Studs || {};
                ["name","Name","text"],["role","Role","text"],["email","E-mail","text"]]},
 
     timeline:{label:"History timeline", cols:["yr","lb","body"], fields:[
-               ["yr","Year","text"],["lb","Marker label","text"],["body","Description","textarea"]]},
+               ["yr","Year / label (set large)","text"],
+               ["lb","Headline","text"],
+               ["body","One or two sentences","textarea"],
+               ["cap","Caption line (place · date)","text"]]},
+
+    chapters:{label:"History chapters", cols:["yr","nav","kicker"], fields:[
+               ["kicker","Eyebrow (e.g. Chapter 02 · 1990s)","text"],
+               ["yr","Index shown in the nav (01–05)","text"],
+               ["nav","Nav label","text"],
+               ["h","Heading — use \\n for a line break","text"],
+               ["lead","Lead line (optional, larger)","textarea"],
+               ["body","Body — blank line starts a new paragraph","textarea"],
+               ["quote","Pull quote (optional)","textarea"],
+               ["cap","Photo caption (optional)","text"],
+               ["shots","Photo slots","select:0,1,2,3"],
+               ["media","Photo placement","select:row,side,wide"]]},
 
     gear:    {label:"Gear", cols:["when","title"], fields:[
                ["when","Priority label","text"],["title","Item","text"],["body","Description","textarea"]]},
