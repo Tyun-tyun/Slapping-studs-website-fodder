@@ -181,7 +181,7 @@ window.Studs = window.Studs || {};
     if(S.page() === "signin"){
       /* members and coaches land in their own area; the board in
          the console it signs in to run */
-      location.href = acc.role === "admin" ? S.url("admin") : S.accountUrl();
+      location.href = acc.role === "admin" || acc.role === "moderator" ? S.url("admin") : S.accountUrl();
       return;
     }
     S.renderAll();

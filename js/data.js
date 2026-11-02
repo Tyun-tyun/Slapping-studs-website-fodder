@@ -681,7 +681,8 @@ window.Studs.seed = {
   points:[
     {id:"pt1",who:"u1",value:"3"},
     {id:"pt2",who:"u2",value:"6"},
-    {id:"pt3",who:"u3",value:"8"}
+    {id:"pt3",who:"u3",value:"8"},
+    {id:"pt4",who:"u4",value:"5"}
   ],
 
   /* One row. need = points a member should have; max = the top of the

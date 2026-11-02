@@ -83,137 +83,149 @@ body.editing .addtile{display:block}
 
 /* ============================================================
    THE CONSOLE
+
+   A back office on paper, the same family as the member area:
+   bone ground, a deeper bone for each surface, ink text. The one
+   filled action per view is an ink pill. Tables are the one place
+   a rule belongs, so rows keep their hairlines.
    ============================================================ */
-.adshell{display:grid;grid-template-columns:252px minmax(0,1fr);gap:clamp(22px,2.6vw,44px);align-items:start;
-  font-family:var(--disp);font-stretch:100%}
+body[data-page="admin"]{background:var(--bone)}
+body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
+
+.adshell,.drawer{
+  --ad-line:var(--rule-l1);
+  --ad-line2:var(--rule-l2);
+  --ad-meta:var(--ink-m);
+  --ad-text:var(--ink);
+  --ad-body:var(--ink-b);
+  --ad-card:var(--bone3);
+  --ad-hover:var(--bone2);
+}
+
+.adshell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:clamp(22px,2.6vw,40px);align-items:start;
+  font-family:var(--disp);font-stretch:100%;color:var(--ad-body)}
 .adshell *{letter-spacing:0}
+.adshell :focus-visible,.drawer :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 
 /* --- sidebar ------------------------------------------------ */
 .adside{position:sticky;top:92px;display:flex;flex-direction:column;gap:20px;min-width:0}
-.adtitle{margin:0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:24px;line-height:1.2;text-transform:none;color:var(--bone)}
-.adsub{margin:7px 0 0;font-size:14px;line-height:1.5;color:var(--ad-meta)}
+.adtitle{margin:0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:26px;line-height:1.2;text-transform:none;color:var(--ad-text)}
+.adsub{margin:7px 0 0;font-size:15px;line-height:1.5;color:var(--ad-meta)}
 
 .adnav{display:block;overflow-y:auto;max-height:calc(100vh - 230px);padding-right:4px}
-.adnav__g+.adnav__g{margin-top:16px}
-.adnav__gt{margin:0 0 5px;padding:0 10px;font-size:12px;line-height:1.4;color:var(--ad-meta);text-transform:none}
+.adnav__g+.adnav__g{margin-top:18px}
+.adnav__gt{margin:0 0 4px;padding:0 10px;font-size:13px;font-weight:700;line-height:1.4;color:var(--ad-meta);text-transform:none}
 .adnav__b{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;
-  min-height:32px;padding:6px 10px;border:1px solid transparent;border-radius:var(--ad-r);
-  background:none;color:rgba(237,234,225,.74);font-family:inherit;font-size:14px;line-height:1.3;
+  min-height:36px;padding:6px 10px;border:0;border-radius:var(--ad-r);
+  background:none;color:var(--ad-body);font-family:inherit;font-size:15px;line-height:1.3;
   text-align:left;cursor:pointer}
-.adnav__b:hover{background:var(--ink2);color:var(--bone)}
-.adnav__b.is-on{background:var(--ink3);color:var(--bone);border-color:var(--ad-line2)}
+.adnav__b:hover{background:var(--ad-card);color:var(--ad-text)}
+.adnav__b.is-on{background:var(--bone4);color:var(--ad-text);font-weight:700}
 .adnav__l{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.adnav__n{flex:0 0 auto;font-size:12px;color:var(--ad-meta);font-variant-numeric:tabular-nums}
-.adnav__b.is-on .adnav__n{color:var(--bone)}
-.adnav__b--danger{color:rgba(224,107,90,.9)}
-.adnav__b--danger:hover,.adnav__b--danger.is-on{color:#F0A094}
+.adnav__n{flex:0 0 auto;font-size:13px;color:var(--ad-meta);font-variant-numeric:tabular-nums}
+.adnav__b.is-on .adnav__n{color:var(--ad-text)}
+.adnav__b--danger{color:var(--danger-d)}
+.adnav__b--danger:hover,.adnav__b--danger.is-on{color:var(--danger-d)}
 
-/* --- view header -------------------------------------------- */
-.adview{min-width:0}
-.adview__h{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;
-  padding-bottom:16px;border-bottom:1px solid var(--ad-line2)}
+/* --- view: one card with a head and a table ----------------- */
+.adview{min-width:0;background:var(--ad-card);border-radius:8px;padding:24px 28px 20px}
+.adview__h{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-bottom:18px}
 .adview__ht{min-width:0}
 .adview__area{margin:0;font-size:13px;line-height:1.4;color:var(--ad-meta)}
-.adview__t{margin:5px 0 0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:21px;
-  line-height:1.25;text-transform:none;color:var(--bone)}
-.adview__meta{margin:7px 0 0;font-size:13px;line-height:1.5;color:var(--ad-meta)}
-.adview__n{color:var(--gold);font-variant-numeric:tabular-nums}
-.adview__note::before{content:"·";margin:0 7px;color:var(--ad-line2)}
+.adview__t{margin:4px 0 0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:24px;
+  line-height:1.25;text-transform:none;color:var(--ad-text)}
+.adview__meta{margin:7px 0 0;font-size:14px;line-height:1.5;color:var(--ad-meta)}
+.adview__n{color:var(--ad-text);font-weight:700;font-variant-numeric:tabular-nums}
+.adview__note::before{content:"·";margin:0 7px;color:var(--ad-meta)}
 
-/* --- table --------------------------------------------------
-   Grey sentence-case heads, one hairline per row, no zebra. */
+/* --- table -------------------------------------------------- */
 .adtwrap{overflow-x:auto}
 .adtable{width:100%;min-width:640px;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.adtable th{padding:13px 14px 11px;font-family:var(--disp);font-stretch:100%;font-size:13px;font-weight:500;
+.adtable th{padding:10px 14px 10px 0;font-family:var(--disp);font-stretch:100%;font-size:13px;font-weight:700;
   text-align:left;text-transform:none;color:var(--ad-meta);background:transparent;
-  border-bottom:1px solid var(--ad-line2);white-space:nowrap}
-.adtable td{padding:11px 14px;font-size:14px;line-height:1.45;color:rgba(237,234,225,.74);
-  border-top:0;border-bottom:1px solid var(--ad-line);white-space:nowrap;vertical-align:middle}
-.adtable tbody tr:hover td{background:rgba(237,234,225,.035)}
-.adtable td.adid{color:var(--bone);font-weight:600;white-space:normal;max-width:30ch}
+  border-bottom:1px solid var(--rule-l3);white-space:nowrap}
+.adtable td{padding:12px 14px 12px 0;font-size:15px;line-height:1.45;color:var(--ad-body);
+  border-top:0;border-bottom:1px solid var(--ad-line2);white-space:nowrap;vertical-align:middle}
+.adtable tbody tr:hover td{background:var(--ad-hover)}
+.adtable td.adid{color:var(--ad-text);font-weight:700;white-space:normal;max-width:30ch}
 .adtable td.adcell{white-space:normal;max-width:34ch}
 .adtable th.adth-n,.adtable td.adnum{text-align:right}
-.adtable td.adnum{color:var(--bone)}
-.adtable th.adth-a,.adtable td.adacts{text-align:right}
+.adtable td.adnum{color:var(--ad-text)}
+.adtable th.adth-a,.adtable td.adacts{text-align:right;padding-right:0}
 .adtable th.adth-p{width:64px}
 .adtable tr.adempty td{padding:30px 14px;text-align:center;color:var(--ad-meta);white-space:normal}
 
 .adacts{white-space:nowrap}
-.adacts button{min-height:28px;padding:0 9px;margin-left:4px;border:1px solid transparent;border-radius:4px;
-  background:none;font-family:inherit;font-size:13px;color:var(--ad-meta);cursor:pointer}
-.adacts button:hover{border-color:var(--ad-line2);color:var(--bone);background:var(--ink2)}
-.adacts button.is-danger:hover{border-color:rgba(224,107,90,.5);color:#F0A094}
+.adacts button{min-height:30px;padding:0 10px;margin-left:2px;border:0;border-radius:4px;
+  background:none;font-family:inherit;font-size:14px;font-weight:700;color:var(--ad-body);cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-l3)}
+.adacts button:hover{color:var(--ad-text);text-decoration-color:var(--ad-text)}
+.adacts button.is-danger{color:var(--danger-d)}
+.adacts button.is-danger:hover{text-decoration-color:var(--danger-d)}
 
-/* a record's picture, at the size it is useful: enough to tell
-   two photographs apart, not enough to become a gallery */
 .adthumb{width:64px}
-.adthumb__i{display:block;width:46px;height:32px;border-radius:4px;border:1px solid var(--ad-line);
-  background-color:var(--ink3);background-position:center;background-size:cover;background-repeat:no-repeat}
-.adthumb__i.is-empty{background-color:transparent;border-style:dashed}
+.adthumb__i{display:block;width:46px;height:32px;border-radius:4px;
+  background-color:var(--bone4);background-position:center;background-size:cover;background-repeat:no-repeat}
+.adthumb__i.is-empty{background-color:transparent;border:1px dashed var(--rule-l3)}
 
 /* --- status pills ------------------------------------------- */
-.adpill{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:4px;
-  font-size:12px;line-height:1;white-space:nowrap}
+.adpill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:4px;
+  font-size:13px;font-weight:700;line-height:1;white-space:nowrap}
 .adpill--good{background:#BFE3CE;color:#13402A}
-.adpill--warn{background:#F2DEA4;color:#4A3806}
+.adpill--warn{background:var(--gold);color:var(--ink)}
 .adpill--bad{background:#F0C9C1;color:#5A2319}
-.adpill--neutral{background:#D4D8DB;color:#282F34}
+.adpill--neutral{background:var(--bone4);color:var(--ink-b)}
 .adpill--none{background:none;padding:0;color:var(--ad-meta)}
 
 /* --- figures and blocks (danger zone) ----------------------- */
-.adcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:22px}
-.adcard{border:1px solid var(--ad-line);border-radius:var(--ad-r);padding:15px 16px}
+.adcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:8px}
+.adcard{background:var(--bone2);border-radius:var(--ad-r);padding:16px 18px}
 .adcard__k{margin:0;font-size:13px;color:var(--ad-meta)}
-.adcard__v{margin:7px 0 0;font-size:24px;font-weight:700;line-height:1.1;color:var(--gold);font-variant-numeric:tabular-nums}
+.adcard__v{margin:7px 0 0;font-size:26px;font-weight:700;line-height:1.1;color:var(--ad-text);font-variant-numeric:tabular-nums}
 .adcard__n{margin:5px 0 0;font-size:13px;color:var(--ad-meta)}
-.adblock{margin-top:24px;padding-top:20px;border-top:1px solid var(--ad-line)}
-.adblock__t{margin:0;font-family:var(--disp);font-stretch:100%;font-size:16px;font-weight:600;text-transform:none;color:var(--bone)}
-.adblock__b{margin:8px 0 14px;max-width:64ch;font-size:14px;line-height:1.55;color:rgba(237,234,225,.74)}
-.adblock code{font-size:13px;color:var(--bone)}
+.adblock{margin-top:16px;padding:18px 20px;background:var(--bone2);border-radius:var(--ad-r)}
+.adblock__t{margin:0;font-family:var(--disp);font-stretch:100%;font-size:17px;font-weight:700;text-transform:none;color:var(--ad-text)}
+.adblock__b{margin:8px 0 14px;max-width:64ch;font-size:15px;line-height:1.55;color:var(--ad-body)}
+.adblock code{font-size:14px;color:var(--ad-text)}
 
-/* --- console buttons ----------------------------------------
-   One filled action per view, and it is the only gold on screen. */
-.abtn2{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 14px;
-  border:1px solid var(--ad-line2);border-radius:var(--ad-r);background:transparent;color:var(--bone);
-  font-family:var(--disp);font-stretch:100%;font-size:14px;line-height:1;cursor:pointer}
-.abtn2:hover{background:var(--ink3);border-color:rgba(237,234,225,.32)}
-.abtn2.is-primary{background:var(--gold);border-color:var(--gold);color:#17120A;font-weight:700}
-.abtn2.is-primary:hover{background:#FFD24E;border-color:#FFD24E}
-.abtn2.is-danger{border-color:rgba(224,107,90,.45);color:#EE9A8E}
-.abtn2.is-danger:hover{background:rgba(224,107,90,.14);border-color:var(--danger);color:#F6B3A8}
-
-/* Every control says where the keyboard is. */
-.adshell :focus-visible,.drawer :focus-visible,.adminbar :focus-visible,.toast :focus-visible{
-  outline:2px solid var(--bone);outline-offset:2px}
+/* --- console buttons ---------------------------------------- */
+.abtn2{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 18px;
+  border:1px solid var(--rule-l3);border-radius:999px;background:transparent;color:var(--ad-text);
+  font-family:var(--disp);font-stretch:100%;font-size:14px;font-weight:700;line-height:1;cursor:pointer}
+.abtn2:hover{background:var(--bone4)}
+.abtn2.is-primary{background:var(--ink);border-color:var(--ink);color:var(--bone)}
+.abtn2.is-primary:hover{background:var(--ink3);border-color:var(--ink3)}
+.abtn2.is-danger{border-color:var(--danger-d);color:var(--danger-d)}
+.abtn2.is-danger:hover{background:var(--danger-d);color:var(--bone)}
 
 /* ---------------- record drawer ---------------------------- */
-.scrim{position:fixed;inset:0;background:rgba(6,7,8,.7);z-index:110;opacity:0;visibility:hidden;transition:.22s}
+.scrim{position:fixed;inset:0;background:rgba(17,20,23,.5);z-index:110;opacity:0;visibility:hidden;transition:.22s}
 .scrim.on{opacity:1;visibility:visible}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--ink2);z-index:120;
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--bone);color:var(--ad-body);z-index:120;
   transform:translateX(100%);transition:transform .28s cubic-bezier(.4,.02,.2,1);display:flex;flex-direction:column;
-  font-family:var(--disp);font-stretch:100%;box-shadow:-28px 0 64px rgba(0,0,0,.5)}
+  font-family:var(--disp);font-stretch:100%}
 .drawer.on{transform:none}
-.dwh{padding:20px var(--pad) 16px;border-bottom:1px solid var(--ad-line2);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.dwh{padding:22px var(--pad) 16px;border-bottom:1px solid var(--ad-line2);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .dwh__k{margin:0;font-size:13px;line-height:1.4;color:var(--ad-meta)}
-.dwh__t{margin:5px 0 0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:21px;line-height:1.25;text-transform:none;color:var(--bone)}
-.dwh__s{margin:5px 0 0;font-size:13px;line-height:1.4;color:var(--ad-meta)}
-.dwx{flex:0 0 auto;width:34px;height:34px;border:1px solid var(--ad-line2);border-radius:var(--ad-r);
-  background:none;color:var(--bone);font-family:var(--disp);font-size:13px;cursor:pointer}
-.dwx:hover{background:var(--ink3);border-color:rgba(237,234,225,.32)}
+.dwh__t{margin:4px 0 0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:22px;line-height:1.25;text-transform:none;color:var(--ad-text)}
+.dwh__s{margin:5px 0 0;font-size:14px;line-height:1.4;color:var(--ad-meta)}
+.dwx{flex:0 0 auto;min-width:38px;height:38px;padding:0 12px;border:1px solid var(--rule-l3);border-radius:999px;
+  background:none;color:var(--ad-text);font-family:var(--disp);font-size:14px;font-weight:700;cursor:pointer}
+.dwx:hover{background:var(--bone4)}
 .dwb{padding:0 var(--pad) 22px;overflow-y:auto;flex:1}
 .dwb form{display:block;max-width:100%;gap:0}
-.dwg{padding:20px 0;border-bottom:1px solid var(--ad-line)}
+.dwg{padding:20px 0;border-bottom:1px solid var(--ad-line2)}
 .dwg:last-child{border-bottom:0;padding-bottom:4px}
-.dwg__t{margin:0 0 14px;font-family:var(--disp);font-stretch:100%;font-size:13px;font-weight:500;
-  text-transform:none;color:var(--ad-meta)}
-.dwfield+.dwfield{margin-top:15px}
-.dwl{display:block;margin-bottom:6px;font-family:var(--disp);font-stretch:100%;font-size:13px;font-weight:500;color:rgba(237,234,225,.82)}
-.dwhint{margin:-3px 0 6px;font-size:12px;line-height:1.45;color:var(--ad-meta)}
+.dwg__t{margin:0 0 14px;font-family:var(--disp);font-stretch:100%;font-size:14px;font-weight:700;
+  text-transform:none;color:var(--ad-text)}
+.dwfield+.dwfield{margin-top:16px}
+.dwl{display:block;margin-bottom:6px;font-family:var(--disp);font-stretch:100%;font-size:14px;font-weight:500;color:var(--ad-text)}
+.dwhint{margin:-3px 0 6px;font-size:13px;line-height:1.45;color:var(--ad-meta)}
 .dwb input[type="text"],.dwb select,.dwb textarea{
-  width:100%;min-height:36px;padding:8px 11px;border:1px solid var(--ad-line2);border-radius:var(--ad-r);
-  background:var(--ink);color:var(--bone);font-family:var(--disp);font-stretch:100%;font-size:14px;line-height:1.45}
+  width:100%;min-height:40px;padding:8px 12px;border:1px solid var(--rule-l3);border-radius:var(--ad-r);
+  background:var(--bone3);color:var(--ad-text);font-family:var(--disp);font-stretch:100%;font-size:15px;line-height:1.45}
 .dwb textarea{min-height:108px;resize:vertical}
-.dwb input[type="text"]:focus,.dwb select:focus,.dwb textarea:focus{border-color:rgba(237,234,225,.45);outline:none}
+.dwb input[type="text"]:focus,.dwb select:focus,.dwb textarea:focus{border-color:var(--ink);outline:none}
 .dwf{padding:14px var(--pad);border-top:1px solid var(--ad-line2);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
 /* --- the photo on a record ----------------------------------
@@ -221,11 +233,11 @@ body.editing .addtile{display:block}
    ("news:<id>"), so setting it here is all there is to it. */
 .dwphoto{display:flex;gap:14px;align-items:flex-start}
 .dwphoto__i{flex:0 0 auto;display:grid;place-items:center;width:132px;height:88px;border-radius:var(--ad-r);
-  border:1px solid var(--ad-line);background-color:var(--ink3);background-position:center;background-size:cover;background-repeat:no-repeat}
-.dwphoto__i.is-empty{background-color:transparent;border-style:dashed}
-.dwphoto__e{font-size:12px;color:var(--ad-meta)}
+  background-color:var(--bone4);background-position:center;background-size:cover;background-repeat:no-repeat}
+.dwphoto__i.is-empty{background-color:transparent;border:1px dashed var(--rule-l3)}
+.dwphoto__e{font-size:13px;color:var(--ad-meta)}
 .dwphoto__b{min-width:0}
-.dwphoto__m{margin:0 0 11px;font-size:13px;line-height:1.5;color:rgba(237,234,225,.74)}
+.dwphoto__m{margin:0 0 11px;font-size:14px;line-height:1.5;color:var(--ad-body)}
 .dwphoto__a{display:flex;gap:8px;flex-wrap:wrap}
 
 /* ---------------- toast ------------------------------------
@@ -267,7 +279,8 @@ body.editing .hero:hover .phedit{opacity:1}
 @media (max-width:960px){
   .adshell{grid-template-columns:minmax(0,1fr);gap:22px}
   .adside{position:static;gap:16px}
-  .adnav{max-height:270px;padding:12px;border:1px solid var(--ad-line);border-radius:var(--ad-r)}
+  .adnav{max-height:270px;padding:12px;background:var(--ad-card);border-radius:var(--ad-r)}
+  .adview{padding:18px 16px}
   /* two to a row, so the panel shows three areas rather than one */
   .adnav__g{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px}
   .adnav__gt{grid-column:1/-1}

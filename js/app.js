@@ -214,14 +214,14 @@
       /* Coaches may add players; everything else is admin-only.
          This mirrors the PERMS map in auth.js. */
       if(d.add){
-        if(!S.isAdmin() && !(d.add === "players" && S.can("roster.edit"))){
+        if(!S.can("console.use") && !(d.add === "players" && S.can("roster.edit"))){
           S.toast("Admins only"); return;
         }
         S.openDrawer(d.add, null); return;
       }
-      if(d.edit){ if(!S.isAdmin()) return; var a = d.edit.split(":"); S.openDrawer(a[0], a[1]); return; }
-      if(d.del) { if(!S.isAdmin()) return; var b = d.del.split(":");  S.delRecord(b[0], b[1]); return; }
-      if(d.dup) { if(!S.isAdmin()) return; var c = d.dup.split(":");  S.dupRecord(c[0], c[1]); return; }
+      if(d.edit){ if(!S.can("console.use")) return; var a = d.edit.split(":"); S.openDrawer(a[0], a[1]); return; }
+      if(d.del) { if(!S.can("console.use")) return; var b = d.del.split(":");  S.delRecord(b[0], b[1]); return; }
+      if(d.dup) { if(!S.can("console.use")) return; var c = d.dup.split(":");  S.dupRecord(c[0], c[1]); return; }
 
       /* home calendar — month prev/next, wraps both ways */
       if(d.cal){
@@ -297,7 +297,7 @@
 
       /* set or clear the photo in any slot on the page */
       if(d.photoslot){
-        if(!S.isAdmin()){ S.toast("Admins only"); return; }
+        if(!S.can("console.use")){ S.toast("Admins only"); return; }
         var slot = d.photoslot;
         if(S.getImage(slot)){
           S.openPhotoMenu(t, slot);

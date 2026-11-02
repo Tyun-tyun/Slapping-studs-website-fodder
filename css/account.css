@@ -298,3 +298,11 @@ body[data-page="account"]{background:var(--bone)}
   .lk-list--stack .lk-row{grid-template-columns:minmax(0,1fr)}
   .lk-list--stack .lk-seg{grid-column:1 / -1}
 }
+
+/* member points: a stepper per member */
+.lk-row--pts{grid-template-columns:minmax(0,1fr) auto;min-height:56px}
+.lk-step{align-items:center}
+.lk-step b{min-width:64px;text-align:center;font-size:15px;font-weight:700}
+.lk-step button{width:32px;padding:0;font-size:18px;font-weight:700;color:var(--text)}
+.lk-step button:disabled{opacity:.35;cursor:default}
+.lk-low{color:var(--neg)!important;font-weight:700}

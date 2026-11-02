@@ -54,7 +54,7 @@ window.Studs = window.Studs || {};
      browser. On the real site the server refuses the request
      and this map becomes the list of routes it guards. */
   S.GATED = {
-    admin: function(){ return S.isAdmin(); },
+    admin: function(){ return S.can("console.use"); },
     /* the member area: anyone signed in */
     account: function(){ return S.can("account.view"); }
   };

@@ -32,6 +32,11 @@ window.Studs.accounts = [
    email:"coach@slappingstuds.nl", pw:"bench",
    can:["Everything a member sees","Edit rosters and lineups","Publish game sheets and stats"]},
 
+  {id:"u4", role:"moderator", name:"Lotte Visser", sub:"Moderator · Webcom",
+   team:"", no:"", pos:"", group:"", coaches:[],
+   email:"moderator@slappingstuds.nl", pw:"mod",
+   can:["Everything a coach can do","Open the admin console","Edit news, events, games and travel","Set every member's points"]},
+
   {id:"u3", role:"admin", name:"Nina Aalders", sub:"Board · Webcom",
    team:"Cadets", no:"", pos:"Forward", group:"Groups 1–3", coaches:["Cadets"],
    email:"admin@slappingstuds.nl", pw:"godmode",
@@ -47,8 +52,19 @@ window.Studs.perms = {
 
   coach:  ["view.public","view.gallery","view.calendar","view.contacts",
            "event.rsvp","album.upload","account.view",
-           "view.coachalbums","roster.edit","stats.publish"],
+           "view.coachalbums","roster.edit","stats.publish",
+           "points.edit"],
 
+  /* the moderator runs the content: news, events, games, points.
+     No danger zone, no points rule, no accounts */
+  moderator: ["view.public","view.gallery","view.calendar","view.contacts",
+           "event.rsvp","album.upload","account.view",
+           "view.coachalbums","roster.edit","stats.publish",
+           "console.use","points.edit"],
+
+  /* "points.edit": change a member's points. "console.use": the
+     admin console and inline editing. Admin-only: the danger zone
+     and the points rule. */
   admin:  ["*"]
 };
 

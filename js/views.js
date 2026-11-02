@@ -71,7 +71,7 @@
     var host = $("#tickertrack");
     if(!host) return;
     var items = C().news.filter(function(n){
-      return n.status !== "draft" || S.isAdmin();
+      return n.status !== "draft" || S.can("console.use");
     });
     if(!items.length) return;
     var sep = '<span class="strip-dot" aria-hidden="true">&#9679;</span>';
@@ -86,7 +86,7 @@
   /* ---------------- news ------------------------------------ */
   function postHTML(n,i){
     var draft = n.status === "draft";
-    if(draft && !S.isAdmin()) return "";       // drafts are admin-only
+    if(draft && !S.can("console.use")) return "";       // drafts are admin-only
     return '<div class="post" data-item>'+
       ph("news:"+n.id, i===1?"gold":"", "Photo")+'<div>'+
       '<h3 class="pheadline">'+esc(n.title)+'</h3>'+
@@ -105,7 +105,7 @@
      saying it twice reads as a mistake. */
   function tileHTML(n){
     var draft = n.status === "draft";
-    if(draft && !S.isAdmin()) return "";       // drafts are admin-only
+    if(draft && !S.can("console.use")) return "";       // drafts are admin-only
     return '<a class="ptile" data-item href="'+esc(S.postUrl(n.id))+'">'+
       '<div class="ph" data-slot="news:'+esc(n.id)+'" data-ph="'+esc(n.title)+'"></div>'+
       '<div class="ptileveil"></div>'+
@@ -142,7 +142,7 @@
        include somebody pasting the link. Treated as missing
        rather than refused: the existence of an unpublished post
        is not something to leak. */
-    if(n && n.status === "draft" && !S.isAdmin()) n = null;
+    if(n && n.status === "draft" && !S.can("console.use")) n = null;
 
     if(!n){
       host.innerHTML =
@@ -168,7 +168,7 @@
 
     /* Neighbours in the feed, drafts skipped for everyone who
        cannot see them. */
-    var list = all.filter(function(r){ return r.status !== "draft" || S.isAdmin(); });
+    var list = all.filter(function(r){ return r.status !== "draft" || S.can("console.use"); });
     var at = list.map(function(r){ return r.id; }).indexOf(n.id);
     var prev = at > 0 ? list[at-1] : null;
     var next = at > -1 && at < list.length-1 ? list[at+1] : null;
@@ -862,7 +862,7 @@
       '<td class="name">'+esc(g.fixture)+'</td><td class="num">'+esc(g.venue)+'</td>'+
       '<td class="res '+esc(g.outcome)+'">'+esc(g.result)+'</td>'+
       '<td class="num">'+sheetCell(g)+
-      (S.isAdmin()?' <span class="rowacts" style="display:inline-flex;margin-left:8px">'+
+      (S.can("console.use")?' <span class="rowacts" style="display:inline-flex;margin-left:8px">'+
         '<button data-edit="'+col+':'+g.id+'">Edit</button></span>':'')+'</td></tr>';
   }
 
@@ -956,7 +956,7 @@
         '<td class="num">'+esc(g.venue)+'</td>'+
         '<td class="res '+esc(g.outcome)+'">'+esc(g.result)+'</td>'+
         '<td class="num">'+sheetCell(g)+
-        (S.isAdmin()?' <span class="rowacts" style="display:inline-flex;margin-left:8px"><button data-edit="pastgames:'+g.id+'">Edit</button></span>':'')+'</td>'+
+        (S.can("console.use")?' <span class="rowacts" style="display:inline-flex;margin-left:8px"><button data-edit="pastgames:'+g.id+'">Edit</button></span>':'')+'</td>'+
         '</tr>';
     }).join("") : '<tr><td colspan="7" class="name">No games recorded for this season yet.</td></tr>';
 
@@ -978,7 +978,7 @@
     if($("#archivebody")) $("#archivebody").innerHTML = C().archive.map(function(a){
       return '<tr><td class="num">'+esc(a.season)+'</td><td class="num">'+esc(a.posts)+'</td>'+
         '<td class="name">'+esc(a.highlight)+'</td><td class="num">'+esc(a.tags)+
-        (S.isAdmin()?' <span class="rowacts" style="display:inline-flex;margin-left:8px"><button data-edit="archive:'+a.id+'">Edit</button></span>':'')+
+        (S.can("console.use")?' <span class="rowacts" style="display:inline-flex;margin-left:8px"><button data-edit="archive:'+a.id+'">Edit</button></span>':'')+
         '</td></tr>';
     }).join("");
 
@@ -1342,7 +1342,7 @@
       (S.can("album.upload") ?
         '<div class="gatemsg" style="margin-top:24px">'+
         '<p>Open an album to add photos. Anything you upload is resized and kept in this browser — the live site would store it on the club server.</p>'+
-        (S.isAdmin()?'<button class="btn btn-sm" data-add="albums">New album</button>':'')+'</div>' : "");
+        (S.can("console.use")?'<button class="btn btn-sm" data-add="albums">New album</button>':'')+'</div>' : "");
   };
 
   /* ---------------- sign-up page ---------------------------- */
@@ -1408,7 +1408,7 @@
      Every URL here comes from Studs.url() — see js/routes.js. */
   S.renderNav = function(){
     if(!$("#nav")) return;
-    var admin = S.isAdmin(), coach = S.can("roster.edit"), gallery = S.can("view.gallery");
+    var admin = S.can("console.use"), coach = S.can("roster.edit"), gallery = S.can("view.gallery");
     var live = C().news.filter(function(n){ return n.status !== "draft"; }).length;
     var u = S.url, pic = S.picturesUrl, h = "";
 
@@ -1467,7 +1467,7 @@
     $("#hactions").innerHTML = s ?
       '<button class="acct" id="acctbtn"><span class="av">'+esc(initials(s.name))+'</span>'+
       '<span class="an2">'+esc(s.name.split(" ")[0])+
-      '<span class="ar"><span class="dot '+(s.role==="admin"?"a":s.role==="coach"?"c":"m")+
+      '<span class="ar"><span class="dot '+(s.role==="admin"?"a":s.role==="coach"||s.role==="moderator"?"c":"m")+
       '" style="display:inline-block;margin-right:5px"></span>'+esc(s.role)+'</span></span></button>'
       : '<a class="chip chip-join" href="'+S.url("join")+'">Want to join?</a>'+
         '<a class="chip" href="'+S.url("signin")+'"><span class="dot"></span>Sign in</a>';
@@ -1483,8 +1483,8 @@
       '<div class="amr"><span class="dot '+rc+'"></span>'+esc(s.role)+' · '+esc(s.sub)+'</div></div></div>'+
       '<div class="amlist">'+
       '<a href="'+S.accountUrl()+'">My account</a>'+
-      (S.isAdmin() ?
-        '<a href="'+S.url("admin")+'">Admin console <i class="gate a">Godmode</i></a>'+
+      (S.can("console.use") ?
+        '<a href="'+S.url("admin")+'">Admin console <i class="gate a">'+(S.isAdmin()?"Godmode":"Moderator")+'</i></a>'+
         '<button data-act="toggleedit">'+(S.state.editing?"Stop editing the page":"Edit this page inline")+'</button>' : '')+
       '<a href="'+S.url("pictures")+'">Photo albums</a>'+
       '<a href="'+S.url("signin")+'">Switch account</a>'+

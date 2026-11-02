@@ -18,7 +18,7 @@
      admin who turns editing on still has it on after following
      a link to another page. app.js reapplies it on boot. */
   S.setEditing = function(on){
-    S.state.editing = !!on && S.isAdmin();
+    S.state.editing = !!on && S.can("console.use");
     if(S.state.session){
       S.state.session.editing = S.state.editing;
       S.saveSession();
@@ -53,13 +53,13 @@
   /* ---------------- bottom admin bar ------------------------ */
   S.renderAdminBar = function(){
     var bar = $("#adminbar");
-    document.body.classList.toggle("isadmin", S.isAdmin());
-    document.body.classList.toggle("god", S.isAdmin());
-    document.body.classList.toggle("editing", S.state.editing && S.isAdmin());
-    if(!S.isAdmin()){ bar.innerHTML = ""; return; }
+    document.body.classList.toggle("isadmin", S.can("console.use"));
+    document.body.classList.toggle("god", S.can("console.use"));
+    document.body.classList.toggle("editing", S.state.editing && S.can("console.use"));
+    if(!S.can("console.use")){ bar.innerHTML = ""; return; }
 
     bar.innerHTML =
-      '<span class="abbrand"><span class="pulse"></span>Godmode</span>'+
+      '<span class="abbrand"><span class="pulse"></span>'+(S.isAdmin() ? "Godmode" : "Moderator")+'</span>'+
       '<button class="abtn'+(S.state.editing?" on":"")+'" data-act="toggleedit">'+
         (S.state.editing?"Editing on":"Edit on page")+'</button>'+
       '<button class="abtn" data-act="console">Admin console</button>'+
@@ -174,7 +174,8 @@
 
     var placed = {}, html = "";
     AREAS.forEach(function(a){
-      var keys = a[1].filter(function(k){ return !!S.schema[k]; });
+      a[1].forEach(function(k){ placed[k] = true; });   // admin-only ones stay out of "Everything else" too
+      var keys = a[1].filter(function(k){ return !!S.schema[k] && (k !== "pointsrule" || S.isAdmin()); });
       if(!keys.length) return;
       keys.forEach(function(k){ placed[k] = true; });
       html += group(a[0], keys.map(item));
@@ -184,7 +185,7 @@
 
     html += group("Site text and settings", [
       btn("__copy","Page text", Object.keys(C().copy).length, ""),
-      btn("__danger","Danger zone", null, " adnav__b--danger")
+      S.isAdmin() ? btn("__danger","Danger zone", null, " adnav__b--danger") : ""
     ]);
     nav.innerHTML = html;
 
@@ -241,6 +242,8 @@
         '</tbody></table></div>';
       return;
     }
+
+    if((tab === "__danger" || tab === "pointsrule") && !S.isAdmin()){ S.state.adTab = "news"; return S.renderAdminBody(); }
 
     if(tab === "__danger"){
       var photos = Object.keys(C().images||{}).length +

@@ -42,6 +42,7 @@
     {id:"overview", label:"Overview"},
     {id:"schedule", label:"Training"},
     {id:"games",    label:"Games & lifts"},
+    {id:"points",   label:"Member points", cap:"points.edit"},
     {id:"profile",  label:"Profile"}
   ];
 
@@ -118,9 +119,15 @@
     var max = Math.max(Number(r.max) || 10, 1);
     return {need:Math.min(Math.max(Number(r.need) || 4, 0), max), max:max};
   }
-  function pointsOf(acc){
-    var r = col("points").filter(function(x){ return x.who === acc.id; })[0];
+  function pointsFor(id){
+    var r = col("points").filter(function(x){ return x.who === id; })[0];
     return r ? Math.max(Number(r.value) || 0, 0) : 0;
+  }
+  function pointsOf(acc){ return pointsFor(acc.id); }
+  function setPoints(id, v){
+    var rule = pointsRule(), list = col("points"), r = list.filter(function(x){ return x.who === id; })[0];
+    v = String(Math.min(Math.max(v, 0), rule.max));
+    if(r) r.value = v; else list.push({id:S.uid(), who:id, value:v});
   }
 
   /* ---------------- training calendar ------------------------
@@ -241,8 +248,10 @@
      ============================================================ */
   function currentView(acc){
     var v = S.query("v") || "overview";
+    var def = VIEWS.filter(function(x){ return x.id === v; })[0];
+    if(def && def.cap && !S.can(def.cap)) return "overview";
     if(v === "game") return eventById(S.query("id")) ? "game" : "games";
-    return VIEWS.filter(function(x){ return x.id === v; })[0] ? v : "overview";
+    return def ? v : "overview";
   }
 
   S.renderLK = function(){
@@ -251,7 +260,7 @@
     if(!acc) return;
     var v = currentView(acc);
     renderSide(acc, v);
-    var body = {overview:viewOverview, schedule:viewSchedule, games:viewGames, game:viewGame, profile:viewProfile}[v](acc);
+    var body = {overview:viewOverview, schedule:viewSchedule, games:viewGames, game:viewGame, points:viewPoints, profile:viewProfile}[v](acc);
     $("#lkmain").innerHTML = body;
     $("#lkmain").dataset.view = v;
     var def = VIEWS.filter(function(x){ return x.id === v; })[0];
@@ -270,7 +279,7 @@
         '<div class="lk-scope"><span class="dot '+rc+'"></span>'+esc(acc.sub)+'</div></div>'+
       '</div>'+
       '<nav class="lk-nav" aria-label="Member area">'+
-      VIEWS.map(function(x){
+      VIEWS.filter(function(x){ return !x.cap || S.can(x.cap); }).map(function(x){
         var count = x.id === "overview" && need ? '<span class="lk-count" title="Replies needed this week">'+need+'</span>' : "";
         var cur = x.id === v || (v === "game" && x.id === "games");
         return '<a href="'+S.accountUrl(x.id)+'" data-lkview="'+x.id+'"'+(cur ? ' aria-current="page"' : "")+'>'+
@@ -278,7 +287,7 @@
       }).join("")+
       '</nav>'+
       '<div class="lk-sidefoot">'+
-        (S.isAdmin() ? '<a href="'+S.url("admin")+'">Admin console</a>' : "")+
+        (S.can("console.use") ? '<a href="'+S.url("admin")+'">Admin console</a>' : "")+
         '<button type="button" data-act="signout">Sign out</button>'+
       '</div>';
   }
@@ -562,6 +571,33 @@
     return h;
   }
 
+  /* ---------------- member points (coach, moderator, admin) ---
+     Question: who is short of points? A coach sees the squads they
+     look after, the moderator and the board see every squad.      */
+  function viewPoints(acc){
+    var rule = pointsRule();
+    var squads = acc.role === "coach" ? (acc.coaches || []) : null;
+    var people = C().players.map(function(p){ return {id:p.id, name:p.name, team:p.team}; })
+      .concat(S.accounts.filter(function(a){ return a.team; }).map(function(a){ return {id:a.id, name:a.name, team:a.team}; }))
+      .filter(function(p){ return !squads || squads.indexOf(p.team) > -1; });
+    var teams = {};
+    people.forEach(function(p){ (teams[p.team] = teams[p.team] || []).push(p); });
+    var short = people.filter(function(p){ return pointsFor(p.id) < rule.need; }).length;
+    var h = head("Member points", people.length+" members · "+short+" below the "+rule.need+" needed"+
+      (S.isAdmin() ? ". The number needed is set in the admin console." : "."));
+    h += '<div class="lk-col">'+Object.keys(teams).sort().map(function(t){
+      return '<section class="lk-card"><div class="lk-cardhead"><h2>'+esc(t)+'</h2><span class="lk-meta">'+teams[t].length+' members</span></div><ul class="lk-list">'+
+        teams[t].sort(function(a,b){ return a.name.localeCompare(b.name); }).map(function(p){
+          var v = pointsFor(p.id);
+          return '<li class="lk-row lk-row--pts"><div class="lk-what"><b>'+esc(p.name)+'</b>'+(v < rule.need ? '<span class="lk-low">'+(rule.need - v)+' short</span>' : '<span>Enough</span>')+'</div>'+
+            '<span class="lk-seg lk-step"><button type="button" data-pts="'+esc(p.id+"|-1")+'" aria-label="One point less for '+esc(p.name)+'"'+(v <= 0 ? " disabled" : "")+'>−</button>'+
+            '<b class="num">'+v+' / '+rule.max+'</b>'+
+            '<button type="button" data-pts="'+esc(p.id+"|1")+'" aria-label="One point more for '+esc(p.name)+'"'+(v >= rule.max ? " disabled" : "")+'>+</button></span></li>';
+        }).join("")+'</ul></section>';
+    }).join("")+'</div>';
+    return h;
+  }
+
   /* ---------------- profile ---------------------------------
      Question: how do I show up in the club?                    */
   var AV_LABELS = {skin:"Skin", hair:"Hair", hairColor:"Hair colour", eyes:"Eyes", mouth:"Mouth", beard:"Beard"};
@@ -673,6 +709,13 @@
       if((t = e.target.closest("[data-trip]"))){
         var q = t.dataset.trip.split("|");
         if(setTrip(acc, q[0], q[1], q[2])) done("Saved. Everyone can see it on the game page");
+        return;
+      }
+      if((t = e.target.closest("[data-pts]"))){
+        if(!S.can("points.edit")) return;
+        var pp = t.dataset.pts.split("|");
+        setPoints(pp[0], pointsFor(pp[0]) + Number(pp[1]));
+        S.save(); S.renderLK();
         return;
       }
       if((t = e.target.closest("[data-ics]"))){ downloadIcs(acc); return; }
