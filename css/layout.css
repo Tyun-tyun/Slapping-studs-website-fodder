@@ -19,8 +19,8 @@
                     (header.collapsed - the name is historical)
    ≤980px         → the nav folds behind a Menu button        */
 #hotzone{display:none}
-header{position:fixed;top:0;left:0;right:0;z-index:70}
-header::before{content:"";position:absolute;inset:0;background:var(--ink);opacity:1;transition:opacity .2s;pointer-events:none}
+body>header{position:fixed;top:0;left:0;right:0;z-index:70}
+body>header::before{content:"";position:absolute;inset:0;background:var(--ink);opacity:1;transition:opacity .2s;pointer-events:none}
 /* Only the home cover runs a photograph under the bar; there the
    bar starts clear and takes its ground once you scroll. */
 body[data-page="home"] header:not(.collapsed):not(.navopen)::before{opacity:0}
@@ -108,7 +108,7 @@ main{display:block;position:relative;z-index:2}
 .herocta{display:flex;gap:10px;flex-wrap:wrap}
 
 /* ---------------- footer ----------------------------------- */
-footer{background:#08090A;padding-block:56px 34px}
+.sitefoot{background:#08090A;padding-block:56px 34px}
 .fgrid{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:34px}
 .fcol h5{font-family:var(--mono);font-size:15px;letter-spacing:0;color:var(--gold);margin:0 0 12px;font-weight:600}
 .fcol a{display:block;font-size:16px;color:rgba(237,234,225,.8);text-decoration:none;padding:5px 0;cursor:pointer}
@@ -120,7 +120,7 @@ footer{background:#08090A;padding-block:56px 34px}
    probably laid out wrong.                                    */
 @media (max-width:1180px){ nav .navitem>a{padding:10px 8px;font-size:14px} }
 @media (max-width:980px){
-  .feedgrid,.chapgrid,.adgrid{grid-template-columns:1fr}
+  .chapgrid,.adgrid{grid-template-columns:1fr}
   .chapnav,.adnav{position:static;flex-direction:row;flex-wrap:wrap}
   .chapnav a,.adnav button{border-left:0;white-space:nowrap;padding:9px 14px 9px 0}
   .rail{position:static}

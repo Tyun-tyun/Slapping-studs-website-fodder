@@ -89,9 +89,9 @@
     if(draft && !S.isAdmin()) return "";       // drafts are admin-only
     return '<div class="post" data-item>'+
       ph("news:"+n.id, i===1?"gold":"", "Photo")+'<div>'+
+      '<h3 class="pheadline">'+esc(n.title)+'</h3>'+
       '<div class="pmeta">'+esc(n.date)+' · <b>'+esc(n.tag)+'</b> · '+esc(n.author)+
       (draft?'<span class="draftpill">Draft</span>':'')+'</div>'+
-      '<h3 class="pheadline">'+esc(n.title)+'</h3>'+
       '<p class="pex">'+esc(n.excerpt)+'</p></div>'+tools("news",n.id)+'</div>';
   }
   /* The home page shows its posts as PICTURES: the photograph is
