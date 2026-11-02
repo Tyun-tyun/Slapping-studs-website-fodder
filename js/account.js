@@ -2,15 +2,14 @@
    account.js — the member area (account.html).
 
    One document, one view per area, chosen by ?v= in the URL:
-     overview   what needs sorting out this week (no parameter)
+     overview   the next two weeks, replies, member points, events
      schedule   training and club events: I'm in / I'm out
-     games      availability for my squad's games, lifts to away games
-     kit        club kit on loan, this season's contribution
+     games      each game: who can play, who travels and how
+     game       one game on its own page (?v=game&id=e1)
      profile    avatar, details, privacy
-     icecheck   coaches and the board: is there enough ice per practice
 
    Everything renders from the content collections (js/data.js:
-   profiles, rsvps, avail, rides, loans, dues, attendance, plus the
+   profiles, rsvps, avail, travel, points, pointsrule, plus the
    club's own sessions, events, players and announcements) and from
    the signed-in account in js/auth.js. Changes are written back
    with Studs.save(), exactly like the admin console.
@@ -37,16 +36,13 @@
   var $ = S.$, $$ = S.$$, esc = S.esc;
 
   S.demoToday = new Date(2026, 3, 7);   // Tuesday 7 April 2026
-  var MIN_SKATERS = 8;                  // below this a group's slot is not worth the ice (sample rule)
-  var TREASURER = "penningmeester@slappingstuds.nl";
+  var VAN = 9;                          // places in the club van, the driver included
 
   var VIEWS = [
     {id:"overview", label:"Overview"},
     {id:"schedule", label:"Training"},
     {id:"games",    label:"Games & lifts"},
-    {id:"kit",      label:"Kit & contribution"},
-    {id:"profile",  label:"Profile"},
-    {id:"icecheck", label:"Ice check", cap:"attendance.mark"}
+    {id:"profile",  label:"Profile"}
   ];
 
   function C(){ return S.state.content; }
@@ -112,12 +108,26 @@
     var n = hash(pid+"|"+key) % 100;
     return n < 60 ? "in" : n < 78 ? "out" : "";
   }
-  function sampleGroup(p){ return hash(p.id) % 2 ? "Groups 4–6" : "Groups 1–3"; }
+
+  /* ---------------- member points ----------------------------
+     One number per member, from 0 to the top of the scale; the
+     board and the coaches set it, and the board sets how many are
+     needed. Both live in the admin console.                      */
+  function pointsRule(){
+    var r = col("pointsrule")[0] || {};
+    var max = Math.max(Number(r.max) || 10, 1);
+    return {need:Math.min(Math.max(Number(r.need) || 4, 0), max), max:max};
+  }
+  function pointsOf(acc){
+    var r = col("points").filter(function(x){ return x.who === acc.id; })[0];
+    return r ? Math.max(Number(r.value) || 0, 0) : 0;
+  }
 
   /* ---------------- training calendar ------------------------
-     Every practice slot from `from` for `days` days. A slot is one
-     group's time on one date; Friday is one slot for everybody and
-     only in the weeks the session's rule names (1st, 3rd, 5th). */
+     One practice per session per date: the first group's start to
+     the last group's end. Friday only in the weeks the session's
+     rule names (1st, 3rd, 5th). Groups are not shown in the member
+     area for now.                                                */
   function slots(from, days){
     var out = [];
     for(var i=0;i<days;i++){
@@ -128,16 +138,13 @@
           var week = Math.ceil(d.getDate()/7);
           if(String(s.rule).split(",").map(Number).indexOf(week) < 0) return;
         }
-        [[s.g1,s.t1],[s.g2,s.t2]].forEach(function(g, k){
-          if(!g[0] || !g[1]) return;
-          out.push({key:iso(d)+"#"+s.id+"#"+k, date:iso(d), d:d, group:g[0], time:dash(g[1]), session:s});
-        });
+        var ts = [s.t1, s.t2].filter(Boolean).map(dash);
+        if(!ts.length) return;
+        var time = ts[0].split("–")[0].trim()+"–"+ts[ts.length-1].split("–").pop().trim();
+        out.push({key:iso(d)+"#"+s.id, date:iso(d), d:d, time:time, session:s});
       });
     }
     return out;
-  }
-  function mySlot(acc, slot){
-    return !acc.group || slot.group === acc.group || /all/i.test(slot.group);
   }
   function rsvpOf(who, date){
     var r = col("rsvps").filter(function(x){ return x.who === who && x.date === date; })[0];
@@ -147,16 +154,9 @@
     var list = col("rsvps"), r = list.filter(function(x){ return x.who === who && x.date === date; })[0];
     if(r) r.status = status; else list.push({id:S.uid(), who:who, date:date, status:status});
   }
-
-  /* players in a slot (the coach's squads, the slot's groups) with
-     their reply: the generated one, or "in" for the demo accounts */
-  function slotPlayers(slot, squads){
-    return C().players.filter(function(p){
-      if(squads.indexOf(p.team) < 0) return false;
-      return /all/i.test(slot.group) || sampleGroup(p) === slot.group;
-    }).map(function(p){
-      return {p:p, reply:sampleReply(p.id, slot.date)};
-    });
+  /* the roster's generated replies for one practice */
+  function goingCount(date){
+    return C().players.filter(function(p){ return sampleReply(p.id, date) === "in"; }).length;
   }
 
   /* ---------------- games and events ------------------------- */
@@ -164,6 +164,10 @@
     return C().events.map(function(e){ return {e:e, d:eventDate(e)}; })
       .filter(function(x){ return x.d && daysBetween(S.demoToday, x.d) >= 0; })
       .sort(function(a,b){ return a.d - b.d; });
+  }
+  function eventById(id){
+    var e = C().events.filter(function(x){ return x.id === id; })[0];
+    return e ? {e:e, d:eventDate(e)} : null;
   }
   function availOf(who, ev){
     var r = col("avail").filter(function(x){ return x.who === who && x.ev === ev; })[0];
@@ -173,45 +177,61 @@
     var list = col("avail"), r = list.filter(function(x){ return x.who === who && x.ev === ev; })[0];
     if(r) r.status = status; else list.push({id:S.uid(), who:who, ev:ev, status:status});
   }
-  function riders(r){ return String(r.riders||"").split(",").map(function(x){ return x.trim(); }).filter(Boolean); }
 
-  /* a squad's answers for one game: the roster's generated replies
-     plus the signed-in member's own, when it is their squad. The
-     overview and the Games view both read this, so they agree. */
-  function gameTally(acc, e){
-    var replies = C().players.filter(function(p){ return p.team === e.team; })
-      .map(function(p){ return {p:p, r:sampleReply(p.id, e.id)}; });
-    var mineToo = !!acc.team && acc.team === e.team;
-    var mine = mineToo ? availOf(acc.id, e.id) : "";
-    var yes = replies.filter(function(x){ return x.r === "in"; }).length + (mine === "yes" ? 1 : 0);
-    var no  = replies.filter(function(x){ return x.r === "out"; }).length + (mine === "no" ? 1 : 0);
-    var total = replies.length + (mineToo ? 1 : 0);
-    return {replies:replies, mineToo:mineToo, mine:mine, yes:yes, no:no, total:total, open:total - yes - no,
-            goalies:replies.filter(function(x){ return x.r === "in" && x.p.pos === "Goaltender"; }).length};
+  /* a squad's answers for one game, as names: the roster's generated
+     replies plus the signed-in member's own when it is their squad */
+  function squadAnswers(acc, e){
+    var out = {yes:[], maybe:[], no:[], none:[]};
+    C().players.filter(function(p){ return p.team === e.team; }).forEach(function(p){
+      var r = sampleReply(p.id, e.id);
+      out[r === "in" ? "yes" : r === "out" ? "no" : "none"].push(p);
+    });
+    if(acc.team && acc.team === e.team){
+      var mine = availOf(acc.id, e.id);
+      out[mine === "yes" ? "yes" : mine === "maybe" ? "maybe" : mine === "no" ? "no" : "none"].push({name:acc.name, pos:acc.pos, mine:true});
+    }
+    out.total = out.yes.length + out.maybe.length + out.no.length + out.none.length;
+    out.goalies = out.yes.filter(function(p){ return p.pos === "Goaltender"; }).length;
+    return out;
   }
+  function names(list){ return list.map(function(p){ return p.name+(p.mine ? " (you)" : ""); }).join(", "); }
 
-  /* ---------------- money ------------------------------------ */
-  function euros(v){ return "€"+(Number(v)||0).toFixed(2); }
-  function myDues(acc){
-    return col("dues").filter(function(d){ return d.who === acc.id; })[0] || null;
+  /* ---------------- travel to an away game ------------------- */
+  function tripRow(acc, ev){
+    return col("travel").filter(function(r){ return r.ev === ev && r.who === acc.id; })[0] || null;
   }
-  function owed(d){ return d ? Math.round((Number(d.amount) - Number(d.paid)) * 100) / 100 : 0; }
-  function myLoans(acc){ return col("loans").filter(function(l){ return l.who === acc.id; }); }
-  function loansOut(acc){
-    return myLoans(acc).filter(function(l){ return !l.back; })
-      .sort(function(a,b){ return String(a.due).localeCompare(String(b.due)); });
+  function going(ev){ return col("travel").filter(function(r){ return r.ev === ev && r.going === "yes"; }); }
+  function vanPeople(ev){ return going(ev).filter(function(r){ return r.how === "van"; }); }
+  function carPeople(ev){ return going(ev).filter(function(r){ return r.how === "car"; }); }
+  function setTrip(acc, ev, key, val){
+    var r = tripRow(acc, ev);
+    if(!r){ r = {id:S.uid(), ev:ev, who:acc.id, name:acc.name, going:"", how:"", drive:""}; col("travel").push(r); }
+    if(key === "going"){
+      r.going = val;
+      if(val === "yes" && !r.how){ r.how = vanPeople(ev).length < VAN ? "van" : "car"; r.drive = r.drive || "no"; }
+    }else if(key === "how"){
+      if(val === "van" && !(r.going === "yes" && r.how === "van") && vanPeople(ev).length >= VAN){
+        S.toast("The van is full"); return false;
+      }
+      r.how = val;
+    }else{
+      r.drive = val;
+    }
+    return true;
   }
 
   /* ---------------- what needs a reply ----------------------- */
   function openReplies(acc, days){
     var list = [];
-    slots(S.demoToday, days).forEach(function(s){
-      if(acc.group && mySlot(acc, s) && !rsvpOf(acc.id, s.date)) list.push({kind:"practice", d:s.d, slot:s});
-    });
+    if(acc.team){
+      slots(S.demoToday, days).forEach(function(s){
+        if(!rsvpOf(acc.id, s.date)) list.push({kind:"practice", d:s.d, slot:s});
+      });
+    }
     upcomingEvents().forEach(function(x){
       if(daysBetween(S.demoToday, x.d) >= days) return;
       var mine = !isGame(x.e) || x.e.team === acc.team;
-      if(mine && !availOf(acc.id, x.e.id)) list.push({kind:isGame(x.e)?"game":"event", d:x.d, e:x.e});
+      if(mine && acc.team && !availOf(acc.id, x.e.id)) list.push({kind:isGame(x.e)?"game":"event", d:x.d, e:x.e});
     });
     return list.sort(function(a,b){ return a.d - b.d; });
   }
@@ -221,9 +241,8 @@
      ============================================================ */
   function currentView(acc){
     var v = S.query("v") || "overview";
-    var def = VIEWS.filter(function(x){ return x.id === v; })[0];
-    if(!def || (def.cap && !S.can(def.cap))) v = "overview";
-    return v;
+    if(v === "game") return eventById(S.query("id")) ? "game" : "games";
+    return VIEWS.filter(function(x){ return x.id === v; })[0] ? v : "overview";
   }
 
   S.renderLK = function(){
@@ -232,11 +251,11 @@
     if(!acc) return;
     var v = currentView(acc);
     renderSide(acc, v);
-    var body = {overview:viewOverview, schedule:viewSchedule, games:viewGames,
-                kit:viewKit, profile:viewProfile, icecheck:viewIceCheck}[v](acc);
+    var body = {overview:viewOverview, schedule:viewSchedule, games:viewGames, game:viewGame, profile:viewProfile}[v](acc);
     $("#lkmain").innerHTML = body;
     $("#lkmain").dataset.view = v;
-    document.title = (VIEWS.filter(function(x){ return x.id === v; })[0].label) + " — My account — The Slapping Studs";
+    var def = VIEWS.filter(function(x){ return x.id === v; })[0];
+    document.title = (def ? def.label : "Game") + " — My account — The Slapping Studs";
     bindOnce();
   };
 
@@ -251,9 +270,10 @@
         '<div class="lk-scope"><span class="dot '+rc+'"></span>'+esc(acc.sub)+'</div></div>'+
       '</div>'+
       '<nav class="lk-nav" aria-label="Member area">'+
-      VIEWS.filter(function(x){ return !x.cap || S.can(x.cap); }).map(function(x){
+      VIEWS.map(function(x){
         var count = x.id === "overview" && need ? '<span class="lk-count" title="Replies needed this week">'+need+'</span>' : "";
-        return '<a href="'+S.accountUrl(x.id)+'" data-lkview="'+x.id+'"'+(x.id === v ? ' aria-current="page"' : "")+'>'+
+        var cur = x.id === v || (v === "game" && x.id === "games");
+        return '<a href="'+S.accountUrl(x.id)+'" data-lkview="'+x.id+'"'+(cur ? ' aria-current="page"' : "")+'>'+
                esc(x.label)+count+'</a>';
       }).join("")+
       '</nav>'+
@@ -280,70 +300,60 @@
   /* ---------------- overview --------------------------------
      Question: what do I need to sort out this week?           */
   function viewOverview(acc){
-    var open = openReplies(acc, 7);
-    var out = loansOut(acc), due = myDues(acc), left = owed(due);
-    var soon = out.filter(function(l){ return daysBetween(S.demoToday, parse(l.due)) <= 7; });
+    var open = openReplies(acc, 7), rule = pointsRule(), pts = pointsOf(acc);
 
-    /* the finding: the most pressing facts, in words */
     var facts = [];
     if(open.length) facts.push(open.length+(open.length === 1 ? " reply" : " replies")+" missing for the next 7 days");
-    soon.forEach(function(l){
-      var n = daysBetween(S.demoToday, parse(l.due));
-      facts.push(l.item.split("·")[0].trim().toLowerCase()+(n < 0 ? " was due back "+fmtLong(parse(l.due)) : " is due back "+fmtLong(parse(l.due))));
-    });
-    if(left > 0 && due.due) facts.push(euros(left)+" of your contribution is due by "+fmtLong(parse(due.due)));
-    if(S.can("attendance.mark")){
-      var shortIce = iceRows(acc).filter(function(r){ return r.short && daysBetween(S.demoToday, r.s.d) < 7; });
-      if(shortIce.length) facts.push(shortIce.length+(shortIce.length === 1 ? " practice" : " practices")+" this week "+(shortIce.length === 1 ? "is" : "are")+" short of skaters or a goalie");
-    }
+    if(pts < rule.need) facts.push((rule.need - pts)+(rule.need - pts === 1 ? " more member point" : " more member points")+" needed");
     var finding = facts.length ? facts.join(", ").replace(/^./, function(c){ return c.toUpperCase(); })+"." : "Nothing waiting on you this week.";
 
     var h = head("Overview", esc(finding));
-    h += '<div class="lk-grid lk-grid--rail">';
-    h += '<div class="lk-col">'+iceStrip(acc)+repliesCard(acc, open)+boardCard()+'</div>';
-    h += '<div class="lk-col">'+nextGameCard(acc)+moneyCard(acc, out, due)+'</div>';
+    h += weekCard(acc);
+    h += '<div class="lk-grid lk-grid--2">';
+    h += '<div class="lk-col">'+repliesCard(acc, open)+nextGameCard(acc)+'</div>';
+    h += '<div class="lk-col">'+pointsCard(acc)+eventsCard(acc)+boardCard()+'</div>';
     h += '</div>';
     return h;
   }
 
-  /* SIGNATURE: the next fourteen days on the ice, one column a day.
-     A practice is a bar in my slot: gold when I'm in, an outline
-     when I have not replied, a faint bar when I'm out. A game is a
-     puck under the day. Today carries a 1px gold line. */
-  function iceStrip(acc){
+  /* The next fourteen days as two rows of seven. Every day names
+     itself; a practice says whether I'm in, a game says home or
+     away, an event says what it is. Today has a dark frame. */
+  function weekCard(acc){
     var days = 14, all = slots(S.demoToday, days), ev = upcomingEvents();
-    var cols = "";
-    for(var i=0;i<days;i++){
-      var d = addDays(S.demoToday, i), id = iso(d), wk = d.getDay() === 0 || d.getDay() === 6;
-      var mine = all.filter(function(s){ return s.date === id && mySlot(acc, s); });
-      var marks = mine.map(function(s){
-        var r = acc.group ? rsvpOf(acc.id, s.date) : "staff";
-        var label = s.group+" "+s.time+(r === "in" ? ", you're in" : r === "out" ? ", you're out" : r === "staff" ? "" : ", no reply yet");
-        return '<span class="ice-bar '+(r||"open")+'" title="'+esc(label)+'"><span>'+esc(s.time.split("–")[0])+'</span></span>';
-      }).join("");
-      var games = ev.filter(function(x){ return iso(x.d) === id && isGame(x.e); }).map(function(x){
-        var ours = x.e.team === acc.team || (acc.coaches||[]).indexOf(x.e.team) > -1;
-        return '<span class="ice-puck'+(ours ? " ours" : "")+'" title="'+esc(x.e.title+" · "+x.e.meta)+'">'+(x.e.kind === "home" ? "H" : "A")+'</span>';
-      }).join("");
-      cols += '<a class="ice-day'+(i === 0 ? " today" : "")+(wk ? " wk" : "")+'" href="'+S.accountUrl("schedule")+'#d-'+id+'" data-lkview="schedule">'+
-        '<span class="ice-dn">'+DAYS[d.getDay()].slice(0,1)+'</span><span class="ice-dd">'+d.getDate()+'</span>'+
-        '<span class="ice-marks">'+marks+'</span><span class="ice-games">'+games+'</span></a>';
+    function cell(i){
+      var d = addDays(S.demoToday, i), id = iso(d), items = "", target = "schedule", gameId = "";
+      all.filter(function(s){ return s.date === id; }).forEach(function(s){
+        var r = acc.team ? rsvpOf(acc.id, s.date) : "staff";
+        var word = r === "in" ? "You’re in" : r === "out" ? "You’re out" : r === "staff" ? "" : "No reply yet";
+        items += '<span class="wk-item p '+(r || "open")+'"><b>Practice</b><span>'+esc(s.time)+'</span>'+(word ? '<span>'+word+'</span>' : "")+'</span>';
+      });
+      ev.filter(function(x){ return iso(x.d) === id; }).forEach(function(x){
+        if(isGame(x.e)){
+          var ours = x.e.team === acc.team || (acc.coaches||[]).indexOf(x.e.team) > -1;
+          items += '<span class="wk-item g'+(ours ? " ours" : "")+'"><b>'+(x.e.kind === "home" ? "Home game" : "Away game")+'</b><span>'+esc(eventTime(x.e))+'</span><span>'+esc(x.e.team)+'</span></span>';
+          if(!gameId){ gameId = x.e.id; target = "game"; }
+        }else{
+          items += '<span class="wk-item e"><b>Club event</b><span>'+esc(x.e.title)+'</span><span>'+esc(eventTime(x.e))+'</span></span>';
+        }
+      });
+      var href = target === "game" ? S.accountUrl("game", gameId) : S.accountUrl("schedule")+"#d-"+id;
+      return '<a class="wk-day'+(i === 0 ? " today" : "")+(items ? "" : " empty")+'" href="'+href+'" data-lkview="'+target+'">'+
+        '<span class="wk-dh"><span class="wk-dn">'+DAYS[d.getDay()].slice(0,3)+'</span><span class="wk-dd">'+d.getDate()+'</span></span>'+items+'</a>';
     }
-    var ins = all.filter(function(s){ return mySlot(acc, s) && rsvpOf(acc.id, s.date) === "in"; }).length;
-    var mineAll = all.filter(function(s){ return mySlot(acc, s); }).length;
-    return '<section class="lk-card lk-card--strip"><div class="lk-cardhead"><h2>Your next two weeks on the ice</h2>'+
-      '<span class="lk-meta">'+fmtDay(S.demoToday)+' – '+fmtDay(addDays(S.demoToday, days-1))+'</span></div>'+
-      (acc.group ? '<p class="lk-line">'+ins+' of '+mineAll+' practices in '+esc(acc.group)+' answered “I’m in”.</p>'
-                 : '<p class="lk-line">Every practice slot, both groups. You coach '+esc((acc.coaches||[]).join(" and "))+'.</p>')+
-      '<div class="ice-strip">'+cols+'</div>'+
-      '<div class="lk-legend"><span><i class="ice-bar in"></i>I’m in</span><span><i class="ice-bar open"></i>No reply</span>'+
-      '<span><i class="ice-bar out"></i>I’m out</span><span><i class="ice-puck ours">H</i>Game, home or away</span></div></section>';
+    function row(from, label){
+      var out = "";
+      for(var i=from;i<from+7;i++) out += cell(i);
+      return '<h3 class="wk-label">'+label+' · '+fmtDay(addDays(S.demoToday, from))+' – '+fmtDay(addDays(S.demoToday, from+6))+'</h3><div class="wk-grid">'+out+'</div>';
+    }
+    return '<section class="lk-card"><div class="lk-cardhead"><h2>Your next two weeks</h2></div>'+
+      row(0, "This week")+row(7, "Next week")+'</section>';
   }
 
   function replyRow(acc, x){
     if(x.kind === "practice"){
       return '<li class="lk-row"><div class="lk-when"><b>'+fmtDay(x.d)+'</b><span>'+esc(x.slot.time)+'</span></div>'+
-        '<div class="lk-what"><b>Practice · '+esc(x.slot.group)+'</b><span>IJsbaan Twente · '+relDay(x.d)+'</span></div>'+
+        '<div class="lk-what"><b>Practice</b><span>IJsbaan Twente · '+relDay(x.d)+'</span></div>'+
         seg("data-rsvp", x.slot.date, [["in","I’m in"],["out","I’m out"]], "")+'</li>';
     }
     return '<li class="lk-row"><div class="lk-when"><b>'+fmtDay(x.d)+'</b><span>'+esc(eventTime(x.e))+'</span></div>'+
@@ -351,9 +361,9 @@
       seg("data-avail", x.e.id, x.kind === "game" ? [["yes","Can play"],["no","Can’t"]] : [["yes","Going"],["no","Not going"]], "")+'</li>';
   }
   function repliesCard(acc, open){
-    if(!acc.group){
+    if(!acc.team){
       return '<section class="lk-card"><div class="lk-cardhead"><h2>Needs a reply</h2></div>'+
-        '<p class="lk-empty">Coaches don’t reply to practices. See who has in <a href="'+S.accountUrl("icecheck")+'" data-lkview="icecheck">Ice check</a>.</p></section>';
+        '<p class="lk-empty">Coaches don’t reply to practices. Who can play is on each game’s page under <a href="'+S.accountUrl("games")+'" data-lkview="games">Games &amp; lifts</a>.</p></section>';
     }
     return '<section class="lk-card"><div class="lk-cardhead"><h2>Needs a reply</h2><span class="lk-meta">'+open.length+' in the next 7 days</span></div>'+
       (open.length ? '<ul class="lk-list">'+open.slice(0,5).map(function(x){ return replyRow(acc, x); }).join("")+'</ul>'+
@@ -372,217 +382,183 @@
     var squads = acc.team ? [acc.team] : (acc.coaches||[]);
     var g = upcomingEvents().filter(function(x){ return isGame(x.e) && squads.indexOf(x.e.team) > -1; })[0];
     if(!g) return '<section class="lk-card"><div class="lk-cardhead"><h2>Next game</h2></div><p class="lk-empty">No games for your squad left this season.</p></section>';
-    var t = gameTally(acc, g.e);
+    var t = squadAnswers(acc, g.e), mine = acc.team === g.e.team ? availOf(acc.id, g.e.id) : "";
     return '<section class="lk-card"><div class="lk-cardhead"><h2>Next game</h2><span class="lk-meta">'+relDay(g.d)+'</span></div>'+
       '<p class="lk-big">'+esc(g.e.title)+'</p>'+
       '<p class="lk-line">'+fmtLong(g.d)+' · '+esc(g.e.meta)+'</p>'+
-      '<p class="lk-figure"><b class="num">'+t.yes+'</b><span> of '+t.total+' '+esc(g.e.team)+' players can play so far</span></p>'+
-      (t.mineToo ? seg("data-avail", g.e.id, [["yes","Can play"],["maybe","Maybe"],["no","Can’t"]], t.mine) : "")+
-      '<a class="lk-more" href="'+S.accountUrl("games")+'" data-lkview="games">'+(g.e.kind === "away" ? "Lifts and squad" : "Squad")+'</a></section>';
-  }
-  function moneyCard(acc, out, due){
-    var left = owed(due);
-    var rows = out.slice(0,3).map(function(l){
-      var n = daysBetween(S.demoToday, parse(l.due));
-      return '<li><span>'+esc(l.item)+'</span>'+(n <= 7 ? pill(n < 0 ? "neg" : "warn", n < 0 ? "Overdue" : "Back "+fmtDay(parse(l.due))) : '<em>'+fmtDay(parse(l.due))+'</em>')+'</li>';
-    }).join("");
-    return '<section class="lk-card"><div class="lk-cardhead"><h2>Kit and contribution</h2></div>'+
-      (due && Number(due.amount) > 0 ?
-        '<p class="lk-figure"><b class="num">'+euros(left)+'</b><span> left of '+euros(due.amount)+', season '+esc(due.season)+'</span></p>' :
-        '<p class="lk-line">No contribution for your role this season.</p>')+
-      (out.length ? '<ul class="lk-kv">'+rows+'</ul>' : '<p class="lk-line">No club kit with you.</p>')+
-      '<a class="lk-more" href="'+S.accountUrl("kit")+'" data-lkview="kit">Kit and contribution</a></section>';
+      '<p class="lk-figure"><b class="num">'+t.yes.length+'</b><span> of '+t.total+' '+esc(g.e.team)+' players can play so far</span></p>'+
+      (acc.team === g.e.team ? seg("data-avail", g.e.id, [["yes","Can play"],["maybe","Maybe"],["no","Can’t"]], mine) : "")+
+      '<a class="lk-more" href="'+S.accountUrl("game", g.e.id)+'" data-lkview="game">Open the game page</a></section>';
   }
 
-  /* ---------------- training --------------------------------
-     Question: which practices am I going to?                   */
-  function viewSchedule(acc){
-    var all = slots(S.demoToday, 21).filter(function(s){ return mySlot(acc, s); });
-    var filter = S.state.lkFilter || "all";
-    var counts = {all:all.length, open:0, in:0, out:0};
-    all.forEach(function(s){ var r = rsvpOf(acc.id, s.date) || "open"; counts[r]++; });
-    var shown = acc.group ? all.filter(function(s){ return filter === "all" || (rsvpOf(acc.id, s.date) || "open") === filter; }) : all;
-
-    var sub = acc.group ? esc(acc.group)+": "+C().sessions.map(function(s){
-      var sl = [[s.g1,s.t1],[s.g2,s.t2]].filter(function(g){ return g[0] && (g[0] === acc.group || /all/i.test(g[0])); })[0];
-      return sl ? s.day+" "+dash(sl[1]).split("–")[0]+(s.rule ? " (weeks "+s.rule.replace(/,/g, ", ")+")" : "") : "";
-    }).filter(Boolean).join(", ")+". IJsbaan Twente." : "Every practice slot for the next three weeks.";
-
-    var h = head("Training", sub);
-
-    if(acc.group){
-      h += '<div class="lk-counts" role="group" aria-label="Show">'+[["all","All practices"],["open","No reply"],["in","I’m in"],["out","I’m out"]].map(function(f){
-        return '<button type="button" data-filter="'+f[0]+'" aria-pressed="'+(filter === f[0])+'"'+(filter === f[0] ? ' class="on"' : "")+'>'+
-          '<span>'+f[1]+'</span><b class="num">'+counts[f[0]]+'</b></button>';
-      }).join("")+'</div>';
+  /* Member points: one square per point on the scale, the ones I
+     have filled in gold, the ones the club asks for outlined dark. */
+  function pointsCard(acc){
+    var rule = pointsRule(), pts = Math.min(pointsOf(acc), rule.max), sq = "";
+    for(var i=1;i<=rule.max;i++){
+      sq += '<i class="'+(i <= pts ? "on " : "")+(i <= rule.need ? "req" : "")+'"></i>';
     }
+    var gap = rule.need - pts;
+    return '<section class="lk-card"><div class="lk-cardhead"><h2>Member points</h2><span class="lk-meta">'+rule.need+' needed</span></div>'+
+      '<p class="lk-figure"><b class="num">'+pts+'</b><span> of '+rule.max+'</span></p>'+
+      '<div class="pts" role="img" aria-label="'+pts+' of '+rule.max+' member points, '+rule.need+' needed">'+sq+'</div>'+
+      '<p class="lk-line pts-note">'+(gap > 0 ? gap+(gap === 1 ? " more point" : " more points")+" to reach the "+rule.need+" the club asks for." : "You have the "+rule.need+" points the club asks for.")+'</p></section>';
+  }
 
-    /* grouped by week */
-    var weeks = {};
-    shown.forEach(function(s){ var w = Math.floor(daysBetween(S.demoToday, s.d) / 7); (weeks[w] = weeks[w] || []).push(s); });
-    var body = Object.keys(weeks).map(function(w){
-      var list = weeks[w], first = addDays(S.demoToday, w*7);
-      return '<section class="lk-card"><div class="lk-cardhead"><h2>'+(w === "0" ? "This week" : w === "1" ? "Next week" : "Week of "+fmtDay(first))+'</h2>'+
-        '<span class="lk-meta">'+list.length+(list.length === 1 ? " practice" : " practices")+'</span></div><ul class="lk-list">'+
-        list.map(function(s){
-          var going = C().players.filter(function(p){ return (/all/i.test(s.group) || sampleGroup(p) === s.group) && sampleReply(p.id, s.date) === "in"; }).length;
-          var mine = rsvpOf(acc.id, s.date);
-          return '<li class="lk-row" id="d-'+s.date+'"><div class="lk-when"><b>'+fmtDay(s.d)+'</b><span>'+esc(s.time)+'</span></div>'+
-            '<div class="lk-what"><b>'+esc(s.group)+'</b><span>'+relDay(s.d)+' · '+going+(acc.group && mine === "in" ? " others" : "")+' going so far</span></div>'+
-            (acc.group ? seg("data-rsvp", s.date, [["in","I’m in"],["out","I’m out"]], mine) : '<a class="lk-textbtn" href="'+S.accountUrl("icecheck")+'" data-lkview="icecheck">Ice check</a>')+'</li>';
-        }).join("")+'</ul></section>';
-    }).join("");
-    if(!shown.length) body = '<section class="lk-card"><p class="lk-empty">No practices match this filter in the next three weeks.</p></section>';
-
-    /* beside the practices: club events that are not games, and the
-       calendar file */
+  /* club events that are not games, with a reply */
+  function eventsCard(acc){
     var evs = upcomingEvents().filter(function(x){ return !isGame(x.e); });
-    var rail = '<section class="lk-card"><div class="lk-cardhead"><h2>Club events</h2><span class="lk-meta">'+evs.length+' coming up</span></div>'+
+    return '<section class="lk-card"><div class="lk-cardhead"><h2>Club events</h2><span class="lk-meta">'+evs.length+' coming up</span></div>'+
       (evs.length ? '<ul class="lk-list lk-list--stack">'+evs.map(function(x){
         return '<li class="lk-row"><div class="lk-when"><b>'+fmtDay(x.d)+'</b><span>'+esc(eventTime(x.e))+'</span></div>'+
           '<div class="lk-what"><b>'+esc(x.e.title)+'</b><span>'+esc(eventPlace(x.e))+' · '+relDay(x.d)+'</span></div>'+
-          seg("data-avail", x.e.id, [["yes","Going"],["maybe","Maybe"],["no","Not going"]], availOf(acc.id, x.e.id))+'</li>';
+          (acc.team ? seg("data-avail", x.e.id, [["yes","Going"],["maybe","Maybe"],["no","Not going"]], availOf(acc.id, x.e.id)) : "")+'</li>';
       }).join("")+'</ul>' : '<p class="lk-empty">No club events planned yet.</p>')+'</section>';
-    if(acc.group){
-      rail += '<section class="lk-card"><div class="lk-cardhead"><h2>In your own calendar</h2></div>'+
+  }
+
+  /* ---------------- training --------------------------------
+     Question: which practices am I going to? Practices and club
+     events sit in one list, by week.                            */
+  function viewSchedule(acc){
+    var days = 21;
+    var items = slots(S.demoToday, days).map(function(s){ return {d:s.d, practice:s}; });
+    upcomingEvents().filter(function(x){ return !isGame(x.e) && daysBetween(S.demoToday, x.d) < days; })
+      .forEach(function(x){ items.push({d:x.d, event:x.e}); });
+    items.sort(function(a,b){ return a.d - b.d; });
+
+    var sub = C().sessions.map(function(s){
+      var t = dash(s.t1 || s.t2).split("–")[0].trim();
+      return s.day+" "+t+(s.rule ? " (weeks "+s.rule.replace(/,/g, ", ")+")" : "");
+    }).join(", ")+". IJsbaan Twente.";
+
+    var h = head("Training", esc(sub));
+
+    var weeks = {};
+    items.forEach(function(it){ var w = Math.floor(daysBetween(S.demoToday, it.d) / 7); (weeks[w] = weeks[w] || []).push(it); });
+    var body = Object.keys(weeks).map(function(w){
+      var list = weeks[w], first = addDays(S.demoToday, w*7);
+      var np = list.filter(function(it){ return it.practice; }).length;
+      return '<section class="lk-card"><div class="lk-cardhead"><h2>'+(w === "0" ? "This week" : w === "1" ? "Next week" : "Week of "+fmtDay(first))+'</h2>'+
+        '<span class="lk-meta">'+np+(np === 1 ? " practice" : " practices")+'</span></div><ul class="lk-list">'+
+        list.map(function(it){
+          if(it.practice){
+            var s = it.practice, mine = rsvpOf(acc.id, s.date);
+            return '<li class="lk-row" id="d-'+s.date+'"><div class="lk-when"><b>'+fmtDay(s.d)+'</b><span>'+esc(s.time)+'</span></div>'+
+              '<div class="lk-what"><b>Practice</b><span>'+relDay(s.d)+' · '+goingCount(s.date)+' going so far</span></div>'+
+              (acc.team ? seg("data-rsvp", s.date, [["in","I’m in"],["out","I’m out"]], mine) : "")+'</li>';
+          }
+          var e = it.event;
+          return '<li class="lk-row lk-row--event" id="d-'+iso(it.d)+'"><div class="lk-when"><b>'+fmtDay(it.d)+'</b><span>'+esc(eventTime(e))+'</span></div>'+
+            '<div class="lk-what"><b>'+esc(e.title)+'</b><span>Club event · '+esc(eventPlace(e))+' · '+relDay(it.d)+'</span></div>'+
+            (acc.team ? seg("data-avail", e.id, [["yes","Going"],["maybe","Maybe"],["no","Not going"]], availOf(acc.id, e.id)) : "")+'</li>';
+        }).join("")+'</ul></section>';
+    }).join("");
+    if(!items.length) body = '<section class="lk-card"><p class="lk-empty">No practices or events in the next three weeks.</p></section>';
+
+    var rail = acc.team ? '<section class="lk-card"><div class="lk-cardhead"><h2>In your own calendar</h2></div>'+
         '<p class="lk-line">Every practice you haven’t said no to for the next six weeks, plus the games and events you’re going to, as one file for Google, Apple or Outlook calendar.</p>'+
-        '<button type="button" class="lk-btn" data-ics="1">Download calendar file</button></section>';
-    }
-    h += '<div class="lk-grid lk-grid--rail"><div class="lk-col">'+body+'</div><div class="lk-col">'+rail+'</div></div>';
+        '<button type="button" class="lk-btn" data-ics="1">Download calendar file</button></section>' : "";
+    h += rail ? '<div class="lk-grid lk-grid--rail"><div class="lk-col">'+body+'</div><div class="lk-col">'+rail+'</div></div>'
+              : '<div class="lk-col">'+body+'</div>';
     return h;
   }
 
   /* ---------------- games & lifts ----------------------------
-     Question: am I playing, and how do I get there?            */
+     Question: who is playing, and how do we get there?        */
   function viewGames(acc){
     var games = upcomingEvents().filter(function(x){ return isGame(x.e); });
     var squads = acc.team ? [acc.team] : (acc.coaches||[]);
     var mineCount = games.filter(function(x){ return squads.indexOf(x.e.team) > -1; }).length;
     var h = head("Games & lifts", games.length ?
-      mineCount+" of the "+games.length+" games left this season are "+(acc.team ? "for "+esc(acc.team) : "for your squads")+". Away games list the lifts going." :
+      mineCount+" of the "+games.length+" games left this season are "+(acc.team ? "for "+esc(acc.team) : "for your squads")+". Open a game to see everyone’s name." :
       "No games left this season.");
-    h += games.map(function(x){ return gameCard(acc, x, squads.indexOf(x.e.team) > -1); }).join("");
+    h += '<div class="lk-col">'+games.map(function(x){ return gameCard(acc, x, squads.indexOf(x.e.team) > -1); }).join("")+'</div>';
     if(!games.length) h += '<section class="lk-card"><p class="lk-empty">The season is over. Fixtures for next season appear here when the league publishes them.</p></section>';
     return h;
   }
-  function gameCard(acc, x, ours){
-    var e = x.e, t = gameTally(acc, e);
-    var replies = t.replies, mine = t.mine, yes = t.yes, no = t.no, goalies = t.goalies, total = t.total;
 
-    var h = '<section class="lk-card lk-game"><div class="lk-cardhead"><h2>'+esc(e.title)+'</h2>'+
-      '<span class="lk-meta">'+(e.kind === "home" ? "Home" : "Away")+' · '+relDay(x.d)+'</span></div>'+
-      '<p class="lk-line">'+fmtLong(x.d)+' · '+esc(e.meta)+(e.team ? ' · '+esc(e.team) : "")+'</p>';
+  function gameHead(x){
+    var e = x.e;
+    return '<p class="lk-line">'+fmtLong(x.d)+' · '+esc(e.meta)+(e.team ? ' · '+esc(e.team) : "")+'</p>';
+  }
 
-    h += '<div class="lk-split"><div>';
-    /* the squad as units: one square per player */
-    h += '<h3>'+esc(e.team)+' availability</h3>'+
-      '<p class="lk-figure"><b class="num">'+yes+'</b><span> of '+total+' can play · '+no+' can’t · '+(total-yes-no)+' no reply · '+goalies+(goalies === 1 ? " goalie" : " goalies")+'</span></p>'+
-      '<div class="lk-units" aria-hidden="true">'+replies.map(function(r){
-        return '<i class="u '+(r.r||"open")+(r.p.pos === "Goaltender" ? " g" : "")+'" title="'+esc(r.p.name+(r.r === "in" ? " · can play" : r.r === "out" ? " · can’t" : " · no reply"))+'"></i>';
-      }).join("")+(ours && acc.team ? '<i class="u '+(mine === "yes" ? "in" : mine === "no" ? "out" : "open")+' me" title="You"></i>' : "")+'</div>'+
-      '<div class="lk-legend"><span><i class="u in"></i>Can play</span><span><i class="u open"></i>No reply</span><span><i class="u out"></i>Can’t</span><span><i class="u in g"></i>Goalie</span></div>';
-    if(ours && acc.team){
-      h += '<div class="lk-ask"><span>Can you play?</span>'+seg("data-avail", e.id, [["yes","Can play"],["maybe","Maybe"],["no","Can’t"]], mine)+'</div>';
-    }else if(!ours){
-      h += '<p class="lk-line">Not your squad’s game. Supporters are welcome — take a lift below.</p>';
+  /* who can play, with names. compact: first names on one line. */
+  function squadBlock(acc, e, ours){
+    var t = squadAnswers(acc, e);
+    var h = '<h3>Who can play · '+esc(e.team)+'</h3>'+
+      '<p class="lk-figure"><b class="num">'+t.yes.length+'</b><span> of '+t.total+' can play · '+t.maybe.length+' maybe · '+t.no.length+' can’t · '+t.none.length+' no reply · '+t.goalies+(t.goalies === 1 ? " goalie" : " goalies")+'</span></p>'+
+      '<dl class="lk-names">'+
+      [["yes","Can play"],["maybe","Maybe"],["no","Can’t play"],["none","No reply yet"]].map(function(k){
+        return t[k[0]].length ? '<div><dt>'+k[1]+' · '+t[k[0]].length+'</dt><dd>'+esc(names(t[k[0]]))+'</dd></div>' : "";
+      }).join("")+'</dl>';
+    if(ours && acc.team === e.team){
+      h += '<div class="lk-ask"><span>Can you play?</span>'+seg("data-avail", e.id, [["yes","Can play"],["maybe","Maybe"],["no","Can’t"]], availOf(acc.id, e.id))+'</div>';
     }
-    h += '</div><div>';
-
-    /* lifts */
-    var rides = col("rides").filter(function(r){ return r.ev === e.id; });
-    if(e.kind === "away"){
-      var vans = rides.filter(function(r){ return r.kind === "van"; });
-      var cars = rides.filter(function(r){ return r.kind !== "van"; });
-      var free = function(list){ return list.reduce(function(n, r){ return n + Math.max(Number(r.seats||0) - riders(r).length, 0); }, 0); };
-      h += '<h3>Getting to '+esc(eventPlace(e) || "the rink")+'</h3>';
-      /* the van is the main way to get there: first, and larger */
-      if(vans.length){
-        h += '<div class="lk-van">'+vans.map(function(r){ return rideRow(acc, r); }).join("")+'</div>';
-      }else{
-        h += '<p class="lk-empty">No club van booked for this game yet. The coach books it once ten players have said yes.</p>';
-      }
-      h += '<p class="lk-figure"><b class="num">'+free(cars)+'</b><span> free '+(free(cars) === 1 ? "seat" : "seats")+' in '+cars.length+(cars.length === 1 ? " car" : " cars")+' if the van is full</span></p>';
-      h += cars.length ? '<ul class="lk-rides">'+cars.map(function(r){ return rideRow(acc, r); }).join("")+'</ul>' :
-        '<p class="lk-line">Nobody has offered their own car yet.</p>';
-      h += '<details class="lk-offer"><summary>Offer a seat in your own car</summary>'+
-        '<form class="lk-form" data-rideform="'+esc(e.id)+'">'+
-        '<label>Leaving from<input name="from" required placeholder="Campus UT, Horst car park"></label>'+
-        '<div class="lk-fpair"><label>Leaving at<input name="leave" type="time" required value="07:00"></label>'+
-        '<label>Free seats<select name="seats"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label></div>'+
-        '<button class="lk-btn" type="submit">Offer the lift</button></form></details>';
-    }else{
-      h += '<h3>Getting there</h3><p class="lk-line">Home game at '+esc(eventPlace(e))+'. Colosseum 90, about 15 minutes by bike from campus.</p>'+
-        '<a class="lk-textbtn" href="https://www.openstreetmap.org/search?query=Colosseum%2090%2C%207521%20PT%20Enschede" target="_blank" rel="noopener">Directions</a>';
-    }
-    h += '</div></div></section>';
     return h;
   }
-  function rideRow(acc, r){
-    var list = riders(r), free = Number(r.seats||0) - list.length, inIt = list.indexOf(acc.name) > -1;
-    var mineRide = r.driver === acc.name, van = r.kind === "van";
-    return '<'+(van ? "div" : "li")+' class="'+(van ? "lk-vanrow" : "lk-carrow")+'"><div class="lk-ride"><b>'+(van ? "Club van · " : "")+esc(r.driver)+(mineRide ? " (you)" : "")+(van ? " driving" : "")+'</b>'+
-      '<span>'+esc(r.from)+' · leaves '+esc(r.leave)+'</span>'+
-      '<span class="lk-seats" aria-label="'+list.length+' of '+esc(r.seats)+' seats taken">'+
-        list.map(function(n){ return '<i class="s on" title="'+esc(n)+'"></i>'; }).join("")+
-        new Array(Math.max(free,0)+1).join('<i class="s"></i>')+
-        '<em>'+list.length+' / '+esc(r.seats)+'</em></span></div>'+
-      (mineRide ? '<button type="button" class="lk-textbtn" data-ride-cancel="'+esc(r.id)+'">Cancel lift</button>' :
-        inIt ? '<button type="button" class="lk-textbtn" data-ride-leave="'+esc(r.id)+'">Leave</button>' :
-        free > 0 ? '<button type="button" class="lk-btn lk-btn--sm" data-ride-join="'+esc(r.id)+'">Take a seat</button>' :
-        '<span class="lk-meta">Full</span>')+'</'+(van ? "div" : "li")+'>';
+
+  /* the club van drawn as its nine places: a square for each,
+     gold once someone has taken it, D for someone who can drive */
+  function vanHTML(ev){
+    var ppl = vanPeople(ev), sq = "";
+    for(var i=0;i<VAN;i++){
+      var p = ppl[i];
+      sq += p ? '<i class="v on'+(p.drive === "yes" ? " d" : "")+'" title="'+esc(p.name+(p.drive === "yes" ? " · can drive" : ""))+'">'+(p.drive === "yes" ? "D" : "")+'</i>'
+              : '<i class="v" title="Free place"></i>';
+    }
+    return '<div class="vanbox"><div class="van" role="img" aria-label="'+ppl.length+' of '+VAN+' places in the club van taken">'+sq+'</div>'+
+      '<p class="lk-figure"><b class="num">'+ppl.length+'</b><span> of '+VAN+' places taken · '+(VAN - ppl.length)+' free · D = can drive</span></p></div>';
   }
 
-  /* ---------------- kit & contribution -----------------------
-     Question: what do I owe the club?                          */
-  function viewKit(acc){
-    var d = myDues(acc), left = owed(d), loans = myLoans(acc), out = loansOut(acc);
-    var h = head("Kit & contribution", (d && Number(d.amount) > 0 ?
-        (left > 0 ? euros(left)+" of your "+euros(d.amount)+" contribution is open, due "+fmtLong(parse(d.due))+"." : "Your "+esc(d.season)+" contribution is paid in full.") :
-        "No contribution for your role this season.")+
-      " "+out.length+(out.length === 1 ? " piece" : " pieces")+" of club kit with you.");
-
-    h += '<div class="lk-grid lk-grid--2">';
-    /* contribution */
-    h += '<section class="lk-card"><div class="lk-cardhead"><h2>Contribution '+esc(d ? d.season : "")+'</h2></div>';
-    if(d && Number(d.amount) > 0){
-      var ratio = Math.min(1, Number(d.paid) / Number(d.amount));
-      h += '<p class="lk-figure"><b class="num">'+euros(d.paid)+'</b><span> paid of '+euros(d.amount)+'</span></p>'+
-        '<div class="lk-meter" role="img" aria-label="'+euros(d.paid)+' of '+euros(d.amount)+' paid"><i style="width:'+(ratio*100).toFixed(1)+'%"></i></div>'+
-        '<div class="lk-meterends"><span>€0.00</span><span>'+euros(d.amount)+'</span></div>'+
-        '<dl class="lk-dl"><div><dt>Still to pay</dt><dd class="num">'+euros(left)+'</dd></div>'+
-        '<div><dt>Due</dt><dd>'+(d.due ? fmtLong(parse(d.due))+" · "+relDay(parse(d.due)) : "—")+'</dd></div></dl>'+
-        (left > 0 ? '<p class="lk-line">The treasurer sends a payment request by e-mail. Paid already, or need to split it? Write to the treasurer.</p>'+
-          '<a class="lk-btn" href="mailto:'+TREASURER+'?subject='+encodeURIComponent("Contribution "+d.season+" — "+acc.name)+'&body='+encodeURIComponent("Hi,\n\nAbout my contribution for "+d.season+": "+euros(left)+" still open.\n\n"+acc.name)+'">E-mail the treasurer</a>' :
-          '<p class="lk-line">Nothing to do. Thanks!</p>');
-    }else{
-      h += '<p class="lk-empty">Coaches and honorary members pay no contribution. Questions go to <a href="mailto:'+TREASURER+'">'+TREASURER+'</a>.</p>';
+  /* my own signup: going, how, can I drive */
+  function tripForm(acc, e){
+    var r = tripRow(acc, e.id) || {}, full = vanPeople(e.id).length >= VAN && !(r.going === "yes" && r.how === "van");
+    var h = '<div class="lk-ask lk-trip"><span>Are you going to '+esc(eventPlace(e) || "the game")+'?</span>'+
+      seg("data-trip", e.id+"|going", [["yes","Yes"],["no","No"]], r.going || "")+'</div>';
+    if(r.going === "yes"){
+      h += '<div class="lk-ask lk-trip"><span>How do you get there?</span>'+
+        seg("data-trip", e.id+"|how", [["van","Club van"+(full ? " (full)" : "")],["car","Own car"]], r.how || "")+'</div>'+
+        '<div class="lk-ask lk-trip"><span>Can you drive?</span>'+
+        seg("data-trip", e.id+"|drive", [["yes","Yes"],["no","No"]], r.drive || "no")+'</div>';
     }
-    h += '</section>';
+    return h;
+  }
 
-    /* kit on loan */
-    h += '<section class="lk-card"><div class="lk-cardhead"><h2>Club kit with you</h2><span class="lk-meta">'+out.length+' out · '+(loans.length - out.length)+' returned</span></div>';
-    if(loans.length){
-      h += '<table class="lk-table"><thead><tr><th>Item</th><th class="r">Back by</th><th class="r">Status</th></tr></thead><tbody>'+
-        loans.slice().sort(function(a,b){ return (a.back?1:0)-(b.back?1:0) || String(a.due).localeCompare(String(b.due)); }).map(function(l){
-          var n = daysBetween(S.demoToday, parse(l.due));
-          var st = l.back ? '<span class="lk-meta">Returned '+fmtDay(parse(l.back))+'</span>' :
-            n < 0 ? pill("neg","Overdue") : n <= 7 ? pill("warn","Due "+relDay(parse(l.due))) : '<span class="lk-meta">Out</span>';
-          return '<tr'+(l.back ? ' class="done"' : "")+'><td><b>'+esc(l.item)+'</b><span>Since '+fmtDay(parse(l.since))+'</span></td>'+
-            '<td class="r num">'+fmtDay(parse(l.due))+'</td><td class="r">'+st+
-            (!l.back ? '<button type="button" class="lk-textbtn" data-return="'+esc(l.id)+'">I handed it back</button>' : "")+'</td></tr>';
-        }).join("")+'</tbody></table>';
-    }else{
-      h += '<p class="lk-empty">You have no club kit. Need skates or pads? The club lends them at the bench.</p>';
-    }
-    h += '<p class="lk-line">The kit manager checks returns at the bench. Lost or broken something? Say so at practice.</p></section>';
-    h += '</div>';
+  function travelBlock(acc, e){
+    var vp = vanPeople(e.id), cars = carPeople(e.id);
+    var drivers = vp.filter(function(r){ return r.drive === "yes"; });
+    var h = '<h3>Getting to '+esc(eventPlace(e) || "the rink")+'</h3>'+vanHTML(e.id)+'<dl class="lk-names">'+
+      '<div><dt>In the van · '+vp.length+'</dt><dd>'+(vp.length ? esc(vp.map(function(r){ return r.name; }).join(", ")) : "Nobody yet")+'</dd></div>'+
+      '<div><dt>Can drive the van</dt><dd>'+(drivers.length ? esc(drivers.map(function(r){ return r.name; }).join(", ")) : "Nobody has offered yet")+'</dd></div>'+
+      (cars.length ? '<div><dt>Own car · '+cars.length+'</dt><dd>'+esc(cars.map(function(r){ return r.name+(r.drive === "yes" ? " (driving)" : ""); }).join(", "))+'</dd></div>' : "")+
+      '</dl>'+tripForm(acc, e);
+    return h;
+  }
 
-    /* what the club lends - reference */
-    var lend = C().kit.filter(function(k){ return /^yes/i.test(k.loan); });
-    h += '<section class="lk-card"><div class="lk-cardhead"><h2>What the club can lend you</h2><span class="lk-meta">'+lend.length+' items</span></div>'+
-      '<ul class="lk-kv lk-kv--cols">'+lend.map(function(k){
-        return '<li><span>'+esc(k.item)+'</span><em>'+esc(String(k.loan).replace(/^yes\s*-?\s*/i, "") || "Ask at the bench")+'</em></li>';
-      }).join("")+'</ul></section>';
+  function gameCard(acc, x, ours){
+    var e = x.e;
+    var h = '<section class="lk-card lk-game"><div class="lk-cardhead"><h2>'+esc(e.title)+'</h2>'+
+      '<span class="lk-meta">'+(e.kind === "home" ? "Home" : "Away")+' · '+relDay(x.d)+'</span></div>'+gameHead(x);
+    h += '<div class="lk-split"><div>'+squadBlock(acc, e, ours)+'</div><div>';
+    if(e.kind === "away") h += travelBlock(acc, e);
+    else h += '<h3>Getting there</h3><p class="lk-line">Home game at '+esc(eventPlace(e))+'. Colosseum 90, about 15 minutes by bike from campus.</p>'+
+      '<a class="lk-textbtn" href="https://www.openstreetmap.org/search?query=Colosseum%2090%2C%207521%20PT%20Enschede" target="_blank" rel="noopener">Directions</a>';
+    h += '</div></div><a class="lk-more" href="'+S.accountUrl("game", e.id)+'" data-lkview="game">Open the game page</a></section>';
+    return h;
+  }
+
+  /* one game on its own page */
+  function viewGame(acc){
+    var x = eventById(S.query("id")), e = x.e, squads = acc.team ? [acc.team] : (acc.coaches||[]);
+    var ours = squads.indexOf(e.team) > -1;
+    var h = head(e.title, fmtLong(x.d)+' · '+esc(e.meta)+(e.team ? ' · '+esc(e.team) : "")+' · '+relDay(x.d),
+      '<a class="lk-textbtn" href="'+S.accountUrl("games")+'" data-lkview="games">All games</a>');
+    h += '<div class="lk-grid lk-grid--2"><section class="lk-card lk-game">'+squadBlock(acc, e, ours)+'</section>'+
+      '<section class="lk-card lk-game">'+
+      (e.kind === "away" ? travelBlock(acc, e) :
+        '<h3>Getting there</h3><p class="lk-line">Home game at '+esc(eventPlace(e))+'. Colosseum 90, about 15 minutes by bike from campus.</p>'+
+        '<a class="lk-textbtn" href="https://www.openstreetmap.org/search?query=Colosseum%2090%2C%207521%20PT%20Enschede" target="_blank" rel="noopener">Directions</a>')+
+      '</section></div>';
     return h;
   }
 
@@ -652,64 +628,6 @@
       '<button type="button" role="switch" aria-checked="'+on+'" aria-label="'+esc(title)+'" data-toggle="'+key+'" class="lk-toggle'+(on ? " on" : "")+'"><i></i></button></div>';
   }
 
-  /* ---------------- ice check (coach, board) ------------------
-     Question: is there enough of the team on the ice for each
-     practice, and who still has to answer?                     */
-  function coachSquads(acc){ return acc.coaches && acc.coaches.length ? acc.coaches : ["Stallions","Studs 1"]; }
-  /* one row per slot in the next two weeks; the overview's finding
-     for a coach reads the same rows */
-  function iceRows(acc){
-    var squads = coachSquads(acc);
-    return slots(S.demoToday, 14).map(function(s){
-      var ps = slotPlayers(s, squads);
-      var skIn = ps.filter(function(x){ return x.reply === "in" && x.p.pos !== "Goaltender"; }).length;
-      var gIn  = ps.filter(function(x){ return x.reply === "in" && x.p.pos === "Goaltender"; }).length;
-      var out  = ps.filter(function(x){ return x.reply === "out"; }).length;
-      var none = ps.filter(function(x){ return !x.reply; });
-      return {s:s, ps:ps, skIn:skIn, gIn:gIn, out:out, none:none, short:skIn < MIN_SKATERS || !gIn};
-    });
-  }
-  function viewIceCheck(acc){
-    var squads = coachSquads(acc);
-    var rows = iceRows(acc);
-    var short = rows.filter(function(r){ return r.short; });
-    var worst = short[0];
-    var h = head("Ice check", worst ?
-      fmtLong(worst.s.d)+", "+esc(worst.s.group)+": "+worst.skIn+" skaters in"+(worst.skIn < MIN_SKATERS ? ", "+(MIN_SKATERS - worst.skIn)+" short of the "+MIN_SKATERS+" needed" : "")+(worst.gIn ? "" : ", no goalie")+". "+
-      short.length+" of "+rows.length+" practices in the next two weeks are short." :
-      "Every practice in the next two weeks has "+MIN_SKATERS+" skaters and a goalie.");
-
-    var scale = Math.max(MIN_SKATERS*1.6, Math.max.apply(null, rows.map(function(r){ return r.skIn + r.out + r.none.length; }).concat([1])));
-    h += '<section class="lk-card"><div class="lk-cardhead"><h2>Next two weeks</h2><span class="lk-meta">'+esc(squads.join(" + "))+' · '+MIN_SKATERS+' skaters and a goalie needed</span></div>'+
-      '<table class="lk-table lk-ice"><thead><tr><th>Practice</th><th class="lk-barcol">Skaters in, against the '+MIN_SKATERS+' needed</th><th class="r">Goalies</th><th class="r">Out</th><th class="r">No reply</th><th class="r"></th></tr></thead><tbody>'+
-      rows.map(function(r){
-        var ok = r.skIn >= MIN_SKATERS;
-        return '<tr><td><b>'+fmtDay(r.s.d)+' · '+esc(r.s.time.split("–")[0])+'</b><span>'+esc(r.s.group)+'</span></td>'+
-          '<td class="lk-barcol"><div class="lk-bullet'+(ok ? "" : " short")+'"><i style="width:'+(r.skIn/scale*100).toFixed(1)+'%"></i>'+
-          '<s style="left:'+(MIN_SKATERS/scale*100).toFixed(1)+'%" title="'+MIN_SKATERS+' needed"></s><em class="num">'+r.skIn+'</em></div></td>'+
-          '<td class="r num'+(r.gIn ? "" : " neg")+'">'+r.gIn+'</td><td class="r num">'+r.out+'</td><td class="r num">'+r.none.length+'</td>'+
-          '<td class="r">'+(r.none.length ? '<button type="button" class="lk-textbtn" data-remind="'+esc(r.s.key)+'">Copy reminder</button>' : '<span class="lk-meta">All replied</span>')+'</td></tr>';
-      }).join("")+'</tbody></table></section>';
-
-    /* attendance for the last practice */
-    var past = slots(addDays(S.demoToday, -7), 7).filter(function(s){ return daysBetween(s.d, S.demoToday) > 0; }).pop();
-    if(past){
-      var ps = slotPlayers(past, squads).filter(function(x){ return x.reply === "in"; });
-      var marks = col("attendance").filter(function(a){ return a.key === past.key; });
-      var here = ps.filter(function(x){ var m = marks.filter(function(a){ return a.pid === x.p.id; })[0]; return !m || m.here === "yes"; }).length;
-      h += '<section class="lk-card"><div class="lk-cardhead"><h2>Attendance · '+fmtLong(past.d)+', '+esc(past.group)+' '+esc(past.time)+'</h2>'+
-        '<span class="lk-meta"><b class="num">'+here+'</b> of '+ps.length+' who said they were in were there</span></div>'+
-        '<p class="lk-line">Everyone who said “I’m in” starts as present. Tap whoever didn’t show.</p>'+
-        '<ul class="lk-att">'+ps.map(function(x){
-          var m = marks.filter(function(a){ return a.pid === x.p.id; })[0], yes = !m || m.here === "yes";
-          return '<li><button type="button" data-here="'+esc(past.key+"|"+x.p.id)+'" aria-pressed="'+yes+'" class="'+(yes ? "on" : "")+'">'+
-            '<span class="lk-attav">'+S.avatarSVG(x.p)+'</span><span><b>'+esc(x.p.name)+'</b><em>'+esc(x.p.team)+(x.p.no && x.p.no !== "0" ? " · #"+esc(x.p.no) : "")+'</em></span>'+
-            '<span class="lk-attst">'+(yes ? "Here" : "Absent")+'</span></button></li>';
-        }).join("")+'</ul></section>';
-    }
-    return h;
-  }
-
   /* ============================================================
      ACTIONS — one delegated listener on the member area, bound once
      ============================================================ */
@@ -731,7 +649,6 @@
         e.preventDefault();
         var href = t.getAttribute("href");
         try{ history.pushState(null, "", href); }catch(err){}
-        S.state.lkFilter = "all";
         S.renderLK();
         var anchor = href.split("#")[1], el = anchor && document.getElementById(anchor);
         if(el) el.scrollIntoView({block:"center"}); else window.scrollTo(0, 0);
@@ -753,36 +670,12 @@
         done({yes:"Marked: you can make it", maybe:"Marked as maybe", no:"Marked: you can’t make it"}[b[1]]);
         return;
       }
-      if((t = e.target.closest("[data-filter]"))){ S.state.lkFilter = t.dataset.filter; S.renderLK(); return; }
+      if((t = e.target.closest("[data-trip]"))){
+        var q = t.dataset.trip.split("|");
+        if(setTrip(acc, q[0], q[1], q[2])) done("Saved. Everyone can see it on the game page");
+        return;
+      }
       if((t = e.target.closest("[data-ics]"))){ downloadIcs(acc); return; }
-      if((t = e.target.closest("[data-ride-join]"))){
-        var r1 = col("rides").filter(function(r){ return r.id === t.dataset.rideJoin; })[0];
-        if(!r1) return;
-        var l1 = riders(r1); if(l1.length >= Number(r1.seats)) { S.toast("That car is full"); return; }
-        l1.push(acc.name); r1.riders = l1.join(", ");
-        done("Seat taken in "+r1.driver+"’s car, leaving "+r1.leave);
-        return;
-      }
-      if((t = e.target.closest("[data-ride-leave]"))){
-        var r2 = col("rides").filter(function(r){ return r.id === t.dataset.rideLeave; })[0];
-        if(!r2) return;
-        r2.riders = riders(r2).filter(function(n){ return n !== acc.name; }).join(", ");
-        done("You left "+r2.driver+"’s lift");
-        return;
-      }
-      if((t = e.target.closest("[data-ride-cancel]"))){
-        var gone = col("rides").filter(function(r){ return r.id === t.dataset.rideCancel; })[0];
-        C().rides = col("rides").filter(function(r){ return r !== gone; });
-        done("Lift cancelled", function(){ col("rides").push(gone); done("Lift restored"); });
-        return;
-      }
-      if((t = e.target.closest("[data-return]"))){
-        var ln = col("loans").filter(function(l){ return l.id === t.dataset["return"]; })[0];
-        if(!ln) return;
-        ln.back = iso(S.demoToday);
-        done(ln.item.split("·")[0].trim()+" marked as handed back", function(){ ln.back = ""; done("Undone"); });
-        return;
-      }
       if((t = e.target.closest("[data-av]"))){
         var c = t.dataset.av.split("|"), pr = profile(acc);
         pr.avatar[c[0]] = c[0] === "glasses" ? c[1] === "yes" : c[1];
@@ -796,14 +689,6 @@
         S.save(); S.renderLK(); saved();
         return;
       }
-      if((t = e.target.closest("[data-remind]"))){ copyReminder(acc, t.dataset.remind); return; }
-      if((t = e.target.closest("[data-here]"))){
-        var h2 = t.dataset.here.split("|"), att = col("attendance");
-        var m = att.filter(function(a){ return a.key === h2[0] && a.pid === h2[1]; })[0];
-        if(m) m.here = m.here === "yes" ? "no" : "yes"; else att.push({id:S.uid(), key:h2[0], pid:h2[1], here:"no"});
-        S.save(); S.renderLK();
-        return;
-      }
     });
 
     root.addEventListener("change", function(e){
@@ -811,16 +696,6 @@
       var acc = me(); if(!acc) return;
       profile(acc)[t.dataset.prof] = t.value.trim();
       S.save(); saved();
-    });
-
-    root.addEventListener("submit", function(e){
-      var f = e.target.closest("[data-rideform]"); if(!f) return;
-      e.preventDefault();
-      var acc = me(); if(!acc) return;
-      var from = f.from.value.trim();
-      if(!from){ S.toast("Say where you leave from"); return; }
-      col("rides").push({id:S.uid(), ev:f.dataset.rideform, driver:acc.name, from:from, leave:f.leave.value, seats:f.seats.value, riders:""});
-      done("Lift offered. It shows in the list for everyone");
     });
 
     window.addEventListener("popstate", function(){ S.renderLK(); });
@@ -831,19 +706,6 @@
     if(el) el.textContent = "Saved";
   }
 
-  /* a reminder the coach pastes into the squad chat */
-  function copyReminder(acc, key){
-    var squads = coachSquads(acc);
-    var s = slots(S.demoToday, 14).filter(function(x){ return x.key === key; })[0];
-    if(!s) return;
-    var names = slotPlayers(s, squads).filter(function(x){ return !x.reply; }).map(function(x){ return x.p.name.split(" ")[0]; });
-    var text = "Practice "+fmtLong(s.d)+", "+s.group+" "+s.time+" at IJsbaan Twente. Still no reply from "+
-      names.join(", ")+". In or out? Reply in My account → Training.";
-    var ok = function(){ S.toast("Reminder copied for "+names.length+(names.length === 1 ? " player" : " players")); };
-    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, function(){ S.toast(text); });
-    else S.toast(text);
-  }
-
   /* my practices and games as a calendar file. Floating local times:
      the club's calendar is Enschede time and so is everyone in it. */
   function downloadIcs(acc){
@@ -851,11 +713,11 @@
     function stamp(dateIso, hhmm){ return dateIso.replace(/-/g,"")+"T"+hhmm.replace(":","")+"00"; }
     var n = 0;
     slots(S.demoToday, 42).forEach(function(s){
-      if(!mySlot(acc, s) || rsvpOf(acc.id, s.date) === "out") return;
+      if(rsvpOf(acc.id, s.date) === "out") return;
       var t = s.time.split("–");
       lines.push("BEGIN:VEVENT","UID:"+s.key.replace(/#/g,"-")+"@slappingstuds.nl","DTSTAMP:"+stamp(iso(S.demoToday),"00:00"),
         "DTSTART:"+stamp(s.date, t[0].trim()),"DTEND:"+stamp(s.date, (t[1]||t[0]).trim()),
-        "SUMMARY:Studs practice · "+s.group,"LOCATION:IJsbaan Twente\\, Colosseum 90\\, Enschede","END:VEVENT");
+        "SUMMARY:Studs practice","LOCATION:IJsbaan Twente\\, Colosseum 90\\, Enschede","END:VEVENT");
       n++;
     });
     upcomingEvents().forEach(function(x){

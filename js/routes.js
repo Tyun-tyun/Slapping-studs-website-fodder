@@ -72,8 +72,8 @@ window.Studs = window.Studs || {};
      uses; the back end should keep them. */
   /* One document, one view per area of the member area -
      account.html?v=games. Overview has no parameter. */
-  S.accountUrl = function(view){
-    return S.PAGES.account + (view && view !== "overview" ? "?v=" + encodeURIComponent(view) : "");
+  S.accountUrl = function(view, id){
+    return S.PAGES.account + (view && view !== "overview" ? "?v=" + encodeURIComponent(view) + (id ? "&id=" + encodeURIComponent(id) : "") : "");
   };
 
   S.picturesUrl = function(cat, album){

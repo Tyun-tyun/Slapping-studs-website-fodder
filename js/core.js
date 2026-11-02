@@ -61,7 +61,12 @@ window.Studs = window.Studs || {};
   S.load = function(){
     try{
       var raw = localStorage.getItem(S.KEY_CONTENT);
-      return raw ? JSON.parse(raw) : S.clone(S.seed);
+      if(!raw) return S.clone(S.seed);
+      var c = JSON.parse(raw);
+      /* content saved before a collection existed gets that
+         collection's seed rows, so a new screen is never empty */
+      Object.keys(S.seed).forEach(function(k){ if(c[k] === undefined) c[k] = S.clone(S.seed[k]); });
+      return c;
     }catch(e){ return S.clone(S.seed); }
   };
   S.save = function(){
@@ -357,20 +362,15 @@ window.Studs = window.Studs || {};
                ["n","Step label","text"],["title","Title","text"],["body","Description","textarea"]]},
 
     /* Member area (account.html). who = an account id from auth.js. */
-    loans:   {label:"Kit on loan", cols:["who","item","due","back"], fields:[
-               ["who","Account id (u1, u2, u3)","text"],["item","Item","text"],
-               ["since","Lent on (YYYY-MM-DD)","text"],["due","Back by (YYYY-MM-DD)","text"],
-               ["back","Returned on (empty while out)","text"]]},
+    travel:  {label:"Travel to away games", cols:["ev","name","how","drive"], fields:[
+               ["ev","Event id (e1…)","text"],["name","Name","text"],["who","Account id (empty if none)","text"],
+               ["going","Going","select:yes,no"],["how","How","select:van,car"],["drive","Can drive","select:yes,no"]]},
 
-    dues:    {label:"Contributions", cols:["who","season","amount","paid"], fields:[
-               ["who","Account id (u1, u2, u3)","text"],["season","Season","text"],
-               ["amount","Fee in euros (95.00)","text"],["paid","Paid so far in euros","text"],
-               ["due","Due date (YYYY-MM-DD)","text"]]},
+    points:  {label:"Member points", cols:["who","value"], fields:[
+               ["who","Account id (u1, u2, u3)","text"],["value","Points (0–10)","text"]]},
 
-    rides:   {label:"Lifts to away games", cols:["ev","driver","leave","seats"], fields:[
-               ["ev","Event id (e1…)","text"],["kind","Vehicle","select:van,car"],["driver","Driver","text"],
-               ["from","Leaves from","text"],["leave","Leaves at (HH:MM)","text"],
-               ["seats","Passenger seats","text"],["riders","Riders, comma-separated","textarea"]]},
+    pointsrule: {label:"Member points rule", cols:["need","max"], fields:[
+               ["need","Points needed","text"],["max","Top of the scale","text"]]},
 
     archive: {label:"Archive seasons", cols:["season","posts","highlight"], fields:[
                ["season","Season","text"],["posts","Post count","text"],

@@ -30,7 +30,7 @@ window.Studs.accounts = [
   {id:"u2", role:"coach", name:"Joris Bakker", sub:"Coach · Stallions + Studs 1",
    team:"", no:"", pos:"", group:"", coaches:["Stallions","Studs 1"],
    email:"coach@slappingstuds.nl", pw:"bench",
-   can:["Everything a member sees","Edit rosters and lineups","Publish game sheets and stats","Mark training attendance"]},
+   can:["Everything a member sees","Edit rosters and lineups","Publish game sheets and stats"]},
 
   {id:"u3", role:"admin", name:"Nina Aalders", sub:"Board · Webcom",
    team:"Cadets", no:"", pos:"Forward", group:"Groups 1–3", coaches:["Cadets"],
@@ -47,7 +47,7 @@ window.Studs.perms = {
 
   coach:  ["view.public","view.gallery","view.calendar","view.contacts",
            "event.rsvp","album.upload","account.view",
-           "view.coachalbums","roster.edit","stats.publish","attendance.mark"],
+           "view.coachalbums","roster.edit","stats.publish"],
 
   admin:  ["*"]
 };

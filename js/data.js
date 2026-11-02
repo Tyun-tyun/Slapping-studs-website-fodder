@@ -634,7 +634,7 @@ window.Studs.seed = {
      SAMPLE DATA for the three demo accounts in js/auth.js (u1 the
      member, u2 the coach, u3 the admin). Everything here is made up
      to show the screens and must come from the club's own records
-     on the real site: the loans, the fee amounts, the rides and the
+     on the real site: the travel signups, the member points and the
      replies. "who" is an account id; "ev" is an id in events[].
      Dates are ISO (YYYY-MM-DD) because the screens compute with
      them; the demo "today" is set in js/account.js. */
@@ -660,36 +660,35 @@ window.Studs.seed = {
     {id:"av2",who:"u3",ev:"e2",status:"maybe"}
   ],
 
-  /* Lifts to away games. kind: "van" = the club van (the main way
-     to get there, one per away game, the coach drives) or "car" (a
-     teammate's own car; also the default when empty). riders =
-     names, comma-separated; the member's own name is added and
-     removed by the Games screen. */
-  rides:[
-    {id:"rd0",ev:"e1",kind:"van",driver:"Joris Bakker",from:"Campus UT, Horst car park",leave:"06:30",seats:"8",riders:"Luca Patty, Eva Bramer, Daniel Simon, Iris Kouwenberg, Branislav Javor"},
-    {id:"rd1",ev:"e1",driver:"Kim Zwart",from:"Campus UT, Horst car park",leave:"06:45",seats:"4",riders:"Roxy Fokker, Bas Pellen, Vito Böke"},
-    {id:"rd2",ev:"e1",driver:"Charlotte van Mourik",from:"Enschede Centraal",leave:"07:00",seats:"3",riders:"Iris Kouwenberg"}
+  /* Who is travelling to an away game. One row per person per game.
+     name is shown to everyone; who is the account id when the person
+     has one. going: "yes" | "no". how: "van" (the club van, nine
+     places including the driver) or "car" (their own car). drive:
+     "yes" when they can drive the van or a car. */
+  travel:[
+    {id:"tr0",ev:"e1",who:"u2",name:"Joris Bakker",going:"yes",how:"van",drive:"yes"},
+    {id:"tr1",ev:"e1",who:"",name:"Luca Patty",going:"yes",how:"van",drive:"no"},
+    {id:"tr2",ev:"e1",who:"",name:"Eva Bramer",going:"yes",how:"van",drive:"yes"},
+    {id:"tr3",ev:"e1",who:"",name:"Daniel Simon",going:"yes",how:"van",drive:"no"},
+    {id:"tr4",ev:"e1",who:"",name:"Iris Kouwenberg",going:"yes",how:"van",drive:"no"},
+    {id:"tr5",ev:"e1",who:"",name:"Branislav Javor",going:"yes",how:"van",drive:"no"},
+    {id:"tr6",ev:"e1",who:"",name:"Kim Zwart",going:"yes",how:"car",drive:"yes"},
+    {id:"tr7",ev:"e1",who:"",name:"Charlotte van Mourik",going:"yes",how:"car",drive:"yes"}
   ],
 
-  /* Club kit out on loan. back = return date, empty while it is out. */
-  loans:[
-    {id:"ln1",who:"u1",item:"Shoulder pads · club set 7",since:"2026-01-12",due:"2026-05-01",back:""},
-    {id:"ln2",who:"u1",item:"Club stick · left, 152 cm",since:"2026-02-02",due:"2026-04-10",back:""},
-    {id:"ln3",who:"u1",item:"Helmet with cage · size M",since:"2025-10-06",due:"2025-11-03",back:"2025-11-03"},
-    {id:"ln4",who:"u3",item:"Goalie pads · club set 2",since:"2026-03-02",due:"2026-04-30",back:""}
+  /* Member points: one row per account. value runs from 0 up to the
+     maximum in pointsrule. Only the board and coaches change them. */
+  points:[
+    {id:"pt1",who:"u1",value:"3"},
+    {id:"pt2",who:"u2",value:"6"},
+    {id:"pt3",who:"u3",value:"8"}
   ],
 
-  /* Season contributions, in euros as strings with two decimals.
-     paid is what has reached the treasurer so far. */
-  dues:[
-    {id:"du1",who:"u1",season:"2025–26",amount:"95.00",paid:"47.50",due:"2026-04-30"},
-    {id:"du2",who:"u2",season:"2025–26",amount:"0.00",paid:"0.00",due:""},
-    {id:"du3",who:"u3",season:"2025–26",amount:"95.00",paid:"95.00",due:"2026-04-30"}
+  /* One row. need = points a member should have; max = the top of the
+     scale. Both are changed in the admin console. */
+  pointsrule:[
+    {id:"pr1",need:"4",max:"10"}
   ],
-
-  /* Training attendance marked by a coach: one row per player per
-     session. here: "yes" | "no". */
-  attendance:[],
 
   /* Overrides for inline-edited text blocks, keyed by data-ed. */
   copy:{},

@@ -24,6 +24,7 @@
   --edit:#62C9DE;       /* admin / CMS layer ONLY. Never club UI. */
   --edit-d:#1C6B7C;     /* the same, dark enough to read on bone */
   --danger:#E06B5A;     /* destructive actions */
+  --danger-d:#A93626;   /* the same, dark enough to read on paper */
   --ok:#8FD1B0;         /* granted permission, coach role */
 
   /* --- paper tones -------------------------------------------

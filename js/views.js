@@ -384,10 +384,9 @@
     $("#coachpanel").innerHTML = S.can("roster.edit") ?
       '<div class="gatemsg" style="margin-top:34px;border-color:rgba(143,209,176,.4)"><div>'+
       '<p style="margin:0 0 8px;font-size:17px;font-weight:700;color:var(--bone)">Coach tools</p>'+
-      '<p>You can edit rosters and lineups for Stallions and Studs 1, mark training attendance and publish game sheets. Board members can do this for every squad.</p></div>'+
+      '<p>You can edit rosters and lineups for Stallions and Studs 1 and publish game sheets. Board members can do this for every squad.</p></div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-      '<button class="btn btn-sm" data-add="players">Add player</button>'+
-      '<button class="btn btn-sm">Mark attendance</button></div></div>' : "";
+      '<button class="btn btn-sm" data-add="players">Add player</button></div></div>' : "";
   };
 
   /* ---------------- scoring (stats.html) -------------------
@@ -1211,7 +1210,7 @@
       '<strong style="color:var(--bone)">Thu 22:00</strong> — full squad, tactics.</p></div>'+
       '<a class="btn btn-sm" href="'+S.url("pictures")+'">Add to calendar</a></div>' :
       '<div class="gatemsg" style="margin-top:34px">'+
-      '<p>Exact training times, rink addresses and the attendance list are visible to signed-in members.</p>'+
+      '<p>Exact training times, rink addresses are visible to signed-in members.</p>'+
       '<a class="btn btn-sm" href="'+S.url("signin")+'">Sign in</a></div>';
   };
 

@@ -87,7 +87,7 @@
     ["Games and results",      ["events","games","pastgames","standings",
                                 "gamesheets","sheetgoals","sheetpens","sheetlineup"]],
     ["Training and kit",       ["sessions","kit","steps","gear","rules","comps"]],
-    ["Members and money",      ["loans","dues","rides"]],
+    ["Members",                ["points","pointsrule","travel"]],
     ["Site content",           ["stats","timeline","chapters","albums"]]
   ];
 
@@ -115,9 +115,9 @@
     gear:"The gear guide on hockey.html.",
     rules:"The rules explained on hockey.html.",
     comps:"The competitions the club plays in.",
-    loans:"Club kit currently out with a member.",
-    dues:"Membership contributions per season.",
-    rides:"Lifts offered to away games.",
+    points:"Each member's points, shown on their overview.",
+    pointsrule:"How many points are needed, and the top of the scale.",
+    travel:"Who is going to away games, and how.",
     stats:"The four figures at the top of the home page.",
     timeline:"The dated entries on history.html.",
     chapters:"The long-form sections on history.html.",
@@ -128,8 +128,8 @@
   var NEWLABEL = {
     gamesheets:"game sheet", sheetgoals:"goal", sheetpens:"penalty",
     sheetlineup:"lineup row", stats:"achievement", kit:"kit item",
-    standings:"standings row", archive:"season", dues:"contribution",
-    loans:"loan", rides:"lift", staff:"staff member", comps:"competition",
+    standings:"standings row", archive:"season", travel:"signup",
+    points:"member", pointsrule:"rule", staff:"staff member", comps:"competition",
     steps:"step", chapters:"chapter", timeline:"timeline entry"
   };
 
@@ -359,7 +359,7 @@
     chapters:   [["Chapter",["yr","kicker","nav","h"]],
                  ["Text",["lead","body","quote"]],
                  ["Photo",["cap","img","credit","creditUrl","shots","media"]]],
-    rides:      [["The trip",["ev","kind","from","leave"]],["People",["driver","seats","riders"]]],
+    travel:     [["Game",["ev"]],["Person",["name","who"]],["Trip",["going","how","drive"]]],
     sessions:   [["The day",["day","len","rule"]],["Slots",["g1","t1","g2","t2"]]]
   };
 
