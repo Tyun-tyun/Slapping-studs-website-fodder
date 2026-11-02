@@ -89,7 +89,7 @@ changes everywhere. Start there.
 | `join.html` | Sign-up for an introduction practice |
 | `sign-in.html` | Accounts and the permission model |
 | `admin.html` | Content admin console (gated) |
-| `account.html` | Member area, one view per `?v=`: overview, training replies, games & lifts, kit & contribution, profile, ice check for coaches (signed in only; `js/account.js`, `css/account.css`) |
+| `account.html` | Member area, one view per `?v=`: overview, training, games & lifts (names, club van, travel signup), one game per `?v=game&id=`, profile (signed in only; `js/account.js`, `css/account.css`) |
 | `404.html` | Not found |
 
 ## What is in the repo right now
