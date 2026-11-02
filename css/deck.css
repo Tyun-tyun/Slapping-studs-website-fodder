@@ -1,0 +1,303 @@
+/* ============================================================
+   deck.css - the page skeleton.
+
+   THE RULE: the COVER fills the screen exactly once, at the top
+   of a page. Everything below it is an ordinary section, as tall
+   as whatever it contains.
+
+   This file used to lock every section to 100svh and snap between
+   them. That is right for a cover and wrong for everything else:
+   a roster, a results table and a history chapter each became a
+   little slide you had to scroll INSIDE, which reads as a
+   slideshow of sub-pages rather than as a page. The panels, the
+   ids and the classes all survived that change - only the sizing
+   rules here did not.
+
+   What is left:
+     .panel--cover   one screen, photograph under the header
+     .panel          an ordinary section, height of its content
+     .panel__in      the padding box inside a section
+   ============================================================ */
+
+:root{
+  --hdr:74px;                          /* the fixed header */
+  --sect-pad:clamp(46px,6.5vw,100px);  /* air above and below a section */
+}
+
+/* ============================================================
+   THE COVER
+   ============================================================ */
+
+/* The one full-screen element on a page. It subtracts any fixed
+   furniture: the admin bar sits along the bottom for a signed-in
+   admin, and without this it would cover the last rows of the
+   cover. js/deck.js measures it into --adminbar-h; it is 0px for
+   everyone else. */
+.panel--cover{
+  position:relative;
+  height:calc(100svh - var(--adminbar-h,0px));
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* The cover's content sits on the floor of the picture: the
+   headline reads against the bottom of the frame and whatever
+   follows it (the gold strip) closes the screen.
+   "safe end" rather than plain end so that on a short window the
+   content starts at the top and stays reachable instead of
+   having its head cut off. */
+.panel--cover .panel__in{
+  flex:1;
+  min-height:0;
+  display:grid;
+  align-content:safe end;
+  padding-block:var(--hdr) clamp(18px,3vh,36px);
+}
+
+/* A photograph placed as a DIRECT child of a panel is that
+   panel's background: it fills the frame and everything else
+   stacks on top of it. Scoped to the direct child on purpose - a
+   .ph nested deeper (a news thumbnail, a player portrait, the map
+   on the join card) is an ordinary image slot and must keep its
+   normal place in the flow. */
+.panel > .ph{position:absolute;inset:0;border:0;z-index:0}
+.panel > .ph::after{bottom:26px;left:var(--pad)}
+.panel > .veil{z-index:1}
+.panel__in{position:relative;z-index:2}
+
+/* layout.css gives .hero its own flex rules for the old flowing
+   page, including align-items:flex-end. In a column flex box that
+   aligns children to the RIGHT, which is not what it meant there
+   and is definitely not what it means here. */
+.panel.hero{padding:0;align-items:stretch}
+
+/* ---------------- the honours strip -------------------------
+   The gold strip rides on the floor of the cover, in the same
+   frame as the photograph: .panel--cover is a flex column and
+   .panel__in takes the slack, so margin-top:auto is all the strip
+   needs to sit on the bottom edge. A visitor is greeted by the
+   squad, the headline and what the club has won, at once.
+
+   The gold runs the full width of the window but the cells stay
+   inside the content column, so the first label lines up under
+   the eyebrow and the headline rather than floating off on its
+   own margin. */
+.panel > .strip{margin-top:auto;position:relative;z-index:2}
+.panel > .strip .stat{padding:clamp(13px,2.2vh,22px) clamp(16px,2.4vw,30px)}
+.panel > .strip .stat:first-child{padding-left:0}
+.panel > .strip .stat .k{font-size:14px}
+.panel > .strip .stat .v{font-size:clamp(23px,2.4vw,36px);margin-top:7px}
+.panel > .strip .stat .n{margin-top:2px;font-size:14px}
+
+/* An even scrim, for a photograph carrying no display type. */
+.veil--even{background:linear-gradient(180deg,
+  rgba(12,13,14,.72) 0%,rgba(12,13,14,.34) 42%,rgba(12,13,14,.55) 100%)}
+
+/* A gold section, if one is ever wanted. */
+.panel.gold{background:var(--gold);color:#141210}
+
+/* ============================================================
+   ORDINARY SECTIONS
+   ============================================================ */
+
+.panel{position:relative}
+.panel:not(.panel--cover) .panel__in{padding-block:var(--sect-pad)}
+
+/* A page that opens straight into content rather than a cover has
+   to clear the fixed header itself - there is no photograph running
+   under it. Every page except the home page is now one of these. */
+main > .panel:first-child:not(.panel--cover) .panel__in{
+  padding-top:calc(var(--hdr) + var(--sect-pad));
+}
+
+/* ---------------- the page head ------------------------------
+   What an inside page opens with. It is deliberately NOT a
+   banner: there is exactly one full-screen photograph on this
+   site and it is the home page hero. Eleven more would put a
+   screen of picture between every reader and the thing they came
+   for, and would make eleven different pages open identically.
+
+   So: the same eyebrow, headline and lead, sized to leave the
+   screen to the content. It clears the fixed header and then
+   takes about half a section's padding either side - enough that
+   the next heading is on screen when the page loads - and hands
+   over on a step in tone, not a hairline.                                           */
+main > .panel.pagehead:first-child .panel__in{
+  padding-top:calc(var(--hdr) + clamp(26px,3.4vw,52px));
+  padding-bottom:clamp(26px,3.4vw,48px);
+}
+.pagehead{background:var(--ink2)}
+.pagehead.bone{background:var(--bone3)}
+.pagelead{max-width:56ch;margin:18px 0 0}
+
+/* Deep links (hockey.html#gear) must stop BELOW the fixed header,
+   not underneath it. */
+.panel[id]{scroll-margin-top:calc(var(--hdr) + 18px)}
+
+/* Section tones, the same paper and ink the bands used. */
+.panel.bone{background:var(--bone);color:var(--ink)}
+.panel.ink2{background:var(--ink2)}
+.panel.bone .eyebrow{color:#5D6C76}
+.panel .wrap{width:100%}
+
+/* A section header: eyebrow + title on the left, a link on the
+   right. Consistent across the site so sections read as parts of
+   one document. */
+.phead{display:flex;align-items:flex-end;justify-content:space-between;
+  gap:24px;flex-wrap:wrap;margin-bottom:clamp(20px,3vw,36px)}
+.phead .eyebrow{margin:0 0 10px}
+.phead h2{margin:0}
+
+/* The rail is a mini window, not a second column of the page. */
+.panel .homeaside{display:flex;flex-direction:column;gap:14px}
+
+/* ---------------- history: the timeline ---------------------
+   renderTimeline() now writes a real vertical timeline
+   (<ol class="tline">), styled in css/components.css. The old
+   tiled-card fallback (.tlplain) that briefly stood in for the
+   retired horizontal strip is gone. */
+
+/* ---------------- history: the chapter nav ------------------
+   .chapnav is a flex column, so its links stretch to the width of
+   the 210px nav column and their left rules line up. They lost
+   that alignment because the anchors carry no explicit width and
+   something upstream was centring them; stretch is stated here
+   rather than relied upon.
+
+   With ordinary page scrolling back, the nav can be sticky again
+   - that is what makes it a nav rather than a list. */
+.chapnav{align-items:stretch}
+.chapnav a{width:100%;box-sizing:border-box;justify-content:flex-start}
+
+/* ---------------- join ---------------------------------------
+   The map has to read as a map, not as a strip of texture above
+   an address. It is the only picture on the slide and the only
+   thing that tells a first-time visitor where any of this
+   happens, so it gets real height. */
+.panel#join .visitcard .ph{min-height:clamp(190px,26vh,300px)}
+.panel#join .visitcard{align-self:start}
+
+/* The note field is the one answer people write at length. */
+.panel#join #j-note{min-height:104px;resize:vertical}
+
+/* ---------------- news as pictures (home) -------------------
+   Each post is a photograph. A gradient lifts off the bottom edge
+   so the title stays legible whatever the picture underneath is
+   doing, and the whole tile is one link to that post's page.
+
+   Two columns wherever there is room for them: minmax with min()
+   rather than a bare 300px so the track can still shrink below
+   300px on a narrow phone instead of overflowing the screen. */
+#homefeed{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:clamp(12px,1.4vw,18px);
+}
+.ptile{
+  position:relative;display:block;overflow:hidden;
+  aspect-ratio:4/3;
+  text-decoration:none;color:var(--bone);
+  background:var(--ink2);border:1px solid var(--line-d);
+}
+.ptile .ph{position:absolute;inset:0;border:0;
+  transition:transform .5s cubic-bezier(.2,.6,.2,1)}
+/* The title is already sitting on the picture, so the slot's own
+   "what belongs here" caption would be saying it twice. */
+.ptile .ph::after{display:none}
+.ptile:hover .ph{transform:scale(1.04)}
+
+.ptileveil{
+  position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(180deg,
+    rgba(12,13,14,0) 30%,
+    rgba(12,13,14,.55) 62%,
+    rgba(12,13,14,.92) 100%);
+}
+.ptiletext{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:clamp(13px,1.6vw,20px);
+}
+.ptilemeta{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:13px;letter-spacing:0;color:rgba(237,234,225,.74);
+  margin-bottom:8px;
+}
+.ptiletitle{
+  font-family:var(--disp);font-stretch:74%;font-weight:800;
+  text-transform:uppercase;font-size:clamp(16px,1.4vw,21px);
+  line-height:1.04;margin:0;text-wrap:balance;
+}
+.ptile:hover .ptiletitle{color:var(--gold)}
+/* The tiles sit on a paper section but are dark pictures, so the
+   admin outline has to read against the photograph, not the page. */
+.ptile .itools{top:8px;right:8px}
+
+/* ---------------- one post (post.html) ----------------------- */
+.postfull{position:relative;max-width:74ch}
+.postcover{aspect-ratio:16/9;margin-top:clamp(22px,3vw,36px)}
+.postlead{
+  font-size:clamp(17px,1.5vw,21px);line-height:1.5;
+  margin:clamp(20px,2.6vw,30px) 0 0;color:rgba(237,234,225,.9);
+}
+.postbody{margin-top:20px}
+.postbody p{
+  font-size:16px;line-height:1.7;margin:0 0 16px;
+  color:rgba(237,234,225,.72);max-width:68ch;
+}
+.postnav{
+  display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  max-width:74ch;margin-top:clamp(28px,4vw,48px);padding-top:20px;
+  border-top:1px solid var(--line-d);
+}
+
+/* ============================================================
+   THE FOOTER
+
+   A page-level element after </main>, sized by its own content.
+   It is never a full screen: a whole screen spent on a footer
+   reads as an empty page.
+   ============================================================ */
+.sitefoot{
+  position:relative;
+  background:#08090A;
+  padding-block:clamp(34px,4.5vh,56px) clamp(18px,2.4vh,26px);
+}
+.sitefoot .fgrid{
+  display:grid;grid-template-columns:1.5fr repeat(3,1fr);
+  gap:clamp(18px,2.6vw,38px);
+}
+.sitefoot .fcol h5{
+  font-family:var(--mono);font-size:15px;letter-spacing:0;color:var(--gold);margin:0 0 10px;font-weight:600;
+}
+.sitefoot .fcol a{
+  display:block;font-size:16px;color:rgba(237,234,225,.82);
+  text-decoration:none;padding:4px 0;
+}
+.sitefoot .fcol a:hover{color:var(--gold)}
+.sitefoot .fcol .body{font-size:16px;line-height:1.55;max-width:34ch;margin:12px 0 0}
+.sitefoot .wordmark .s{margin-top:4px}
+/* The footer name is a sign-off, not a heading: its own block with
+   air under it, so it never reads as one line with the sentence. */
+.sitefoot .fcol .wordmark{display:block;margin-bottom:14px}
+.sitefoot .wordmark .n{font-size:19px}
+.sitefoot .fbot{
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin-top:clamp(28px,4vh,44px);
+  font-family:var(--mono);font-size:14px;letter-spacing:0;
+  color:rgba(237,234,225,.6);
+}
+@media (max-width:860px){
+  .sitefoot .fgrid{grid-template-columns:1fr 1fr}
+  .sitefoot .fcol:first-child{grid-column:1 / -1}
+}
+
+/* ============================================================
+   FIXED FURNITURE
+
+   The admin bar is fixed to the bottom of the window for a
+   signed-in admin. The page has to end above it or the bar covers
+   the last of the footer. js/deck.js keeps --adminbar-h current;
+   it is 0px for everyone else, so this costs nothing.
+   ============================================================ */
+body{padding-bottom:var(--adminbar-h,0px)}

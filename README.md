@@ -1,286 +1,108 @@
-# The Slapping Studs — website
+# The Slapping Studs — website foundation
 
-Design proposal and working prototype for a new slappingstuds.nl.
-Plain HTML, CSS and JavaScript. No framework, no build step, no dependencies.
+The bones only: identity, colour, type, layout, and the page list.
+Everything visual is up for redesign; this is the part that should
+survive one.
 
-Every page is its own document. There is no client-side router and no hash
-URLs: `players.html` is a real page that a server can render, cache and index,
-and that a template engine can take over one file at a time.
+## The club
 
-## Page status
+SIJHV **The Slapping Studs** — student ice hockey association at the
+University of Twente, in Enschede. Founded **1982**; the oldest student
+ice hockey club in the Netherlands. Roughly 50–60 members across four
+squads — **Studs 1, Studs 2, Striking Stallions, Cadets** — and one
+coach. English is the working language.
 
-Where each page stands as of September 2026. The shared header, footer,
-CSS and JS are stable everywhere; this table is about the `<main>` of
-each file.
+- **Home ice:** IJsbaan Twente, Colosseum 90, 7521 PT Enschede
+- **Board:** bestuur@slappingstuds.nl · Postbus 217, 7500 AE Enschede
+- **2026:** the Striking Stallions won the 5th Division North — the club's first divisional title.
 
-| Page | Status | Notes |
+## Build
+
+Plain HTML, CSS and JavaScript. No framework, no build step, no dependencies. Each page is its own `.html` file; open `index.html`directly or serve the folder. The only external request is Google Fonts.
+
+## Colour
+
+Dark by default, with a light "paper" tone for reading sections.
+**Gold is the only warm colour and belongs to the club. Cyan belongs to the editing layer and appears nowhere else.**
+
+| Token | Value | Role |
 |---|---|---|
-| `index.html` | **Production-ready** | Real copy, real hero photo, working sign-up band. This is the reference for the rest. |
-| `history.html` | **Near-ready** | Two parts: a dark, full-bleed timeline that pins to the viewport and pans horizontally as you scroll (photo + punched year per moment, parallax ghost layer, progress bar), then a paper "book" section with a sticky numbered chapter nav that tracks the scroll. Both are `data.js` collections (`timeline`, `chapters`) editable from the admin drawer; chapter photos have three placement layouts. Still needs the invented 1990s/2000s/2018 moments and chapters 02/03/05 replaced with real club history, and real archive photos in the slots. |
-| everything else | **Raw — needs rework** | `news` `archive` `players` `about` `training` `games` `past-games` `hockey` `pictures` `contact` `join` `sign-in` `admin` `404`. Structure and shared chrome are in place; content, layout polish and (where flagged) real data are not. Placeholder sections carry a visible `.note` block saying so. |
+| `--ink` | `#0C0D0E` | page background |
+| `--ink2` | `#131518` | raised panel |
+| `--ink3` | `#1B1E22` | hover / menu surface |
+| `--bone` | `#EDEAE1` | text on dark; background of paper sections |
+| `--bone2` | `#DFDBCF` | second paper tone |
+| `--gold` | `#F7C325` | club accent (jersey gold) — the only warm colour |
+| `--ice` | `#93A9B8` | labels, meta, data text |
+| `--edit` | `#62C9DE` | admin / CMS layer only |
+| `--danger` | `#E06B5A` | destructive actions |
+| `--ok` | `#8FD1B0` | success / coach role |
+| `--line-d` | `rgba(237,234,225,.13)` | hairline on dark |
+| `--line-l` | `rgba(12,13,14,.16)` | hairline on paper |
 
-## Running it
+## Type
 
-Double-click `index.html`. That is the whole procedure.
+Two families, strict jobs.
 
-For a local server (needed only if you later add `fetch`-based features):
+- **Archivo** sets everything. Display: condensed (~66% width axis),
+  weight 800, uppercase. Text: normal width, 17px / 1.6.
+  Labels, dates, scores and meta: Archivo, sentence case, 14–15px.
+- **NY Rangers** (`/fonts`) is the club's own face: the home hero
+  wordmark and jersey numbers only.
+- Never: monospace, tiny uppercase letter-spaced labels, eyebrow
+  labels above headings, 01/02/03 numbering, hairline rules or 1px
+  outlined boxes (separate with space or a tone step), gradients
+  (except a scrim over a photo), shadows on things at rest.
+  `--mono`, `--hdr-disp` and `--hdr-ui` remain as token names and
+  all resolve to Archivo.
 
-```
-python3 -m http.server 8000
-```
+Headline scale: `d1` clamp(52–158px) · `d2` clamp(38–90px) ·
+`d3` clamp(26–50px) · `d4` clamp(19–28px).
 
-then open <http://localhost:8000>.
+## Layout
 
-The only external request the site makes is to Google Fonts. Offline, the
-display type falls back to Arial Narrow and everything still works — it just
-looks wider than it should.
+- Content max width `--maxw` = **1340px**, centred.
+- Page gutter `--pad` = **clamp(18px, 4vw, 56px)**.
+- A fixed header and a shared footer on every page.
+- **Photos are never faked.** An image slot with no file shows a
+  hatched placeholder captioned with what belongs there.
 
-## Structure
+All of the above lives in `css/tokens.css` — change it there and it
+changes everywhere. Start there.
 
-```
-index.html            home
-news.html             latest posts
-archive.html          news archive by season
-players.html          rosters and coaching staff
-about.html            about the association
-training.html         training times and how it works
-history.html          1982 → today
-games.html            this season's fixtures + competitions
-past-games.html       results archive
-hockey.html           what the game is, gear, rules
-pictures.html         photo albums (gated)
-contact.html          board, contact form, where to find us
-join.html             sign-up for an introduction practice
-sign-in.html          accounts and the permission matrix
-admin.html            the admin console (gated)
-404.html              not found
+## Pages
 
-css/
-  tokens.css          colour, type and layout variables — start here
-  base.css            reset, type scale, buttons, forms, photo slots
-  layout.css          grid, header, bands, hero, footer, breakpoints
-  components.css      news, events, timeline, history chapters, tables, roster, albums, board
-  admin.css           the editing layer ("godmode")
-js/
-  data.js             ALL SITE CONTENT — safe for a board member to edit
-  auth.js             roles, permissions, demo accounts
-  routes.js           page key -> URL, and which pages are gated
-  core.js             state, storage, permission checks, record schema
-  views.js            every render function
-  admin.js            inline editing, admin console, drawer, undo
-  app.js              page setup, header behaviour, click handling, boot
-assets/photos/        drop real photographs here
-```
-
-Load order is deliberate. `tokens.css` must come first; `js/app.js` must come
-last. Every page documents both in its `<head>` and before `</body>`.
-
-### What is shared between pages
-
-Three blocks are byte-identical in all sixteen files, each fenced by a comment:
-
-```
-<!-- ===== SHARED HEAD ===== -->      … everything but title, description,
-                                        robots and the two body attributes
-<!-- ===== SHARED HEADER ===== -->    … gridlines, hotzone, header, peek hint
-<!-- ===== SHARED FOOTER ===== -->    … footer, admin layer, script tags
-```
-
-They are duplicated rather than assembled, because the whole point of this
-prototype is that it has no build step. They are the natural seams for a
-layout template: lift the three blocks into one, and each page file becomes
-just the contents of its `<main>` plus four variables.
-
-The header's navigation is *not* in that markup — it is rendered by
-`renderNav()` in `js/views.js`, because the Drafts, Attendance and Admin items
-depend on who is signed in.
-
-### How a page identifies itself
-
-```html
-<body data-page="players" data-nav="team">
-```
-
-`data-page` is the key in `Studs.PAGES` (`js/routes.js`) and tells the scripts
-which document they are on. `data-nav` is which top-level nav item lights up.
-
-## URLs
-
-`js/routes.js` is the only file that knows what a page's address is. Nothing
-else writes a page URL by hand — links in markup are plain relative hrefs, and
-links built in JavaScript go through `Studs.url()`.
-
-```js
-Studs.url("players")            // "players.html"
-Studs.url("hockey", "gear")     // "hockey.html#gear"
-Studs.picturesUrl("tournaments")// "pictures.html?cat=tournaments"
-```
-
-Relative, not root-relative, so the site still opens by double-click. To move
-to clean URLs, change the values in `PAGES` and rename the files:
-
-```js
-home: "/",  players: "/players/",  pastgames: "/games/past/"
-```
-
-Two kinds of second segment survive from the old hash routes:
-
-- **Section anchors** are plain fragments — `hockey.html#gear`,
-  `contact.html#find`, `games.html#competitions`. The target is the `id` on a
-  `.band`, and `css/layout.css` gives those a `scroll-margin-top` so the fixed
-  header does not cover the heading.
-- **Gallery state** is in the query string — `pictures.html?cat=promo` and
-  `pictures.html?album=al1`. Both are read on load and rewritten with
-  `history.replaceState` when you filter or open an album, so an album can be
-  linked to and survives a reload. These are the only two query parameters the
-  site uses.
-
-## Gated pages
-
-`GATED` in `js/routes.js` lists pages a visitor may not simply open; `admin` is
-the only one today. `js/app.js` checks it before rendering and sends anyone who
-fails to `sign-in.html`.
-
-**This check runs in the browser, so it is convenience, not security.** On the
-real site the server refuses the request, and `GATED` becomes the list of
-routes it guards.
-
-## Where to change things
-
-| You want to change | Open |
+| File | Purpose |
 |---|---|
-| A colour anywhere on the site | `css/tokens.css` |
-| Headline sizes, the type scale | `css/base.css` |
-| News, events, players, games, board, gear, rules, history timeline & chapters | `js/data.js` |
-| Who is allowed to do what | `js/auth.js` |
-| A page's URL, or the URL scheme | `js/routes.js` |
-| Which pages require a sign-in | `GATED` in `js/routes.js` |
-| How the header hides and reappears | `js/app.js`, `bindHeader()` |
-| A new content collection | `js/core.js` schema, then a renderer in `js/views.js` |
-| Which sub-menu item goes where | `renderNav()` in `js/views.js` |
-| Adding a page | a new file, a key in `PAGES`, a renderer if it has content |
+| `index.html` | Home — hero, latest news, upcoming events, sign-up |
+| `about.html` | About the association |
+| `history.html` | Club history, 1982 → today |
+| `players.html` | Rosters and coaching staff |
+| `training.html` | Training times and how a practice works |
+| `games.html` | This season's fixtures and competitions |
+| `past-games.html` | Results archive by season |
+| `news.html` | Latest posts |
+| `archive.html` | News archive by season |
+| `hockey.html` | The game explained — rules, gear |
+| `pictures.html` | Photo albums (members) |
+| `contact.html` | Board, contact form, how to find the rink |
+| `join.html` | Sign-up for an introduction practice |
+| `sign-in.html` | Accounts and the permission model |
+| `admin.html` | Content admin console (gated) |
+| `account.html` | Member area, one view per `?v=`: overview, training replies, games & lifts, kit & contribution, profile, ice check for coaches (signed in only; `js/account.js`, `css/account.css`) |
+| `404.html` | Not found |
 
-## Design rules worth keeping
+## What is in the repo right now
 
-**Gold is the club, cyan is the tooling.** `--gold` is the only warm colour on
-the site and belongs to the Slapping Studs. `--edit` (cyan) belongs to the
-admin layer and appears nowhere else. Mixing them makes the CMS look like part
-of the site.
+Trimmed to `index.html` and only what it needs to run:
 
-**Mono carries the data.** Every date, score, jersey number, label and
-statistic is IBM Plex Mono. The display face is for headlines only. This is why
-the tables read as records rather than decoration.
+```
+index.html
+css/   tokens.css  base.css  layout.css  components.css  admin.css
+js/    data.js  auth.js  routes.js  core.js  views.js  admin.js  app.js
+assets/photos/hero-squad-2026.jpg
+```
 
-**The header hides on scroll and does not come back on scroll up.** It returns
-only at the top of the page or when the cursor enters the top 78 px. This was a
-deliberate request, and it is why the admin bar is pinned to the *bottom* of the
-window — editing tools cannot live in a bar that disappears.
-
-**Photos are never faked.** Anything without a real photograph renders as a
-hatched slot with a caption saying what belongs there. See
-`assets/photos/README.md` for how to fill them from the filesystem, and
-"Editing pictures" below for doing it from the site.
-
-**Every dropdown item goes somewhere.** Sub-menu links either open another page
-or scroll to a section (`#/hockey/gear`, `#/contact/find`) or set a filter
-(`#/pictures/tournaments`). A menu that does not move you is worse than no menu,
-so if you add an item, give it a real destination and a `data-sec` anchor.
-
-## Renderers and pages
-
-`renderAll()` in `js/views.js` calls every renderer on every page. Each one
-opens by looking for the container it writes into and returns if that container
-is not in the current document, so the list does not have to be filtered per
-page and adding a page cannot forget to call something.
-
-## How content is stored
-
-Content lives in `js/data.js` and is copied into the browser's `localStorage`
-on first visit. After that, edits made through the admin interface change only
-that person's copy. Nothing is sent anywhere and no visitor sees another
-visitor's changes.
-
-This is deliberate for a prototype whose passwords are printed on the sign-in
-page: anyone can log in as admin, delete everything, and hit reset. To make an
-edit permanent for everyone, use **Admin console → Danger zone → Copy content
-as JSON** and paste the result back into `js/data.js`.
-
-## Editing pictures from the site
-
-No code needed. Sign in as admin, turn on **Edit on page**, and hover any photo
-slot — hero, news post, player portrait, board portrait, history chapter. A
-button appears; pick a file and it is resized and saved. A slot that already has
-a photo offers replace or remove instead of overwriting silently.
-
-Album photos work differently, because members need them too: open any album in
-**Pictures** and use **Add photos** (multiple files at once). Members, coaches
-and the board can all upload; the first photo added becomes the album cover.
-
-Uploads are downscaled on a canvas before they are stored — 1600px for page
-slots, 1400px for album photos, JPEG quality 0.78. Full-size camera files would
-exhaust the browser's ~5 MB storage in three uploads. Current usage is shown in
-**Admin console → Danger zone**, and a failed write says so rather than
-pretending it worked.
-
-For photos that should ship with the project rather than live in one browser,
-put the file in `assets/photos/` and add `data-img` to the slot instead.
-
-## Accounts
-
-Demo sign-ins, listed on the `#/signin` page:
-
-| Role | E-mail | Password |
-|---|---|---|
-| Member | `member@slappingstuds.nl` | `rookie` |
-| Coach | `coach@slappingstuds.nl` | `bench` |
-| Admin | `admin@slappingstuds.nl` | `godmode` |
-
-**This is not security.** Every check runs in the browser and the passwords are
-in `js/auth.js`. It exists so the board can agree on the permission model before
-anyone builds a back end. When the real site is built, `js/auth.js` becomes the
-specification and the checks move server-side.
-
-## Notes for the back end
-
-- **Forms.** The sign-up form (`#joinformel`) appears twice — on `join.html`
-  and in the "Getting in" band on `index.html` — with the same ids and the same
-  fields, so it wants one endpoint serving both. `contact.html` has a second
-  form, `#contactform`. All of them carry `name` attributes on every field and
-  a `method="post"` with a placeholder `action`. `js/app.js` intercepts them
-  today: a sign-up is filed into the `signups` collection, the contact form
-  only previews which inbox it would be routed to. Point the actions at real
-  endpoints and drop the handlers.
-- **Content.** `js/data.js` is the shape of every collection, and
-  `S.schema` in `js/core.js` is the field list the CMS drives itself from.
-  **Admin console → Danger zone → Copy content as JSON** exports the live store
-  in that shape, which is a usable database seed.
-- **Accounts.** `js/auth.js` is the permission specification. Every check goes
-  through `Studs.can("capability")`, so moving to a server means keeping the
-  capability names and answering them from a session instead.
-- **Storage.** Everything currently persists to `localStorage` under
-  `studs.content.v2` / `studs.session.v2` (`js/core.js`), including uploaded
-  photos as data URLs. That is the layer to replace with a real API.
-- **`404.html`** assumes the site is served flat from the web root, which is
-  where these files live.
-
-## Before this can go live
-
-- [ ] Replace the placeholder logo in the shared header with the real club badge as `assets/logo.svg`
-- [ ] Real photographs (see `assets/photos/README.md`)
-- [ ] Real history: the 1990s / 2010 / 2018 timeline markers and history chapters 02, 03 and 05 are invented structure
-- [ ] Resolve the championship date — U-Today reports a first title in 42 years (≈2024), the club's own news dates the 5th division title to March 2026
-- [ ] Per-player statistics: the roster is real, the scoring figures are generated
-- [ ] Past results: `pastgames` in `js/data.js` is placeholder structure only
-- [ ] A mobile menu — `nav` is currently hidden below 980 px (`css/layout.css`)
-- [ ] A back end for accounts, the gallery, and the contact form
-- [ ] Remove every `.note` block; they are notes to the client, not site content
-- [ ] A canonical domain: then add `<link rel="canonical">`, Open Graph tags and a `sitemap.xml`
-
-## Content sources
-
-The roster (names, numbers, positions, squads), the board and the rink address
-are the club's own published data. Club facts are taken from
-[slappingstuds.nl](https://slappingstuds.nl) and
-[U-Today](https://www.utoday.nl/united/74076/the-slapping-studs-on-and-off-the-ice-a-close-knit-group).
-Anything not from those two is marked as placeholder, on the page and in
-`js/data.js`.
+`js/data.js` holds all site content; `js/core.js` + `js/views.js` +
+`js/app.js` are the engine. The earlier full 16-page prototype is in
+git history at commit `2fef618` if any of it is worth pulling back.

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Announcements — variants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/paper.css">
+<style>
+  body{background:var(--bone4)}
+  .previewlabel{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-d);margin:0 0 10px}
+  .previewrow{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start;padding:40px var(--pad);border-bottom:1px dashed var(--rule-l3)}
+  .previewrow:last-child{border-bottom:none}
+  .calfake{background:var(--bone3);border:1px solid var(--line-l);border-radius:12px;padding:20px;height:340px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--ink-l);letter-spacing:.08em;text-transform:uppercase}
+
+  /* ---- A: pinboard ---- */
+  .annA{display:flex;flex-direction:column;gap:12px}
+  .annA .card{position:relative;background:var(--bone3);border:1px solid var(--line-l);border-radius:3px;padding:14px 16px 14px 34px;box-shadow:0 1px 0 var(--rule-l1)}
+  .annA .card:nth-child(2){transform:rotate(-0.6deg)}
+  .annA .card:nth-child(3){transform:rotate(0.5deg)}
+  .annA .pin{position:absolute;left:12px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 1px 2px rgba(0,0,0,.25)}
+  .annA .tag{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
+  .annA .txt{font-family:var(--disp);font-stretch:80%;font-weight:600;font-size:14px;color:var(--ink-b);margin-top:4px;line-height:1.35}
+  .annA .meta{font-family:var(--mono);font-size:10px;color:var(--ink-l);margin-top:6px}
+
+  /* ---- B: simple list ---- */
+  .annB{display:flex;flex-direction:column}
+  .annB .row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--rule-l1)}
+  .annB .row:first-child{padding-top:0}
+  .annB .row:last-child{border-bottom:none}
+  .annB .d{font-family:var(--mono);font-size:10px;color:var(--ice);white-space:nowrap;padding-top:2px;min-width:64px}
+  .annB .txt{font-family:var(--disp);font-stretch:82%;font-weight:600;font-size:14px;color:var(--ink-b);line-height:1.35}
+  .annB .tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-d);display:block;margin-bottom:2px}
+
+  /* ---- C: ticker strip ---- */
+  .annC-wrap{background:var(--ink);border-radius:12px;overflow:hidden;height:52px;display:flex;align-items:center;position:relative}
+  .annC-track{display:flex;gap:48px;white-space:nowrap;animation:annscroll 22s linear infinite;padding-left:20px}
+  .annC-track span.tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-right:10px}
+  .annC-track span.txt{font-family:var(--disp);font-stretch:82%;font-weight:600;font-size:14px;color:var(--bone)}
+  @keyframes annscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .annC-note{font-family:var(--mono);font-size:10px;color:var(--ink-l);margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="previewrow">
+  <div>
+    <p class="previewlabel">Variant A — Pinboard</p>
+    <div class="calfake">Calendar sits here (left, existing)</div>
+  </div>
+  <div>
+    <p class="previewlabel">Announcements</p>
+    <div class="annA">
+      <div class="card"><span class="pin"></span><span class="tag">Gear</span><div class="txt">Order training jerseys by Friday — sign-up sheet is in the clubhouse.</div><div class="meta">Posted 2 days ago · Equipment Committee</div></div>
+      <div class="card"><span class="pin"></span><span class="tag">Vote</span><div class="txt">Captain vote for next season closes Sunday night.</div><div class="meta">Posted 3 days ago · Board</div></div>
+      <div class="card"><span class="pin"></span><span class="tag">Logistics</span><div class="txt">Carpool to the Leiden final — two seats still needed.</div><div class="meta">Posted 5 days ago · Off-Ice Committee</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="previewrow">
+  <div>
+    <p class="previewlabel">Variant B — Simple list</p>
+    <div class="calfake">Calendar sits here (left, existing)</div>
+  </div>
+  <div>
+    <p class="previewlabel">Announcements</p>
+    <div class="annB">
+      <div class="row"><div class="d">2 days ago</div><div><span class="tag">Gear</span><div class="txt">Order training jerseys by Friday — sign-up sheet is in the clubhouse.</div></div></div>
+      <div class="row"><div class="d">3 days ago</div><div><span class="tag">Vote</span><div class="txt">Captain vote for next season closes Sunday night.</div></div></div>
+      <div class="row"><div class="d">5 days ago</div><div><span class="tag">Logistics</span><div class="txt">Carpool to the Leiden final — two seats still needed.</div></div></div>
+      <div class="row"><div class="d">6 days ago</div><div><span class="tag">Housekeeping</span><div class="txt">Return locker room keys to the equipment room after practice.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="previewrow" style="grid-template-columns:1fr">
+  <div>
+    <p class="previewlabel">Variant C — Ticker strip (full width, sits under the calendar row)</p>
+    <div class="calfake" style="height:200px;margin-bottom:16px">Calendar + list sit here (existing layout, unchanged)</div>
+    <div class="annC-wrap">
+      <div class="annC-track">
+        <span><span class="tag">Gear</span><span class="txt">Order training jerseys by Friday</span></span>
+        <span><span class="tag">Vote</span><span class="txt">Captain vote closes Sunday night</span></span>
+        <span><span class="tag">Logistics</span><span class="txt">Carpool to Leiden — 2 seats needed</span></span>
+        <span><span class="tag">Housekeeping</span><span class="txt">Return locker room keys after practice</span></span>
+        <span><span class="tag">Gear</span><span class="txt">Order training jerseys by Friday</span></span>
+        <span><span class="tag">Vote</span><span class="txt">Captain vote closes Sunday night</span></span>
+        <span><span class="tag">Logistics</span><span class="txt">Carpool to Leiden — 2 seats needed</span></span>
+        <span><span class="tag">Housekeeping</span><span class="txt">Return locker room keys after practice</span></span>
+      </div>
+    </div>
+    <p class="annC-note">Scrolls continuously, like the news ticker already used at the top of the home page.</p>
+  </div>
+</div>
+
+</body>
+</html>

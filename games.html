@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- ===== SHARED HEAD — identical on every page except the four
+<!-- ===== SHARED HEAD - identical on every page except the four
      values below. When this becomes templated, these are the
      variables: title, description, robots, body[data-page|data-nav]. -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Games 2025–26 — The Slapping Studs</title>
-<meta name="description" content="Fixtures, results and game sheets for the current season, and the competitions the three teams play in.">
+<title>Games &mdash; The Slapping Studs</title>
+<meta name="description" content="This season's fixtures and results for all four Slapping Studs squads.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
 
-<!-- Load order matters: tokens define the variables everything else uses. -->
+<!-- Load order matters: tokens define the variables everything
+     else uses, and every file after it only spends those values.
+     paper.css follows components.css because it is a second set of
+     components - the same system worked on paper - and not an
+     override of the first. deck.css is last of the layout files
+     because it is the one that decides how a section is sized. -->
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/paper.css">
+<link rel="stylesheet" href="css/deck.css">
 <link rel="stylesheet" href="css/admin.css">
 <!-- ===== /SHARED HEAD ===== -->
+<style>
+/* page-scoped: the h1 leads the first screen; gold-strip tiles
+   read value first with the label under it; nothing below 13px */
+body[data-page="games"] .phead h1{margin:0}
+body[data-page="games"] .strip .stat{display:flex;flex-direction:column}
+body[data-page="games"] .strip .stat > *{order:4}
+body[data-page="games"] .strip .stat .v{order:1;margin-top:0}
+body[data-page="games"] .strip .stat .k{order:2;margin-top:8px;font-size:13px;color:rgba(20,18,16,.72)}
+body[data-page="games"] .strip .stat .n{order:3;margin-top:2px;font-size:13px}
+body[data-page="games"] .pagelead{font-size:19px;line-height:1.5}
+</style>
 </head>
 <!-- data-page  = which document this is; js/routes.js maps it to a URL
      data-nav   = which top-level nav item lights up -->
 <body data-page="games" data-nav="games">
 
-<!-- ===== SHARED HEADER — identical on every page ===== -->
+<!-- ===== SHARED HEADER - identical on every page ===== -->
 
 <!-- hairline column grid, purely decorative -->
 <div class="gridlines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
@@ -45,7 +63,7 @@
           <path d="M8.8 16.9l-1.3 3.2M19.4 18.4l1.1 2"/>
         </svg>
       </span>
-      <span class="wordmark"><span class="n">Slapping Studs</span><span class="s">EST. 1982 · ENSCHEDE</span></span>
+      <span class="wordmark"><span class="n">Slapping Studs</span><span class="s">EST. 1982 &middot; ENSCHEDE</span></span>
     </a>
 
     <!-- nav and account chip are rendered by js/views.js because
@@ -58,48 +76,89 @@
 <div class="peekhint" aria-hidden="true"></div>
 <!-- ===== /SHARED HEADER ===== -->
 
+<!-- ===== THE PAGE =====
+     One section on this site is sized to exactly one screen: the
+     .panel--cover on the home page, where a reader should arrive to
+     a photograph and nothing else. Every other section anywhere -
+     including the .pagehead an inside page opens with - is an
+     ordinary .panel and takes the height its own content needs.
+     id = the deep link; data-label = what the section is called.
+     Add a section by adding one; there is nothing to register.
+     ================================================================ -->
 <main>
 
-<div class="band top">
-  <div class="wrap">
-    <p class="eyebrow">Games / Season 2025–26</p>
-    <h1 class="disp d2" style="margin-top:16px" data-ed="gm.h1">Fixtures,<br>results, sheets</h1>
-    <p class="body" style="margin-top:22px" data-ed="gm.sub">Every game links to its own sheet: the roster that dressed, the scoring, the penalties and a short report. Competitions the three teams play in are listed underneath.</p>
-    <div class="tblwrap" style="margin-top:44px"><table>
-      <thead><tr><th>Date</th><th>Team</th><th>Fixture</th><th>Venue</th><th>Result</th><th>Sheet</th></tr></thead>
-      <tbody id="gamesbody"></tbody>
-    </table></div>
-    <button class="addtile" data-add="games">+ Add game</button>
-    <a class="btn btn-sm" href="past-games.html" style="margin-top:24px">Past seasons &rarr;</a>
+<!-- Ink intro: the same pagehead past-games.html opens with. Team
+     filter + won/lost/upcoming tallies for whatever is on screen.
+     renderGames() (js/views.js) fills #gfilters and #gsummary;
+     the filter is one delegated click in js/app.js (data-gteam). -->
+<section class="panel panel--strip" id="fixtures" data-label="This season">
+  <div class="panel__in">
+    <div class="wrap">
+      <div class="phead">
+        <div>
+          <h1 class="disp d2" data-ed="games.fixtures.h2">Fixtures and results</h1>
+          <p class="body pagelead" data-ed="games.fixtures.lead">Every game of every squad in the 2025&ndash;26 season, played and still to come. Pick a squad below to see just theirs.</p>
+        </div>
+        <a class="tlink" href="competitions.html">Competitions and tables</a>
+      </div>
+    </div>
   </div>
-</div>
-<div class="band ink2" id="competitions">
-  <div class="wrap">
-    <div class="secthead"><div><p class="eyebrow">Competitions</p><h2 class="disp d3" style="margin-top:14px">Who we play</h2></div></div>
-    <div class="two" id="comps"></div>
-    <button class="addtile" data-add="comps">+ Add competition</button>
+  <!-- gold strip, same as stats.html: won / lost / upcoming / games
+       for the squad picked below - renderGames() fills #gsummary -->
+  <div class="strip"><div class="wrap" id="gsummary"></div></div>
+</section>
+
+<!-- Paper half of the rhythm - same ink-intro / bone-data pairing
+     as past-games.html #results + #archive and competitions.html
+     #leagues + #standings. Table ids are unchanged. -->
+<section class="panel bone on-bone" id="games" data-label="Game by game">
+  <div class="panel__in">
+    <div class="wrap">
+      <div class="phead">
+        <div>
+          <h2 class="disp d3" data-ed="games.list.h2">Game by game</h2>
+        </div>
+        <a class="tlink" href="past-games.html">Past seasons</a>
+      </div>
+      <div class="filters" id="gfilters"></div>
+      <div class="ptable-wrap">
+        <table class="ptable gtable">
+          <thead><tr><th>Date</th><th>Team</th><th>Fixture</th><th>Venue</th><th>Result</th><th>Sheet</th></tr></thead>
+          <tbody id="gamesbody"></tbody>
+        </table>
+      </div>
+      <button class="addtile" data-add="games">+ Add game</button>
+      <p class="mono formnote todo" style="margin-top:22px">Placeholder &mdash; dates and scores to be filled from the league calendar as the season goes.</p>
+    </div>
   </div>
-</div>
+</section>
+
 </main>
 
-<!-- ===== SHARED FOOTER — identical on every page ===== -->
-<footer>
-  <div class="wrap">
-    <div class="fgrid">
-      <div class="fcol">
-        <div class="wordmark" style="margin-bottom:14px"><span class="n" style="font-size:24px">Slapping Studs</span><span class="s">SIJHV · EST. 1982 · ENSCHEDE</span></div>
-        <p class="body" style="font-size:13.5px;max-width:34ch" data-ed="ft.b">The oldest student ice hockey association in the Netherlands, affiliated with the University of Twente.</p>
+
+<!-- ===== SHARED FOOTER - identical on every page =====
+     A page-level element after </main>, not a panel of its own:
+     it takes exactly the height its four columns need plus its
+     own breathing room, and never a screen more. -->
+  <footer class="sitefoot">
+    <div class="wrap">
+      <div class="fgrid">
+        <div class="fcol">
+          <div class="wordmark"><span class="n">Slapping Studs</span><span class="s">SIJHV &middot; EST. 1982 &middot; ENSCHEDE</span></div>
+          <p class="body" data-ed="ft.b">The oldest student ice hockey association in the Netherlands, affiliated with the University of Twente.</p>
+        </div>
+        <div class="fcol"><h5>Club</h5><a href="about.html">About us</a><a href="history.html">History</a><a href="training.html">Training</a><a href="players.html">Players</a></div>
+        <div class="fcol"><h5>Play</h5><a href="games.html">This season</a><a href="past-games.html">Past seasons</a><a href="hockey.html#what">New to hockey</a><a href="hockey.html#gear">Gear</a></div>
+        <div class="fcol"><h5>Join &amp; members</h5><a href="join.html">Sign up for a practice</a><a href="pictures.html">Pictures</a><a href="sign-in.html">Sign in</a><a href="contact.html#find">Where to find us</a></div>
       </div>
-      <div class="fcol"><h5>Club</h5><a href="about.html">About us</a><a href="history.html">History</a><a href="training.html">Training</a><a href="players.html">Players</a></div>
-      <div class="fcol"><h5>Play</h5><a href="games.html">This season</a><a href="past-games.html">Past seasons</a><a href="hockey.html#what">New to hockey</a><a href="hockey.html#gear">Gear</a></div>
-      <div class="fcol"><h5>Join &amp; members</h5><a href="join.html">Sign up for a practice</a><a href="pictures.html">Pictures</a><a href="sign-in.html">Sign in</a><a href="contact.html#find">Where to find us</a></div>
+      <div class="fbot">
+        <span>Design proposal &middot; 2026 &middot; not the live site</span>
+        <span data-ed="ft.meta">Postbus 217, 7500 AE Enschede &middot; bestuur@slappingstuds.nl</span>
+      </div>
     </div>
-    <div class="fbot">
-      <span>Design proposal · 2026 · not the live site</span>
-      <span>Postbus 217, 7500 AE Enschede · bestuur@slappingstuds.nl</span>
-    </div>
-  </div>
-</footer>
+  </footer>
+<!-- ===== /SHARED FOOTER ===== -->
+
 
 <!-- admin layer: bar, drawer scrim, drawer, toast -->
 <div class="adminbar" id="adminbar"></div>
@@ -114,9 +173,10 @@
 <script src="js/auth.js"></script>
 <script src="js/routes.js"></script>
 <script src="js/core.js"></script>
+<script src="js/avatar.js"></script>
+<script src="js/deck.js"></script>
 <script src="js/views.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/app.js"></script>
-<!-- ===== /SHARED FOOTER ===== -->
 </body>
 </html>

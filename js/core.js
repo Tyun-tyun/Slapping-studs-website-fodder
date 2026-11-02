@@ -25,12 +25,18 @@ window.Studs = window.Studs || {};
     editing:  false,  // inline edit mode on/off (kept in the session,
                       //   so it survives moving between pages)
     plFilter: "All",  // roster team filter
+    statFilter:"All",  // stats squad filter
+    statSort: "pts",   // stats table column: pts | g | a | gp | pim
+    statAll:  false,   // stats table: false = top 15, true = every skater
     picFilter:"all",  // gallery section filter (games/tournaments/promo/coach)
     openAlbum:null,   // album id when an album is opened
     pgSeason: "all",  // past-games season filter
+    gTeam:    "all",  // this-season team filter (games.html)
     adTab:    "news", // admin console collection
     lastDeleted: null,// for the undo toast
-    joinSent: null    // the sign-up just submitted, for the thank-you state
+    joinSent: null,   // the sign-up just submitted, for the thank-you state
+    calMonth: 3        // home calendar - 0-based month, starts on April
+                        //   (2026: where the seeded events collection begins)
   };
 
   /* ---------- tiny helpers --------------------------------- */
@@ -168,7 +174,9 @@ window.Studs = window.Studs || {};
     S.saveSession();
     S.setEditing(false);
     if(S.page() === "signin"){
-      location.href = S.url(acc.role === "admin" ? "admin" : "home");
+      /* members and coaches land in their own area; the board in
+         the console it signs in to run */
+      location.href = acc.role === "admin" ? S.url("admin") : S.accountUrl();
       return;
     }
     S.renderAll();
@@ -210,11 +218,17 @@ window.Studs = window.Studs || {};
     news:    {label:"News posts", cols:["title","date","tag","status"], fields:[
                ["title","Headline","text"],["date","Date","text"],["tag","Tag","text"],
                ["author","Author","text"],["excerpt","Excerpt","textarea"],
+               ["body","Full text - a blank line starts a new paragraph","textarea"],
                ["status","Status","select:published,draft"]]},
 
     events:  {label:"Events", cols:["title","dd","mm","kind"], fields:[
                ["dd","Day","text"],["mm","Month","text"],["title","Title","text"],
-               ["meta","Time & place","text"],["kind","Home / away","select:,home,away"]]},
+               ["meta","Time & place","text"],["kind","Home / away","select:,home,away"],
+               ["team","Squad that plays it (games only)","select:,Studs 1,Studs 2,Stallions,Cadets"]]},
+
+    announcements:{label:"Announcements", cols:["tag","text","when"], fields:[
+               ["tag","Tag","text"],["text","Announcement","textarea"],
+               ["when","Posted","text"]]},
 
     stats:   {label:"Achievements", cols:["v","k","n"], fields:[
                ["k","Label above","text"],["v","Big value","text"],["n","Label below","text"]]},
@@ -237,6 +251,62 @@ window.Studs = window.Studs || {};
                ["team","Team","select:Stallions,Studs 1,Studs 2,Cadets"],
                ["fixture","Fixture","text"],["venue","Venue","text"],
                ["result","Result","text"],["outcome","Outcome","select:,w,l"]]},
+
+    /* One game sheet = one gamesheets record plus its rows in
+       sheetgoals / sheetpens / sheetlineup, all keyed by "game"
+       = the id of the fixture in games[] or pastgames[]. Flat
+       records on purpose: the drawer edits one row at a time and
+       the schema type set is text / textarea / select only. */
+    gamesheets:{label:"Game sheets", cols:["game","home","away","hs","as"], fields:[
+               ["game","Fixture id (games / past games)","text"],
+               ["comp","Competition line (e.g. 6th Division North \u00b7 Game 5)","text"],
+               ["home","Home team","text"],["away","Away team","text"],
+               ["homeRec","Home record before the game (W\u2013L\u2013OTW)","text"],
+               ["awayRec","Away record before the game","text"],
+               ["hs","Home goals","text"],["as","Away goals","text"],
+               ["status","Final status","select:FT,OT,SO"],
+               ["hp","Home goals by period (e.g. 1-2-2)","text"],
+               ["ap","Away goals by period (e.g. 2-1-0)","text"],
+               ["date","Date","text"],["faceoff","Face-off","text"],
+               ["venue","Venue","text"],["refs","Referees","text"],
+               ["star1","First star","text"],["star1line","First star \u2014 line","text"],
+               ["star2","Second star","text"],["star2line","Second star \u2014 line","text"],
+               ["star3","Third star","text"],["star3line","Third star \u2014 line","text"],
+               ["report","Game report \u2014 a blank line starts a new paragraph","textarea"]]},
+
+    sheetgoals:{label:"Sheet \u00b7 goals", cols:["game","per","time","team","scorer"], fields:[
+               ["game","Fixture id","text"],["per","Period","select:1,2,3,OT,SO"],
+               ["time","Time","text"],["team","Team code","text"],
+               ["scorer","Scorer","text"],["assists","Assists","text"],
+               ["sit","Situation","select:EV,PP,SH,EN,PS"],["score","Score after","text"]]},
+
+    sheetpens:{label:"Sheet \u00b7 penalties", cols:["game","per","time","player","inf"], fields:[
+               ["game","Fixture id","text"],["per","Period","select:1,2,3,OT"],
+               ["time","Time","text"],["player","Team \u00b7 number \u00b7 player","text"],
+               ["inf","Infraction","text"],["min","Minutes","text"]]},
+
+    sheetlineup:{label:"Sheet \u00b7 lineup", cols:["game","side","pos","no","name"], fields:[
+               ["game","Fixture id","text"],["side","Side","select:home,away"],
+               ["pos","Position","select:Goalies,Defense,Forwards"],
+               ["no","Number","text"],["name","Name","text"],
+               ["stat","Stat (G/A/PIM, or saves for a goalie)","text"]]},
+
+    standings:{label:"Standings", cols:["div","pos","team","pts"], fields:[
+               ["div","Division","select:6th Division North,5th Division North"],
+               ["pos","Position","text"],["team","Team","text"],
+               ["gp","Games played","text"],["w","Won","text"],
+               ["otw","Won in OT or shootout","text"],["l","Lost","text"],
+               ["gd","Goal difference","text"],["pts","Points","text"],
+               ["us","A Studs squad","select:,yes"]]},
+
+    sessions:{label:"Training sessions", cols:["day","t1","t2"], fields:[
+               ["day","Day","text"],["len","Line under the day","text"],
+               ["g1","First slot - who","text"],["t1","First slot - time","text"],
+               ["g2","Second slot - who","text"],["t2","Second slot - time","text"],
+               ["rule","Weeks of the month, e.g. 1,3,5 (empty = every week)","text"]]},
+
+    kit:     {label:"Bring / loan kit", cols:["item","loan"], fields:[
+               ["item","Item","text"],["loan","Starts with Yes = the club lends it; otherwise you bring it","text"]]},
 
     comps:   {label:"Competitions", cols:["title","body"], fields:[
                ["title","Title","text"],["body","Description","textarea"]]},
@@ -263,16 +333,19 @@ window.Studs = window.Studs || {};
                ["cap","Caption line (place · date)","text"]]},
 
     chapters:{label:"History chapters", cols:["yr","nav","kicker"], fields:[
-               ["kicker","Eyebrow (e.g. Chapter 02 · 1990s)","text"],
-               ["yr","Index shown in the nav (01–05)","text"],
+               ["yr","Year or period, set large and used in the rail (e.g. 1982, 1990s)","text"],
+               ["kicker","Date note (admin list only, not shown on the page)","text"],
                ["nav","Nav label","text"],
                ["h","Heading — use \\n for a line break","text"],
                ["lead","Lead line (optional, larger)","textarea"],
                ["body","Body — blank line starts a new paragraph","textarea"],
                ["quote","Pull quote (optional)","textarea"],
                ["cap","Photo caption (optional)","text"],
-               ["shots","Photo slots","select:0,1,2,3"],
-               ["media","Photo placement","select:row,side,wide"]]},
+               ["img","Photo file (assets/…)","text"],
+               ["credit","Photo credit (photographer, licence)","text"],
+               ["creditUrl","Credit link","text"],
+               ["shots","Photo slots","select:0,1"],
+               ["media","Photo placement","select:side,wide"]]},
 
     gear:    {label:"Gear", cols:["when","title"], fields:[
                ["when","Priority label","text"],["title","Item","text"],["body","Description","textarea"]]},
@@ -282,6 +355,22 @@ window.Studs = window.Studs || {};
 
     steps:   {label:"Training steps", cols:["n","title"], fields:[
                ["n","Step label","text"],["title","Title","text"],["body","Description","textarea"]]},
+
+    /* Member area (account.html). who = an account id from auth.js. */
+    loans:   {label:"Kit on loan", cols:["who","item","due","back"], fields:[
+               ["who","Account id (u1, u2, u3)","text"],["item","Item","text"],
+               ["since","Lent on (YYYY-MM-DD)","text"],["due","Back by (YYYY-MM-DD)","text"],
+               ["back","Returned on (empty while out)","text"]]},
+
+    dues:    {label:"Contributions", cols:["who","season","amount","paid"], fields:[
+               ["who","Account id (u1, u2, u3)","text"],["season","Season","text"],
+               ["amount","Fee in euros (95.00)","text"],["paid","Paid so far in euros","text"],
+               ["due","Due date (YYYY-MM-DD)","text"]]},
+
+    rides:   {label:"Lifts to away games", cols:["ev","driver","leave","seats"], fields:[
+               ["ev","Event id (e1…)","text"],["kind","Vehicle","select:van,car"],["driver","Driver","text"],
+               ["from","Leaves from","text"],["leave","Leaves at (HH:MM)","text"],
+               ["seats","Passenger seats","text"],["riders","Riders, comma-separated","textarea"]]},
 
     archive: {label:"Archive seasons", cols:["season","posts","highlight"], fields:[
                ["season","Season","text"],["posts","Post count","text"],

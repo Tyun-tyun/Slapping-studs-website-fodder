@@ -10,27 +10,55 @@
      black ice, bone paper, and the gold from the jerseys.
      Gold is the ONLY warm colour. Everything cold is a neutral
      with a slight blue bias so the page feels like a rink.      */
-  --ink:#0C0D0E;        /* page ground */
-  --ink2:#131518;       /* raised panel */
-  --ink3:#1B1E22;       /* hover / menu */
+  /* The dark side is a slate, not pure black: enough lift off #000
+     that a page of plain sections reads as a surface rather than a
+     void, while everything below still spends these three tones the
+     same way. Nudge them together if a section ever feels washed. */
+  --ink:#111417;        /* page ground */
+  --ink2:#181B1F;       /* raised panel */
+  --ink3:#22262B;       /* hover / menu */
   --bone:#EDEAE1;       /* paper sections + text on dark */
   --bone2:#DFDBCF;      /* second paper tone */
   --gold:#F7C325;       /* club accent — jerseys */
   --ice:#93A9B8;        /* cold steel: labels, meta, data */
   --edit:#62C9DE;       /* admin / CMS layer ONLY. Never club UI. */
+  --edit-d:#1C6B7C;     /* the same, dark enough to read on bone */
   --danger:#E06B5A;     /* destructive actions */
   --ok:#8FD1B0;         /* granted permission, coach role */
+
+  /* --- paper tones -------------------------------------------
+     The UI mockups work on paper rather than on ink, and needed
+     more steps between --bone and --ink than the dark side ever
+     did: a ground to sit the sheet on, a raised tone for a panel
+     inside it, three hairline weights and three greys for text.
+     Same family, same gold. Nothing here is a new hue.          */
+  --bone3:#E4E0D3;      /* raised paper: a card on the sheet */
+  --bone4:#D8D3C4;      /* paper ground behind the sheet */
+  --rule-l1:#DBD6C7;    /* hairline: between rows */
+  --rule-l2:#CFC8B9;    /* hairline: between cards */
+  --rule-l3:#B5AD9C;    /* hairline: under a table head */
+  --ink-b:#3C4247;      /* body text on paper */
+  --ink-m:#5B6873;      /* secondary text on paper */
+  --ink-l:#66727B;      /* labels and meta on paper */
+  --gold-d:#8A6A00;     /* the club gold, dark enough to read on paper */
 
   --line-d:rgba(237,234,225,.13);  /* hairline on dark */
   --line-l:rgba(12,13,14,.16);     /* hairline on paper */
 
   /* --- type --------------------------------------------------
-     Archivo is a variable font: the width axis (font-stretch)
-     is what makes the display type condensed. IBM Plex Mono
-     carries every label, date, score and statistic — data
-     should never be set in the display face.                    */
+     Two families, no more. Archivo sets everything: its width
+     axis (font-stretch) makes the condensed display type, and at
+     normal width it is the text face for body, labels, dates and
+     scores alike. NY Rangers (components.css) is the club's own
+     face and appears only in the hero wordmark and on jersey
+     numbers. Labels are sentence case at 13px or more - never
+     small tracked capitals, never monospace.
+     --mono, --hdr-disp and --hdr-ui survive as names so the
+     rules that use them keep working; all three are Archivo.    */
   --disp:"Archivo","Arial Narrow",Helvetica,sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --mono:var(--disp);
+  --hdr-disp:var(--disp);
+  --hdr-ui:var(--disp);
   --disp-width:66%;     /* display condensation */
   --disp-weight:800;
 

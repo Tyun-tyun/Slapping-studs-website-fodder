@@ -61,16 +61,50 @@
     });
   };
 
+  /* ---------------- hero wordmark subline --------------------
+     The subline reads as one unit with the wordmark above it only
+     if it spans exactly the same width, and its own text is far
+     too short at that font-size to reach it on its own - CSS
+     justify can stretch a short line to fill a box, but only if
+     something tells it how wide that box should be. This measures
+     the rendered "SLAPPING STUDS" and pins the subline to that
+     pixel width; text-align-last:justify (set in components.css)
+     does the actual stretching. Has to re-run once the real
+     NY Rangers face is in (fonts.ready), or it measures the
+     fallback font's width instead. */
+  function syncWordmarkWidth(){
+    var h1 = $(".wordmark-hero"), sub = $(".wordmark-sub");
+    if(!h1 || !sub) return;
+    /* Reset to the CSS clamp() before every measurement, or a
+       resize handler would compound yesterday's scale-up onto
+       today's and drift larger with every call. */
+    sub.style.fontSize = "";
+    var target  = h1.getBoundingClientRect().width;
+    var natural = sub.getBoundingClientRect().width;
+    if(natural <= 0) return;
+    /* Scale the whole line up rather than spacing its letters out
+       to fill the gap — tried letter-spacing first and stretching
+       eight words across a ~1000px line put ugly gaps between them.
+       Growing the font keeps every letterform's own proportions
+       and just makes the line bigger, the way "make it the size
+       that reaches" actually reads. Only stretches, never shrinks —
+       a subline already as wide as the wordmark (narrow viewport, a
+       longer edit from the console) is left at its own base size. */
+    if(target > natural){
+      var base = parseFloat(getComputedStyle(sub).fontSize);
+      sub.style.fontSize = (base * (target / natural)) + "px";
+    }
+  }
+
   /* ---------------- header ----------------------------------
-     Deliberately does NOT reappear on scroll up. The only ways
-     back are scrolling to the top or moving the cursor into the
-     top 78px of the window. */
-  var hdr, peeking = false;
+     A plain bar that stays put. Scrolling only gives it a solid
+     ground ("collapsed" - the class name predates the change);
+     below 980px the nav sits behind a Menu button injected here,
+     so the twenty pages' shared markup does not have to change. */
+  var hdr;
 
   function setHeader(y){
-    var collapsed = y > 90;
-    hdr.classList.toggle("collapsed", collapsed);
-    if(!collapsed) hdr.classList.remove("peek");
+    hdr.classList.toggle("collapsed", y > 40);
   }
 
   function bindHeader(){
@@ -80,20 +114,23 @@
     setHeader(window.scrollY);
     window.addEventListener("scroll", function(){ setHeader(window.scrollY); }, {passive:true});
 
-    document.addEventListener("mousemove", function(e){
-      if(e.clientY < 78){
-        if(!peeking){ peeking = true; hdr.classList.add("peek"); }
-      }else if(peeking && e.clientY > 190 && !hdr.contains(e.target)){
-        peeking = false; hdr.classList.remove("peek");
-      }
-    });
-
-    hdr.addEventListener("mouseleave", function(){
-      if(window.scrollY > 90){ peeking = false; hdr.classList.remove("peek"); }
-    });
-    /* keyboard users get the bar back when they tab into it */
-    hdr.addEventListener("focusin",  function(){ hdr.classList.add("peek"); });
-    hdr.addEventListener("focusout", function(){ if(window.scrollY > 90) hdr.classList.remove("peek"); });
+    var acts = $("#hactions"), nav = $("#nav");
+    if(!acts || !nav) return;
+    var btn = document.createElement("button");
+    btn.className = "navtoggle";
+    btn.type = "button";
+    btn.textContent = "Menu";
+    btn.setAttribute("aria-controls", "nav");
+    btn.setAttribute("aria-expanded", "false");
+    acts.parentNode.insertBefore(btn, acts.nextSibling);
+    function setOpen(open){
+      hdr.classList.toggle("navopen", open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.textContent = open ? "Close" : "Menu";
+    }
+    btn.addEventListener("click", function(){ setOpen(!hdr.classList.contains("navopen")); });
+    nav.addEventListener("click", function(e){ if(e.target.closest("a")) setOpen(false); });
+    document.addEventListener("keydown", function(e){ if(e.key === "Escape") setOpen(false); });
   }
 
   /* ---------------- one click handler -----------------------
@@ -101,10 +138,21 @@
      and handled here. Renderers never bind their own listeners,
      so re-rendering can never leak or duplicate a handler.     */
   function bindClicks(){
+    /* A fixture row with a published sheet is a link in all but
+       markup: click anywhere on it to open game.html?id=... A click
+       on a real control inside the row (the Sheet link itself, an
+       admin Edit button) is left to that control. */
+    document.addEventListener("click", function(e){
+      if(e.target.closest("a,button,input,[contenteditable]")) return;
+      var tr = e.target.closest("tr[data-sheet]");
+      if(tr) location.href = tr.dataset.sheet;
+    });
+
     document.addEventListener("click", function(e){
       var t = e.target.closest(
         "[data-login],[data-act],[data-add],[data-edit],[data-del],[data-dup],"+
-        "[data-tab],[data-filt],[data-revert],[data-pgseason],[data-piccat],[data-chapnav],"+
+        "[data-tab],[data-filt],[data-sfilt],[data-ssort],[data-sshow],[data-revert],[data-pgseason],[data-gteam],[data-piccat],[data-chapnav],"+
+        "[data-cal],"+
         "[data-album],[data-upload],[data-delphoto],[data-photoslot],"+
         "[data-photoreplace],[data-photoremove],#acctbtn,#scrim");
 
@@ -117,6 +165,15 @@
       /* the photo button sits inside a .ph that may itself be an
          album tile — do not let the click open the album too */
       if(t.dataset && (t.dataset.photoslot || t.dataset.delphoto || t.dataset.upload)) e.stopPropagation();
+
+      /* Some of these controls now sit inside a real <a href> - the
+         news tiles on the home page are links to the post, and they
+         carry the edit, delete and photo buttons on top of the
+         picture. Without this, replacing a photo would also follow
+         the link and navigate away mid-edit. No control listed in
+         the selector above wants a link followed, so this is safe
+         for all of them. */
+      if(t.closest("a[href]")) e.preventDefault();
       var d = t.dataset || {};
 
       if(t.id === "acctbtn"){ $("#acctmenu").classList.toggle("on"); return; }
@@ -166,6 +223,13 @@
       if(d.del) { if(!S.isAdmin()) return; var b = d.del.split(":");  S.delRecord(b[0], b[1]); return; }
       if(d.dup) { if(!S.isAdmin()) return; var c = d.dup.split(":");  S.dupRecord(c[0], c[1]); return; }
 
+      /* home calendar — month prev/next, wraps both ways */
+      if(d.cal){
+        S.state.calMonth = (S.state.calMonth + (d.cal === "next" ? 1 : 11)) % 12;
+        S.renderHomeCalendar();
+        return;
+      }
+
       /* history chapter nav — scroll to the chapter, open to all */
       if(d.chapnav){
         var chEl = document.getElementById("chap-"+d.chapnav);
@@ -175,7 +239,11 @@
 
       if(d.tab){ S.state.adTab = d.tab; S.renderAdminNav(); S.renderAdminBody(); return; }
       if(d.filt){ S.state.plFilter = d.filt; S.renderPlayers(); S.applyPhotos(); return; }
+      if(d.sfilt){ S.state.statFilter = d.sfilt; S.renderScoring(); return; }
+      if(d.ssort){ S.state.statSort = d.ssort; S.renderScoring(); return; }
+      if(d.sshow){ S.state.statAll = !S.state.statAll; S.renderScoring(); return; }
       if(d.pgseason){ S.state.pgSeason = d.pgseason; S.renderPastGames(); return; }
+      if(d.gteam){ S.state.gTeam = d.gteam; S.renderGames(); return; }
       /* Filtering and opening an album stay on this page, so they
          rewrite the query string instead of navigating. */
       if(d.piccat){
@@ -263,6 +331,24 @@
     }, true);
   }
 
+  /* ---------------- dead links -> 404 -----------------------
+     One listener for the whole document. It runs on the bubble,
+     after the delegated handler above, and only ever acts on a
+     plain <a href> that points at a document which is not on
+     disk — see Studs.isDeadLink in js/routes.js. Everything else
+     falls through untouched, so external links, mail links and
+     in-page fragments behave exactly as the browser intends. */
+  function bindLinkGuard(){
+    document.addEventListener("click", function(e){
+      var a = e.target.closest("a[href]");
+      if(!a || e.defaultPrevented) return;
+      if(a.target && a.target !== "_self") return;   /* opens elsewhere */
+      if(!S.isDeadLink(a.getAttribute("href"))) return;
+      e.preventDefault();
+      location.href = S.NOTFOUND;
+    });
+  }
+
   /* ---------------- page-level forms ------------------------ */
   function bindForms(){
     var signin = $("#signinform");
@@ -341,6 +427,16 @@
     Object.keys(S.seed).forEach(function(k){
       if(!S.state.content[k]) S.state.content[k] = S.clone(S.seed[k]);
     });
+    /* training.html changed shape (slots + groups, one kit list): a
+       store saved before that still holds the old sessions, so take
+       the seeded ones for those two collections only. */
+    (function(){
+      var ss = S.state.content.sessions;
+      if(!ss || !ss.length || ss[0].t1 === undefined){
+        S.state.content.sessions = S.clone(S.seed.sessions);
+        S.state.content.kit = S.clone(S.seed.kit);
+      }
+    })();
 
 
     readGalleryUrl();
@@ -349,19 +445,39 @@
     S.bindInlineEditing();
     bindHeader();
     bindClicks();
+    bindLinkGuard();
     bindForms();
 
     S.renderAll();
+
+    /* The deck reads the panels out of the document and builds the
+       dot rail, so it runs after the renderers have filled them.
+       A page with no .panel sections is left alone. */
+    S.initDeck();
 
     /* Inline edit mode is remembered in the session, so an admin
        who turns it on keeps it while moving around the site. */
     if(S.state.session && S.state.session.editing) S.setEditing(true);
 
+    syncWordmarkWidth();
     window.addEventListener("resize", S.layoutTimeline);
+    window.addEventListener("resize", syncWordmarkWidth);
     /* Late layout shifts (webfonts, images) change the strip's
-       width, which changes how much room the pin needs. */
-    if(document.fonts && document.fonts.ready) document.fonts.ready.then(S.layoutTimeline);
+       width, which changes how much room the pin needs - and the
+       wordmark's own width, which the subline is pinned to. */
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){
+      S.layoutTimeline(); syncWordmarkWidth();
+    });
     window.addEventListener("load", S.layoutTimeline);
+    window.addEventListener("load", syncWordmarkWidth);
+    /* Belt and braces for the subline specifically: opened straight
+       off disk (file://) rather than through a server, a webfont
+       can take a beat neither "load" nor fonts.ready seems to
+       cover on every browser/OS combination this runs on. A couple
+       of delayed re-checks cost nothing once the page is idle and
+       catch it if the earlier hooks somehow missed the resize. */
+    setTimeout(syncWordmarkWidth, 300);
+    setTimeout(syncWordmarkWidth, 1000);
     /* Only the history page has a #tltrack — no point listening
        to scroll everywhere else for it. */
     if($("#tltrack")) window.addEventListener("scroll", S.updateTimelineScroll, {passive:true});
