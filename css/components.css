@@ -800,9 +800,9 @@ tr:hover td{background:rgba(237,234,225,.03)}
 /* score by period: a small table under the box, home row first */
 .gs-periods{width:auto;min-width:0;margin:26px auto 0;border:0;font-variant-numeric:tabular-nums}
 .gs-periods th,.gs-periods td{padding:6px 12px;border:0;background:transparent;white-space:nowrap}
-.gs-periods thead th{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice);text-align:center;font-weight:500}
-.gs-periods tbody th{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice);text-align:right;font-weight:500}
-.gs-periods td{font-family:var(--mono);font-size:13px;text-align:center;color:rgba(237,234,225,.78);border-top:1px solid var(--line-d)}
+.gs-periods thead th{font-family:var(--disp);font-size:14px;letter-spacing:0;color:var(--ice);text-align:center;font-weight:600}
+.gs-periods tbody th{font-family:var(--disp);font-size:14px;letter-spacing:0;color:var(--ice);text-align:right;font-weight:600}
+.gs-periods td{font-family:var(--disp);font-size:16px;text-align:center;color:rgba(237,234,225,.78);border-top:1px solid var(--line-d)}
 .gs-periods thead th:first-child{border:0}
 .gs-periods td.t{font-weight:600;color:var(--bone)}
 .gs-periods tbody tr:first-child td{border-top:1px solid var(--line-d)}
@@ -814,56 +814,68 @@ tr:hover td{background:rgba(237,234,225,.03)}
 .gs-k{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold-d)}
 .gs-v{font-family:var(--disp);font-stretch:74%;font-weight:800;font-size:23px;line-height:1;letter-spacing:-.3px;text-transform:uppercase;color:var(--ink)}
 
-.gs-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,2.1fr);gap:6px;background:transparent;border-top:0}
-.gs-lineup,.gs-main{background:var(--bone);min-width:0}
-.gs-lineup{padding:26px}
-.gs-main{display:flex;flex-direction:column}
-.gs-block{padding:26px}
+/* No tiles: lineups and timeline sit straight on the paper like the
+   stats table does - a strong rule under each head, a light rule under
+   each row - and one hairline divides the two columns. */
+.gs-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,2.1fr);gap:0;background:transparent;border-top:0}
+.gs-lineup,.gs-main{background:transparent;min-width:0}
+.gs-lineup{padding:0 clamp(20px,2.6vw,36px) 0 0}
+.gs-main{display:flex;flex-direction:column;border-left:1px solid var(--rule-l2)}
+.gs-block{padding:0 0 0 clamp(20px,2.6vw,36px)}
 .gs-block:first-child{border-top:0}
-.gs-block--raised{background:var(--bone3)}
-.gs-h{margin:0 0 18px;font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ink-l)}
+.gs-block--raised{background:transparent}
+.gs-h{margin:0 0 18px;font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:0;color:var(--ink-m)}
 
 /* lineup: G / A / PIM per skater, saves for a goalie */
 .gs-lineup__head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:6px}
 .gs-lineup__head .gs-h{margin:0}
-.gs-legend{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ink-l)}
-.gs-lineup__team{margin-top:20px}
-.gs-lineup__name{margin:0 0 14px;font-family:var(--disp);font-stretch:76%;font-weight:800;font-size:18px;line-height:1;
+.gs-legend{font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:0;color:var(--ink-m)}
+.gs-lineup__team{margin-top:26px;padding:0;background:transparent}
+.gs-lineup__name{margin:0 0 18px;font-family:var(--disp);font-stretch:66%;font-weight:800;font-size:18px;line-height:1;
   letter-spacing:-.2px;text-transform:uppercase;color:var(--ink)}
 .gs-pos{margin-bottom:22px}
-.gs-pos__h{margin:0 0 4px;padding-bottom:8px;font-family:var(--disp);font-stretch:80%;
-  font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
-.gs-row{position:relative;display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:baseline;padding:9px 0}
-.gs-no{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink-l)}
-.gs-name{font-family:var(--disp);font-stretch:84%;font-weight:600;font-size:15px;color:var(--ink)}
-.gs-stat{font-family:var(--mono);font-size:13px;color:var(--ink-m)}
+.gs-pos__h{margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule-l3);font-family:var(--disp);font-stretch:80%;
+  font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
+.gs-row{position:relative;display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--rule-l1)}
+.gs-no{font-family:"NY Rangers","Archivo",sans-serif;font-size:15px;font-weight:400;color:var(--ink-m)}
+.gs-name{font-family:var(--disp);font-stretch:100%;font-weight:600;font-size:16px;color:var(--ink)}
+.gs-stat{font-family:var(--disp);font-size:16px;font-weight:400;color:var(--ink-b);font-variant-numeric:tabular-nums}
 
-/* scoring summary: the shared table rules, re-toned for paper */
-.gs-tblwrap{border:0}
-.gs-goals{min-width:560px}
-.gs-goals th{background:transparent;color:var(--ink-l);padding:0 14px 10px 0;border-bottom:1px solid var(--rule-l3)}
-.gs-goals th.r{text-align:right;padding-right:0}
-.gs-goals td{padding:13px 14px 13px 0;border-top:0;border-bottom:1px solid var(--rule-l1);font-size:13px;color:var(--ink-m)}
-.gs-goals td.num{font-size:12px;color:var(--ink-m)}
-.gs-goals td.tm{color:var(--ink)}
-.gs-goals td.code{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold-d)}
-.gs-goals td.name{font-size:14.5px;font-stretch:82%;color:var(--ink);text-transform:none;white-space:nowrap}
-.gs-goals td.asst{white-space:normal;min-width:160px}
-.gs-goals td.sc{position:relative;text-align:right;padding-right:0;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap}
-.gs-goals tr:last-child td{border-bottom:0}
-.gs-goals .itools{top:auto;bottom:-4px;right:0}
-
-/* penalties: time · who · minutes, one hairline row each */
-.gs-pens{display:flex;flex-direction:column}
-.gs-pen{position:relative;display:grid;grid-template-columns:54px 1fr auto;gap:14px;align-items:baseline;padding:12px 0}
-.gs-pen:last-child{border-bottom:0}
-.gs-pen__t{font-family:var(--mono);font-size:13px;color:var(--ink-m);display:flex;flex-direction:column;gap:2px}
-.gs-pen__t i{font-style:normal;font-size:10px;color:var(--ink-l)}
-.gs-pen__who{display:flex;flex-direction:column;gap:3px;min-width:0}
-.gs-pen__who b{font-family:var(--disp);font-stretch:82%;font-weight:600;font-size:14px;color:var(--ink)}
-.gs-pen__who span{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ink-l)}
-.gs-pen__min{font-family:var(--mono);font-size:13px;color:var(--gold-d)}
-.gs-empty{margin:0;font-family:var(--mono);font-size:13px;color:var(--ink-m)}
+/* game timeline: scoring + penalties as ONE list, period by period.
+   Paper, like everything else in this grid: a bone3 tile with the same
+   headings as the lineups (condensed team names, gold-d period labels).
+   Home left, away right, clock and running score on the spine. Goal =
+   small black puck, penalty = a bone4 minutes chip; the only gold fill is
+   the PP tag of a power-play goal. */
+.gs-block.gs-tlwrap{--tlmid:84px}
+.gs-tl__teams{display:grid;grid-template-columns:minmax(0,1fr) var(--tlmid) minmax(0,1fr);padding-bottom:6px}
+.gs-tl__tm{padding:0 14px;font-family:var(--disp);font-stretch:66%;font-weight:800;font-size:18px;line-height:1;letter-spacing:-.2px;text-transform:uppercase;color:var(--ink)}
+.gs-tl__tm--home{text-align:right}
+.gs-tl__period{margin-top:18px}
+.gs-tl__per{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:8px;border-bottom:1px solid var(--rule-l3);font-family:var(--disp);font-stretch:80%;font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
+.gs-tl__per b{font-weight:700;letter-spacing:0;color:var(--ink);font-variant-numeric:tabular-nums}
+.gs-tl__ev{position:relative;display:grid;grid-template-columns:minmax(0,1fr) var(--tlmid) minmax(0,1fr);border-bottom:1px solid var(--rule-l1)}
+.gs-tl__ev:last-child{border-bottom:0}
+.gs-tl__cell{display:flex;align-items:flex-start;gap:10px;min-width:0;padding:12px 14px}
+.gs-tl__cell--home{flex-direction:row-reverse;text-align:right}
+.gs-tl__cell--empty{padding:0}
+.gs-tl__txt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gs-tl__cell--home .gs-tl__txt{align-items:flex-end}
+.gs-tl__line{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+.gs-tl__cell--home .gs-tl__line{justify-content:flex-end}
+.gs-tl__name{font-weight:600;font-size:16px;line-height:1.2;color:var(--ink)}
+.gs-tl__sub{font-size:14px;line-height:1.3;color:var(--ink-m)}
+.gs-tl__puck{flex:none;width:20px;height:14px;margin-top:3px;color:var(--ink)}
+.gs-tl__min{flex:none;padding:2px 8px;border-radius:3px;background:var(--bone4);font-size:13px;font-weight:600;line-height:1.3;white-space:nowrap;color:var(--ink-b)}
+.gs-tl__tag{font-style:normal;padding:1px 6px;border-radius:3px;background:var(--bone4);font-size:13px;font-weight:700;line-height:1.3;color:var(--ink-b)}
+.gs-tl__tag.pp{background:var(--gold);color:var(--ink)}
+.gs-tl__mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 0;border-left:1px solid var(--rule-l1);border-right:1px solid var(--rule-l1)}
+.gs-tl__clock{font-size:16px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.gs-tl__sc{font-size:14px;font-weight:700;color:var(--gold-d);font-variant-numeric:tabular-nums}
+.gs-tl__none{margin:0;padding:12px 14px;font-size:14px;color:var(--ink-l)}
+.gs-tl__legend{margin:18px 0 0;font-size:13px;color:var(--ink-l)}
+.gs-tl__legend b{font-weight:700;color:var(--ink-b)}
+.gs-empty{margin:0;font-family:var(--disp);font-size:16px;color:var(--ink-m)}
 
 /* three stars: the rank as a big display numeral */
 .gs-stars{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:6px;background:transparent}
@@ -872,6 +884,50 @@ tr:hover td{background:rgba(237,234,225,.03)}
 .gs-star__who{display:flex;flex-direction:column;gap:6px;min-width:0}
 .gs-star__who b{font-family:var(--disp);font-stretch:80%;font-weight:700;font-size:16px;line-height:1.05;text-transform:uppercase;color:var(--ink)}
 .gs-star__who span{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ink-l)}
+
+/* the game ticket: the top of a game page as one paper ticket - teams and
+   the final on the main part, the three stars along its foot, date / time /
+   place / referees on the tear-off stub. The notches are cut out in the
+   colour of the page behind (--bone). */
+.gtk{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 200px;margin-top:22px;background:transparent;border:1px solid var(--rule-l3);border-radius:10px;color:var(--ink)}
+.gtk-main{min-width:0;padding:24px 28px 0}
+.gtk-comp{margin:0 0 20px;font-size:16px;color:var(--ink-l)}
+.gtk-comp b{color:var(--gold-d);font-weight:600}
+.gtk-final{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:24px}
+/* the star and the period table sit on the same three columns, so they end and start exactly at the score's edges */
+.gtk-side--home{text-align:right}
+.gtk-team{margin:0;font-family:var(--disp);font-stretch:66%;font-weight:800;line-height:.98;letter-spacing:-.01em;font-size:clamp(26px,3vw,44px);text-transform:uppercase;color:var(--ink);text-wrap:balance}
+.gtk-team.us{color:var(--ink)}
+.gtk-rec{margin:8px 0 0;font-size:16px;color:var(--ink-l)}
+.gtk-score{text-align:center}
+.gtk-nums{margin:0;display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--disp);font-stretch:66%;font-weight:800;line-height:.9;letter-spacing:-.01em;font-size:clamp(52px,6.4vw,92px);font-variant-numeric:tabular-nums;color:var(--ink)}
+.gtk-nums b{font-weight:800}
+.gtk-nums b.win{color:var(--gold-d)}
+.gtk-nums i{font-style:normal;font-weight:400;color:var(--rule-l3)}
+.gtk-status{margin:6px 0 0;font-size:16px;color:var(--ink-l)}
+.gtk-final{row-gap:20px}
+.gtk-per{justify-self:start}
+.gtk .gs-periods{margin:0}
+.gtk-stars{min-width:0;justify-self:end;text-align:right}
+.gtk-foot{height:24px}
+.gtk-star{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gtk-k{font-size:14px;color:var(--ink-l)}
+.gtk-star b{font-family:var(--disp);font-stretch:78%;font-weight:800;font-size:20px;line-height:1.1;color:var(--ink)}
+.gtk-line{font-size:14px;color:var(--ink-l)}
+.gtk-stub{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:24px 18px;text-align:center;border-left:1px dashed var(--rule-l3)}
+/* the two bites out of the outline where the stub tears off: a circle in
+   the page colour, outlined, and clipped to the half that lies inside the
+   ticket - so it reads as a notch cut in the line, not as a shape */
+.gtk-stub::before,.gtk-stub::after{content:"";position:absolute;left:-9.5px;width:18px;height:18px;border-radius:50%;
+  border:1px solid var(--rule-l3);background:var(--bone)}
+.gtk-stub::before{top:-9.5px;clip-path:inset(calc(50% - 1px) 0 0 0)}
+.gtk-stub::after{bottom:-9.5px;clip-path:inset(0 0 calc(50% - 1px) 0)}
+.gtk-stub p{margin:0}
+.gtk-day{font-family:var(--disp);font-stretch:66%;font-weight:800;font-size:68px;line-height:.9;letter-spacing:-.01em}
+.gtk-mo{font-size:16px;font-weight:600}
+.gtk-time{margin-top:10px!important;font-family:var(--disp);font-stretch:66%;font-size:28px;font-weight:800;color:var(--gold-d);font-variant-numeric:tabular-nums}
+.gtk-place{margin-top:10px!important;font-size:16px;font-weight:600}
+.gtk-refs{margin-top:4px!important;font-size:14px;color:var(--ink-l)}
 
 /* fixture rows that open a sheet (games.html, past-games.html) */
 tr[data-sheet]{cursor:pointer}
@@ -884,9 +940,29 @@ tr[data-sheet]:hover td.name{color:var(--gold)}
 .gs-report p{margin:0 0 1em;font-size:16px;line-height:1.62;color:var(--ink-b)}
 .gs-report p:last-child{margin-bottom:0}
 
+@media (max-width:760px){
+  .gtk{grid-template-columns:minmax(0,1fr)}
+  .gtk-main{padding:20px 18px 0}
+  .gtk-final{grid-template-columns:minmax(0,1fr);gap:12px}
+  .gtk-side--home{text-align:left}
+  .gtk-score{text-align:left}
+  .gtk-nums{justify-content:flex-start}
+  .gtk-team{font-size:30px}
+  .gtk-final > span{display:none}
+  .gtk-stars{justify-self:start;text-align:left}
+  .gtk-stub{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;align-items:baseline;gap:4px 14px;padding:20px 18px;text-align:left;border-left:0;border-top:1px dashed var(--rule-l3)}
+  .gtk-stub::before,.gtk-stub::after{top:-9.5px;bottom:auto}
+  .gtk-stub::before{left:-9.5px;right:auto;clip-path:inset(0 0 0 calc(50% - 1px))}
+  .gtk-stub::after{left:auto;right:-9.5px;clip-path:inset(0 calc(50% - 1px) 0 0)}
+  .gtk-day{font-size:44px}
+  .gtk-time,.gtk-place,.gtk-refs{margin-top:0!important}
+  .gtk-refs{flex-basis:100%}
+}
 @media (max-width:900px){
   .gs-grid{grid-template-columns:1fr}
-  .gs-lineup{}
+  .gs-lineup{padding:0 0 8px}
+  .gs-main{border-left:0;border-top:1px solid var(--rule-l3);padding-top:26px}
+  .gs-block{padding:0}
   .gs-meta{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:640px){
@@ -898,5 +974,16 @@ tr[data-sheet]:hover td.name{color:var(--gold)}
   .gs-periods{margin-left:0}
   .gs-meta > div{padding:14px 16px}
   .gs-v{font-size:17px}
-  .gs-lineup,.gs-block{padding:20px 16px}
+  .gs-main{padding-top:20px}
+  .gs-block.gs-tlwrap{--tlmid:58px}
+  .gs-tl__cell{gap:8px;padding:12px 8px}
+  .gs-tl__tm{padding:0 8px;font-size:16px}
+  .gs-tl__clock{font-size:14px}
+  .gs-tl__sc{font-size:13px}
+  .gs-tl__puck{width:17px;height:12px}
+  .gs-tl__cell{flex-direction:column;gap:6px}
+  .gs-tl__cell--home{flex-direction:column;align-items:flex-end}
+  .gs-tl__cell--away{align-items:flex-start}
+  .gs-tl__puck{margin-top:0}
+  .gs-tl__name{overflow-wrap:break-word}
 }

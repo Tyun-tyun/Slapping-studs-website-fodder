@@ -26,6 +26,81 @@
 <link rel="stylesheet" href="css/deck.css">
 <link rel="stylesheet" href="css/admin.css">
 <!-- ===== /SHARED HEAD ===== -->
+<style>
+/* ============================================================
+   post.html, page-scoped.
+
+   One post, set the way news.html sets the lead: on the paper
+   sheet, the headline over a plain line of facts, the text in a
+   reading column and the photograph beside it when the board has
+   uploaded one. No lines; the neighbouring posts are two blocks
+   one tone step off the sheet, like the stories on the news page.
+
+   renderPost() in js/views.js writes the markup. The old dark
+   rules for .postfull / .postbody / .postnav in css/deck.css are
+   not used by this page any more; the selectors here are
+   prefixed with the page so they win without touching that file.
+   ============================================================ */
+
+body[data-page="post"] #post .panel__in{padding-top:calc(var(--hdr) + clamp(30px,3.6vw,52px))}
+body[data-page="post"] #post .tlink{display:inline-block;margin-bottom:clamp(20px,2.6vw,34px)}
+
+body[data-page="post"] .postfull{position:relative;max-width:none}
+body[data-page="post"] .postfull .disp{max-width:18ch;line-height:.9}
+body[data-page="post"] .postmeta{
+  margin:clamp(14px,1.8vw,22px) 0 0;font-size:16px;line-height:1.45;color:var(--ink-m);
+}
+body[data-page="post"] .postmeta b{font-weight:600;color:var(--ink-b)}
+body[data-page="post"] .postfull .itools{top:0;right:0}
+
+/* the text, and the photograph beside it if there is one */
+body[data-page="post"] .postcols{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  gap:clamp(24px,3.4vw,52px);align-items:start;
+  margin-top:clamp(26px,3.4vw,44px);
+}
+body[data-page="post"] .posttext{max-width:62ch}
+body[data-page="post"] .postlead{
+  margin:0;font-size:clamp(19px,1.6vw,22px);line-height:1.5;color:var(--ink);font-weight:500;
+}
+body[data-page="post"] .postbody{margin-top:clamp(18px,2.2vw,26px)}
+body[data-page="post"] .postbody p{
+  margin:0 0 18px;max-width:none;font-size:18px;line-height:1.7;color:var(--ink-b);
+}
+body[data-page="post"] .postbody p.postnone{color:var(--edit-d)}
+
+/* no photograph, no empty slot - the admin still gets it, to fill */
+body[data-page="post"] .postcover{aspect-ratio:4/3;margin:0}
+body[data-page="post"] .postcover:not(.has-photo){display:none}
+body.editing[data-page="post"] .postcover:not(.has-photo){display:block;aspect-ratio:3/1}
+@supports selector(:has(*)){
+  body[data-page="post"] .postcols:has(.postcover.has-photo),
+  body.editing[data-page="post"] .postcols{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+}
+@media (max-width:820px){
+  body[data-page="post"] .postcols,
+  body.editing[data-page="post"] .postcols{grid-template-columns:minmax(0,1fr)!important}
+  body[data-page="post"] .postcover{order:-1}
+}
+
+/* the neighbouring posts */
+body[data-page="post"] .postnav{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(14px,2vw,28px);
+  max-width:none;margin-top:clamp(36px,5vw,68px);padding-top:0;border-top:0;
+}
+body[data-page="post"] .postlink{
+  display:block;padding:clamp(18px,2vw,28px);background:var(--bone3);text-decoration:none;
+  font-family:var(--disp);font-stretch:66%;font-weight:800;text-transform:uppercase;
+  font-size:clamp(19px,2vw,28px);line-height:.95;color:var(--ink);text-wrap:balance;
+  transition:background .15s;
+}
+body[data-page="post"] .postlink:hover{background:var(--bone4)}
+body[data-page="post"] .postlink--next{text-align:right}
+@media (max-width:620px){
+  body[data-page="post"] .postnav{grid-template-columns:minmax(0,1fr)}
+  body[data-page="post"] .postlink--next{text-align:left}
+}
+</style>
 </head>
 <!-- data-page  = which document this is; js/routes.js maps it to a URL
      data-nav   = which top-level nav item lights up -->
@@ -80,7 +155,7 @@
      record named in the query string - post.html?id=n1.
      A post written in the admin console is therefore
      readable straight away, with no new file to add. -->
-<section class="panel" id="post" data-label="Post">
+<section class="panel bone on-bone" id="post" data-label="Post">
   <div class="panel__in">
     <div class="wrap">
       <a class="tlink" href="news.html">&larr; All news</a>

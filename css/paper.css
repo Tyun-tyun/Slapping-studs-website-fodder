@@ -113,13 +113,10 @@
   font-size:17px;color:var(--gold-d);
 }
 
-/* Gold means us. A dot rather than a highlighted row: the row
-   still has to be read as one of many, it just has to be
-   findable without reading. */
-.pus{
-  display:inline-block;width:5px;height:5px;border-radius:50%;
-  background:var(--gold);margin-right:9px;vertical-align:middle;
-}
+/* Gold means us: our squads' rows carry a light yellow tint, so they are
+   findable without reading and still read as one row of many. */
+.ptable tr.us td{background:rgba(247,195,37,.16)}
+.ptable tr.us:hover td{background:rgba(247,195,37,.26)}
 
 /* Under a table: what its columns mean. */
 .pkeys{
@@ -293,6 +290,8 @@
 .panel:not(.bone) .ptable th{border-bottom-color:var(--line-d);color:var(--ice)}
 .panel:not(.bone) .ptable td{border-bottom-color:var(--line-d);color:var(--ice)}
 .panel:not(.bone) .ptable tr:hover td{background:rgba(237,234,225,.03)}
+.panel:not(.bone) .ptable tr.us td{background:rgba(247,195,37,.12)}
+.panel:not(.bone) .ptable tr.us:hover td{background:rgba(247,195,37,.18)}
 .panel:not(.bone) .ptable td.ppts,
 .panel:not(.bone) .psession .ptime{color:var(--gold)}
 .panel:not(.bone) .plabel{color:var(--ice)}
@@ -900,4 +899,118 @@ body .panel > .strip .stat .n,.stat .n{font-size:16px;color:#141210}
 /* a player without a number shows just the name */
 #roster .pl .no:empty{display:none}
 /* Studs 2 is the bone swatch: it needs its gold ring to be seen */
+
+/* ============================================================
+   HOME: calendar and announcements, in the member area's language
+   (account.css .lk-ov): no boxes round the blocks, a condensed
+   title on a rule, the day number in the condensed face, notices
+   as flat chips on lightly ruled rows. The calendar's own tiles
+   and their colours (gold home, ink away) are data and stay.
+   The hero and the join section are not touched.
+   ============================================================ */
+body[data-page="home"] #news .cal,
+body[data-page="home"] #news .annlist{background:transparent;padding:0}
+
+/* each title sits on one rule; both heads share the row's floor, so
+   the two rules run on one line */
+body[data-page="home"] #news .nh-cal,
+body[data-page="home"] #news .nh-ann{
+  padding-bottom:12px;margin-bottom:clamp(16px,2vw,22px);
+  border-bottom:1px solid var(--rule-l3);
+}
+
+/* calendar */
+body[data-page="home"] #news .callegend{font-size:14px;font-weight:600;color:var(--ink-m)}
+body[data-page="home"] #news .calsw{border-radius:3px}
+body[data-page="home"] #news .calhead{margin-bottom:14px}
+body[data-page="home"] #news .calmonth{font-stretch:66%;font-size:22px;color:var(--ink)}
+body[data-page="home"] #news .calnav{border-radius:3px}
+body[data-page="home"] #news .calweekdays{font-size:13px;font-weight:600;color:var(--ink-m)}
+body[data-page="home"] #news .calcell{border-radius:3px}
+body[data-page="home"] #news .caldate{font-stretch:70%;font-weight:800;font-size:20px;line-height:1}
+body[data-page="home"] #news .calcell--pad .caldate{font-weight:600;font-size:18px}
+
+/* announcements */
+body[data-page="home"] #news .ann{padding:14px 0;border-top:1px solid var(--rule-l1)}
+body[data-page="home"] #news .ann:first-child{border-top:0;padding-top:0}
+body[data-page="home"] #news .ann .tag{
+  padding:2px 8px;border-radius:3px;background:var(--bone4);color:var(--ink-b);
+  font-size:13px;font-weight:700;line-height:1.4;
+}
+body[data-page="home"] #news .annwhen{font-size:14px;color:var(--ink-m)}
+body[data-page="home"] #news .anntext{font-weight:400;color:var(--ink-b)}
+
+/* ---- the join section, on ink: the same moves in the dark's own
+   tones. The title sits on one rule, the fields lose their fill and
+   keep a hairline, the rink card loses its box and is just the photo
+   with the text under it. The gold buttons are untouched. */
+body[data-page="home"] #join .phead{
+  padding-bottom:20px;border-bottom:1px solid var(--line-d);
+}
+body[data-page="home"] #join label{font-weight:600;color:rgba(237,234,225,.82)}
+body[data-page="home"] #join input,
+body[data-page="home"] #join select,
+body[data-page="home"] #join textarea{
+  background:transparent;border:1px solid rgba(237,234,225,.28);border-radius:3px;
+}
+body[data-page="home"] #join input:focus,
+body[data-page="home"] #join select:focus,
+body[data-page="home"] #join textarea:focus{border-color:var(--gold)}
+body[data-page="home"] #join select option{background:var(--ink2);color:var(--bone)}
+body[data-page="home"] #join .formnote{font-size:14px;color:rgba(237,234,225,.62)}
+body[data-page="home"] #join .visitcard{background:transparent}
+body[data-page="home"] #join .visitcard .ph{border-radius:3px}
+body[data-page="home"] #join .visitbody{padding:20px 0 0}
+body[data-page="home"] #join .visitbody .addr{color:rgba(237,234,225,.82)}
+
+/* ============================================================
+   TRAINING in the same language as the member area and About:
+   the head is paper (the gold strip of times under it stays), the
+   section title and each checklist title sit on one rule, and the
+   rink card is no longer a dark box - the photo and the address
+   share the paper, the sketch map redrawn in ink. The day tickets
+   are left as they are.
+   ============================================================ */
+body[data-page="training"] #times .phead{padding-bottom:12px;border-bottom:1px solid var(--rule-l3)}
+
+body[data-page="training"] .kp__h{padding-bottom:10px;border-bottom:1px solid var(--rule-l3);margin-bottom:6px}
+body[data-page="training"] .kp__h .plabel{font-size:14px;font-weight:600;color:var(--ink-m)}
+body[data-page="training"] .kp__row span{font-size:15px;color:var(--ink-m)}
+
+/* where: photo and address on the paper */
+body[data-page="training"] .ph.trwhere__photo{border-radius:3px}
+body[data-page="training"] .trwhere__card{
+  background:transparent;color:var(--ink);padding:0 0 0 clamp(24px,3vw,44px);
+}
+body[data-page="training"] .trwhere__bike{color:var(--ink-b)}
+body[data-page="training"] .trmap figcaption{color:var(--ink-m)}
+/* the sketch, from light-on-dark to ink-on-paper (CSS beats the
+   fill/stroke attributes the SVG carries) */
+body[data-page="training"] .trmap g{stroke:var(--rule-l3)}
+body[data-page="training"] .trmap path[stroke="var(--gold)"]{stroke:var(--gold-d)}
+body[data-page="training"] .trmap circle[stroke]{stroke:var(--ink)}
+body[data-page="training"] .trmap circle[fill^="rgba"]{fill:var(--ink-l)}
+body[data-page="training"] .trmap text{fill:var(--ink-m)}
+body[data-page="training"] .trmap text[fill="var(--gold)"]{fill:var(--gold-d)}
+body[data-page="training"] .trmap text[font-weight="700"]{fill:var(--ink)}
+@media (max-width:860px){
+  body[data-page="training"] .trwhere__card{padding:24px 0 0}
+}
+/* no gold strip: the times are on the day tickets below. It stays in
+   the markup (renderTraining fills #trainstrip), only hidden. */
+body[data-page="training"] #top .strip{display:none}
+body[data-page="training"] #top > .panel__in{padding-bottom:clamp(28px,4vw,48px)}
+/* the gold call to action in the head: gold, no ink outline */
+body[data-page="training"] #top .btn-gold{border-color:var(--gold)}
+/* the member / sign-in card under the rink: a rule and the text on the
+   paper, not a dark box. The renderer writes bone into inline styles,
+   so those need !important to be turned back to ink. */
+body[data-page="training"] #trainmember .gatemsg{
+  background:transparent;padding:20px 0 0;border-top:1px solid var(--rule-l3);
+}
+body[data-page="training"] #trainmember .gatemsg p{color:var(--ink-b)!important;font-size:16px;max-width:none}
+body[data-page="training"] #trainmember .gatemsg p:first-child{color:var(--ink)!important}
+body[data-page="training"] #trainmember .gatemsg strong{color:var(--ink)!important}
+body[data-page="training"] #trainmember .gatemsg .btn{border-color:var(--ink);color:var(--ink)}
+body[data-page="training"] #trainmember .gatemsg .btn:hover{background:var(--ink);color:var(--bone)}
 

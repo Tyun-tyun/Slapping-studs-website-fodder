@@ -30,17 +30,17 @@
 /* ============================================================
    news.html, page-scoped.
 
-   The feed itself is written by renderNews() in js/views.js and
-   is not touched here; everything below only re-sizes what it
-   writes so the page reads like the rest of the site: the ink
-   head with a photograph on its floor, then one paper sheet
-   with the posts and a short rail beside them, the same
-   feed-and-rail shape the home page uses (.feedgrid).
+   The page is laid out as the front page of a paper, inside the
+   site's own rules: no lines, no second typeface, nothing under
+   13px. What makes it read as a paper is the arrangement - the
+   newest post leads across the full width in the biggest
+   headline, the rest stand below it as columns, and a quiet row
+   of links closes the sheet where a paper would put its index.
+   Blocks are separated by a tone step and by space, never a rule.
 
-   What changed: the posts no longer sit in a .bonecard whose
-   right half held nothing, the body text is on the site's body
-   step instead of 14.5px, and the picture slot is big enough to
-   be a picture rather than a stamp.
+   The feed is still written by renderNews() in js/views.js; the
+   only change there is that a headline is now a link to its post.
+   Everything below sizes and arranges what it writes.
    ============================================================ */
 
 body[data-page="news"] .phead h1{margin:0}
@@ -48,63 +48,99 @@ body[data-page="news"] .pagelead{font-size:19px;line-height:1.55;max-width:58ch}
 
 /* --- the photograph on the floor of the head ---------------- */
 body[data-page="news"] .nwband{margin:0;position:relative;overflow:clip}
-body[data-page="news"] .nwband .ph{aspect-ratio:16/5;min-height:180px}
+body[data-page="news"] .nwband .ph{height:clamp(150px,17vw,240px);background-position:center 30%}
 body[data-page="news"] .nwband figcaption{
   margin:0;padding-top:12px;
-  font-size:15px;line-height:1.5;color:rgba(237,234,225,.72);
+  font-size:14px;line-height:1.5;color:var(--ink-m);
 }
-body[data-page="news"] #feed{padding-bottom:clamp(20px,2.6vw,32px)}
+body[data-page="news"] #posts .panel__in{padding-top:clamp(34px,4.4vw,64px)}
 
-/* --- the feed ------------------------------------------------ */
-body[data-page="news"] #newsfeed{display:grid;gap:clamp(30px,3.6vw,46px)}
+/* --- the sheet ----------------------------------------------- */
+body[data-page="news"] #newsfeed{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(18px,2vw,28px);align-items:stretch;
+}
+
+/* a story: a block one tone step off the sheet */
 body[data-page="news"] #newsfeed .post{
-  grid-template-columns:minmax(0,230px) minmax(0,1fr);
-  gap:clamp(18px,2.4vw,34px);padding:0;align-items:start;
+  display:flex;flex-direction:column;
+  padding:clamp(20px,2.2vw,30px);background:var(--bone3);
+  transition:background .15s;
 }
-body[data-page="news"] #newsfeed .post .ph{aspect-ratio:4/3}
-/* renderNews() writes the date/tag/author line BEFORE the
-   headline, which reads as a kicker label sitting on top of the
-   title. The order is flipped here rather than in the renderer:
-   headline first, the line of facts under it. */
-body[data-page="news"] #newsfeed .post > div:not(.ph){display:flex;flex-direction:column}
-body[data-page="news"] #newsfeed .pheadline{order:1;margin:0}
-body[data-page="news"] #newsfeed .pmeta{order:2;margin-top:11px}
-body[data-page="news"] #newsfeed .pex{order:3;margin-top:12px}
-/* the newest post leads: a bigger plate and a bigger headline */
+body[data-page="news"] #newsfeed .post:hover{background:var(--bone4)}
+body[data-page="news"] #newsfeed .post > div:not(.ph){display:flex;flex-direction:column;flex:1}
+
+/* headline first, the line of facts under it, then the text */
+body[data-page="news"] #newsfeed .pheadline{
+  order:1;margin:0;
+  font-stretch:66%;font-weight:800;text-transform:uppercase;
+  font-size:clamp(19px,2vw,28px);line-height:.95;text-wrap:balance;
+}
+body[data-page="news"] #newsfeed .pheadline a{color:inherit;text-decoration:none}
+/* the whole story is the link, so the block works as one target;
+   the admin's edit buttons sit above it (z-index 12) */
+body[data-page="news"] #newsfeed .pheadline a::after{content:"";position:absolute;inset:0}
+body[data-page="news"] #newsfeed .pheadline a:focus-visible{outline:none}
+body[data-page="news"] #newsfeed .pheadline a:focus-visible::after{outline:2px solid var(--gold-d);outline-offset:-4px}
+body[data-page="news"] #newsfeed .pmeta{
+  order:2;margin-top:12px;font-size:15px;line-height:1.45;color:var(--ink-m);
+}
+body[data-page="news"] #newsfeed .pmeta b{padding:0;background:none;font-size:inherit;font-weight:600;color:var(--ink-b)}
+body[data-page="news"] #newsfeed .pex{
+  order:3;margin:14px 0 0;font-size:17px;line-height:1.6;color:var(--ink-b);max-width:none;
+}
+
+/* a photograph, when the board has uploaded one. A story with
+   none shows no empty slot; the admin still sees it, to fill it. */
+body[data-page="news"] #newsfeed .post .ph{order:0;aspect-ratio:3/2;margin-bottom:18px}
+body[data-page="news"] #newsfeed .post .ph:not(.has-photo){display:none}
+body.editing[data-page="news"] #newsfeed .post .ph:not(.has-photo){display:block;aspect-ratio:3/1;margin-bottom:14px}
+
+/* --- the lead: the newest post, the full width --------------- */
 body[data-page="news"] #newsfeed .post:first-child{
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:clamp(22px,3vw,42px);
+  grid-column:1 / -1;background:none;
+  padding:0 0 clamp(14px,2.2vw,30px);
 }
-body[data-page="news"] #newsfeed .post:first-child .pheadline{font-size:clamp(26px,3vw,38px)}
-body[data-page="news"] .pmeta{font-size:15px;line-height:1.4;color:#4C5862}
-body[data-page="news"] .pmeta b{color:#6B5200;font-weight:600}
-body[data-page="news"] .pheadline{font-size:clamp(22px,2.4vw,30px);line-height:1.08;margin:11px 0 11px}
-body[data-page="news"] .pex{font-size:17px;line-height:1.6;color:var(--ink-b);max-width:62ch}
-body[data-page="news"] .post:hover .pheadline{color:#4A3A00}
-
-/* --- the rail beside the feed -------------------------------- */
-body[data-page="news"] .nwside{
-  align-self:start;position:sticky;top:calc(var(--hdr) + 26px);
-  display:flex;flex-direction:column;align-items:flex-start;gap:13px;
+body[data-page="news"] #newsfeed .post:first-child:hover{background:none}
+body[data-page="news"] #newsfeed .post:first-child .pheadline{
+  font-size:clamp(26px,3.4vw,50px);line-height:.9;max-width:22ch;
 }
-body[data-page="news"] .nwside .pheadline{margin:0 0 2px;font-size:19px}
-body[data-page="news"] .nwsidep{margin:0 0 6px;font-size:16px;line-height:1.6;color:var(--ink-b);max-width:34ch}
-body[data-page="news"] .nwside .tlink{font-size:17px}
+body[data-page="news"] #newsfeed .post:first-child .pmeta{margin-top:16px;font-size:16px}
+body[data-page="news"] #newsfeed .post:first-child .pex{
+  margin-top:20px;font-size:20px;line-height:1.55;max-width:62ch;
+}
+body[data-page="news"] #newsfeed .post:first-child .itools{top:0;right:0}
+@supports selector(:has(*)){
+  body[data-page="news"] #newsfeed .post:first-child:has(.has-photo){
+    display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
+    column-gap:clamp(24px,3.4vw,52px);align-items:start;
+  }
+  body[data-page="news"] #newsfeed .post:first-child:has(.has-photo) .ph{grid-column:2;grid-row:1;margin:0;aspect-ratio:4/3}
+  body[data-page="news"] #newsfeed .post:first-child:has(.has-photo) > div:not(.ph){grid-column:1;grid-row:1}
+}
 
-/* components.css loads after layout.css, so layout.css's
-   @media (max-width:980px) .feedgrid{grid-template-columns:1fr}
-   never wins and the rail stays beside the feed on a phone.
-   Overridden here for this page; see the report. */
+body[data-page="news"] #newsfeed .addtile{grid-column:1 / -1;margin-top:0}
+body[data-page="news"] #posts .addtile{margin-top:clamp(18px,2vw,28px)}
+
+/* --- where a paper puts its index ---------------------------- */
+body[data-page="news"] .nwlinks{
+  display:flex;flex-wrap:wrap;gap:12px clamp(22px,3vw,40px);
+  margin-top:clamp(34px,4.4vw,60px);
+}
+body[data-page="news"] .nwlinks .tlink{font-size:16px}
+
+/* two columns on a tablet, one on a phone */
 @media (max-width:980px){
-  body[data-page="news"] .feedgrid{grid-template-columns:minmax(0,1fr)}
-  body[data-page="news"] .nwside{position:static;margin-top:clamp(34px,5vw,48px)}
+  body[data-page="news"] #newsfeed{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:720px){
-  body[data-page="news"] #newsfeed .post,
-  body[data-page="news"] #newsfeed .post:first-child{grid-template-columns:minmax(0,1fr);gap:16px}
-  body[data-page="news"] #newsfeed .post .ph{aspect-ratio:16/9}
-  body[data-page="news"] .nwband .ph{aspect-ratio:4/3}
-  body[data-page="news"] .nwside{position:static}
+  body[data-page="news"] #newsfeed{grid-template-columns:minmax(0,1fr)}
+  body[data-page="news"] .nwband .ph{height:180px}
+  body[data-page="news"] #newsfeed .post:first-child .pex{font-size:18px}
+  @supports selector(:has(*)){
+    body[data-page="news"] #newsfeed .post:first-child:has(.has-photo){display:flex}
+    body[data-page="news"] #newsfeed .post:first-child:has(.has-photo) .ph{order:0;margin-bottom:18px}
+  }
 }
 
 /* --- motion ---------------------------------------------------
@@ -115,11 +151,8 @@ body[data-page="news"] .nwside .tlink{font-size:17px}
 @keyframes nw-pan{from{transform:scale(1.07) translateY(-1.4%)}to{transform:scale(1.07) translateY(1.4%)}}
 @media (prefers-reduced-motion:no-preference){
   @supports (animation-timeline:view()){
-    body[data-page="news"] #newsfeed .post .ph,
-    body[data-page="news"] #newsfeed .pheadline,
-    body[data-page="news"] #newsfeed .pmeta,
-    body[data-page="news"] #newsfeed .pex,
-    body[data-page="news"] .nwside > *{
+    body[data-page="news"] #newsfeed .post,
+    body[data-page="news"] .nwlinks{
       animation:nw-rise linear both;
       animation-timeline:view();
       animation-range:entry 2% entry 42%;
@@ -182,7 +215,7 @@ body[data-page="news"] .nwside .tlink{font-size:17px}
      ================================================================ -->
 <main>
 
-<section class="panel pagehead" id="feed" data-label="All posts">
+<section class="panel pagehead bone on-bone" id="feed" data-label="All posts">
   <div class="panel__in">
     <div class="wrap">
       <div class="phead">
@@ -203,28 +236,22 @@ body[data-page="news"] .nwside .tlink{font-size:17px}
   </figure>
 </section>
 
-<!-- Paper half of the rhythm - same ink-intro / bone-data pairing
-     used on competitions.html, past-games.html, about.html and
-     stats.html. The feed's own markup and ids are untouched: it is
-     still #newsfeed, filled by renderNews(). It now sits in the
-     .feedgrid feed-and-rail shape instead of a wide .bonecard. -->
+<!-- Paper half of the rhythm - the sheet. The newest post leads
+     across the full width, the others stand below it as columns,
+     and the links a rail used to hold close the page as one row.
+     The feed's markup and ids are untouched: it is still
+     #newsfeed, filled by renderNews(). -->
 <section class="panel bone on-bone" id="posts" data-label="Posts">
   <div class="panel__in">
     <div class="wrap">
-      <div class="feedgrid">
-        <div>
-          <div id="newsfeed"></div>
-          <button class="addtile" data-add="news">+ Add news post</button>
-        </div>
-        <aside class="nwside">
-          <h2 class="pheadline" data-ed="news.side.h2">Where else to look</h2>
-          <p class="nwsidep" data-ed="news.side.p">Every post has its own page, so a link to one keeps working after it leaves this list.</p>
-          <a class="tlink" href="archive.html">Season archive</a>
-          <a class="tlink" href="games.html">This season&rsquo;s games</a>
-          <a class="tlink" href="pictures.html">Pictures</a>
-          <a class="tlink" href="contact.html">Write to the board</a>
-        </aside>
-      </div>
+      <div id="newsfeed"></div>
+      <button class="addtile" data-add="news">+ Add news post</button>
+      <nav class="nwlinks" aria-label="More from the club">
+        <a class="tlink" href="archive.html">Season archive</a>
+        <a class="tlink" href="games.html">This season&rsquo;s games</a>
+        <a class="tlink" href="pictures.html">Pictures</a>
+        <a class="tlink" href="contact.html">Write to the board</a>
+      </nav>
     </div>
   </div>
 </section>

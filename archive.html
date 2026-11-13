@@ -36,6 +36,17 @@ body[data-page="archive"] .strip .stat .v{order:1;margin-top:0}
 body[data-page="archive"] .strip .stat .k{order:2;margin-top:8px;font-size:13px;color:rgba(20,18,16,.72)}
 body[data-page="archive"] .strip .stat .n{order:3;margin-top:2px;font-size:13px}
 body[data-page="archive"] .pagelead{font-size:19px;line-height:1.5}
+
+/* the member area's dressing: a paper head, and the summary row is no
+   longer a gold band but four figures on the paper under one rule */
+body[data-page="archive"] .strip{background:transparent;padding-bottom:clamp(8px,2vw,24px)}
+body[data-page="archive"] .strip .wrap{border-top:1px solid var(--rule-l3)}
+body[data-page="archive"] .strip .stat{background:transparent;padding:22px clamp(16px,2.4vw,30px) 4px 0}
+body[data-page="archive"] .strip .stat .v{
+  font-size:clamp(34px,3.8vw,52px);line-height:.9;color:var(--gold-d);
+}
+body[data-page="archive"] .strip .stat .k{font-size:14px;font-weight:600;color:var(--ink-m);margin-top:10px}
+body[data-page="archive"] .strip .stat .n{font-size:14px;color:var(--ink-m)}
 </style>
 </head>
 <!-- data-page  = which document this is; js/routes.js maps it to a URL
@@ -87,7 +98,7 @@ body[data-page="archive"] .pagelead{font-size:19px;line-height:1.5}
      ================================================================ -->
 <main>
 
-<section class="panel panel--strip" id="seasons" data-label="Seasons">
+<section class="panel panel--strip bone on-bone" id="seasons" data-label="Seasons">
   <div class="panel__in">
     <div class="wrap">
       <div class="phead">

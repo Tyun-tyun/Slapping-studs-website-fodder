@@ -27,13 +27,14 @@
 <link rel="stylesheet" href="css/admin.css">
 <!-- ===== /SHARED HEAD ===== -->
 <style>
-/* page-scoped: the h1 leads the first screen; gold-strip tiles
-   read value first with the label under it; nothing below 13px */
-body[data-page="game"] .strip .stat{display:flex;flex-direction:column}
-body[data-page="game"] .strip .stat > *{order:4}
-body[data-page="game"] .strip .stat .v{order:1;margin-top:0}
-body[data-page="game"] .strip .stat .k{order:2;margin-top:8px;font-size:13px;color:rgba(20,18,16,.72)}
-body[data-page="game"] .strip .stat .n{order:3;margin-top:2px;font-size:13px}
+/* page-scoped: the whole top of the page sits on paper, in the scoring
+   table's colours: ink on bone, the dark gold for what is ours and for
+   labels. The score is plain ink digits, no dark tile. */
+body[data-page="game"] .gs-periods thead th,
+body[data-page="game"] .gs-periods tbody th{color:var(--ink-l)}
+body[data-page="game"] .gs-periods td{color:var(--ink-b);border-top-color:var(--rule-l2)}
+body[data-page="game"] .gs-periods td.t{color:var(--ink)}
+body[data-page="game"] .gs-periods tbody tr:first-child td{border-top-color:var(--rule-l2)}
 </style>
 </head>
 <!-- data-page  = which document this is; js/routes.js maps it to a URL
@@ -93,15 +94,13 @@ body[data-page="game"] .strip .stat .n{order:3;margin-top:2px;font-size:13px}
 
      Same ink-intro / bone-data rhythm as games.html: the fixture
      and the final score on ink, the sheet itself on paper. -->
-<section class="panel panel--strip" id="score" data-label="Final score">
+<section class="panel bone on-bone panel--strip" id="score" data-label="Final score">
   <div class="panel__in">
     <div class="wrap">
       <a class="tlink" href="games.html">&larr; All games</a>
       <div class="gs-hero" id="gshero"></div>
     </div>
   </div>
-  <!-- date / face-off / venue / referees as the gold strip -->
-  <div class="strip"><div class="wrap" id="gsmeta"></div></div>
 </section>
 
 <section class="panel bone on-bone gs-paper" id="sheet" data-label="Game sheet">

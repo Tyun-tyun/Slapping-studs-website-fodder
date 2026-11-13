@@ -109,12 +109,14 @@ body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
 
 /* --- sidebar ------------------------------------------------ */
 .adside{position:sticky;top:92px;display:flex;flex-direction:column;gap:20px;min-width:0}
-.adtitle{margin:0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:26px;line-height:1.2;text-transform:none;color:var(--ad-text)}
-.adsub{margin:7px 0 0;font-size:15px;line-height:1.5;color:var(--ad-meta)}
+.adtitle{margin:0;font-family:var(--disp);font-stretch:66%;font-weight:800;font-size:34px;line-height:1;text-transform:uppercase;color:var(--ad-text)}
+.adsub{margin:10px 0 0;font-size:15px;line-height:1.5;color:var(--ad-meta)}
 
 .adnav{display:block;overflow-y:auto;max-height:calc(100vh - 230px);padding-right:4px}
 .adnav__g+.adnav__g{margin-top:18px}
-.adnav__gt{margin:0 0 4px;padding:0 10px;font-size:13px;font-weight:700;line-height:1.4;color:var(--ad-meta);text-transform:none}
+/* a group label is a small dark-gold capital, like "1st period" on a game sheet */
+.adshell .adnav__gt{margin:0 0 6px;padding:0 10px;font-stretch:80%;font-size:13px;font-weight:700;line-height:1.4;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
 .adnav__b{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;
   min-height:36px;padding:6px 10px;border:0;border-radius:var(--ad-r);
   background:none;color:var(--ad-body);font-family:inherit;font-size:15px;line-height:1.3;
@@ -128,13 +130,15 @@ body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
 .adnav__b--danger:hover,.adnav__b--danger.is-on{color:var(--danger-d)}
 
 /* --- view: one card with a head and a table ----------------- */
-.adview{min-width:0;background:var(--ad-card);border-radius:8px;padding:24px 28px 20px}
-.adview__h{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-bottom:18px}
+/* no box: the view sits on the paper, the title and the table head are its only rules */
+.adview{min-width:0;background:transparent;border-radius:0;padding:0}
+.adview__h{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-bottom:22px}
 .adview__ht{min-width:0}
-.adview__area{margin:0;font-size:13px;line-height:1.4;color:var(--ad-meta)}
-.adview__t{margin:4px 0 0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:24px;
-  line-height:1.25;text-transform:none;color:var(--ad-text)}
-.adview__meta{margin:7px 0 0;font-size:14px;line-height:1.5;color:var(--ad-meta)}
+.adshell .adview__area{margin:0;font-stretch:80%;font-size:13px;font-weight:700;line-height:1.4;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
+.adview__t{margin:8px 0 0;font-family:var(--disp);font-stretch:66%;font-weight:800;font-size:44px;
+  line-height:.95;text-transform:uppercase;color:var(--ad-text)}
+.adview__meta{margin:10px 0 0;font-size:15px;line-height:1.5;color:var(--ad-meta)}
 .adview__n{color:var(--ad-text);font-weight:700;font-variant-numeric:tabular-nums}
 .adview__note::before{content:"·";margin:0 7px;color:var(--ad-meta)}
 
@@ -145,7 +149,7 @@ body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
   text-align:left;text-transform:none;color:var(--ad-meta);background:transparent;
   border-bottom:1px solid var(--rule-l3);white-space:nowrap}
 .adtable td{padding:12px 14px 12px 0;font-size:15px;line-height:1.45;color:var(--ad-body);
-  border-top:0;border-bottom:1px solid var(--ad-line2);white-space:nowrap;vertical-align:middle}
+  border-top:0;border-bottom:1px solid var(--ad-line);white-space:nowrap;vertical-align:middle}
 .adtable tbody tr:hover td{background:var(--ad-hover)}
 .adtable td.adid{color:var(--ad-text);font-weight:700;white-space:normal;max-width:30ch}
 .adtable td.adcell{white-space:normal;max-width:34ch}
@@ -169,7 +173,7 @@ body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
 .adthumb__i.is-empty{background-color:transparent;border:1px dashed var(--rule-l3)}
 
 /* --- status pills ------------------------------------------- */
-.adpill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:4px;
+.adpill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:3px;
   font-size:13px;font-weight:700;line-height:1;white-space:nowrap}
 .adpill--good{background:#BFE3CE;color:#13402A}
 .adpill--warn{background:var(--gold);color:var(--ink)}
@@ -179,12 +183,12 @@ body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
 
 /* --- figures and blocks (danger zone) ----------------------- */
 .adcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:8px}
-.adcard{background:var(--bone2);border-radius:var(--ad-r);padding:16px 18px}
-.adcard__k{margin:0;font-size:13px;color:var(--ad-meta)}
-.adcard__v{margin:7px 0 0;font-size:26px;font-weight:700;line-height:1.1;color:var(--ad-text);font-variant-numeric:tabular-nums}
-.adcard__n{margin:5px 0 0;font-size:13px;color:var(--ad-meta)}
-.adblock{margin-top:16px;padding:18px 20px;background:var(--bone2);border-radius:var(--ad-r)}
-.adblock__t{margin:0;font-family:var(--disp);font-stretch:100%;font-size:17px;font-weight:700;text-transform:none;color:var(--ad-text)}
+.adcard{background:transparent;border-radius:0;padding:0}
+.adcard__k{margin:0;font-size:14px;font-weight:600;color:var(--ad-meta)}
+.adcard__v{margin:8px 0 0;font-family:var(--disp);font-stretch:66%;font-size:52px;font-weight:800;line-height:.85;color:var(--gold-d);font-variant-numeric:tabular-nums}
+.adcard__n{margin:8px 0 0;font-size:14px;color:var(--ad-meta)}
+.adblock{margin-top:28px;padding:22px 0 0;background:transparent;border-top:1px solid var(--rule-l3);border-radius:0}
+.adblock__t{margin:0;font-family:var(--disp);font-stretch:66%;font-size:24px;font-weight:800;line-height:1;text-transform:uppercase;color:var(--ad-text)}
 .adblock__b{margin:8px 0 14px;max-width:64ch;font-size:15px;line-height:1.55;color:var(--ad-body)}
 .adblock code{font-size:14px;color:var(--ad-text)}
 
@@ -207,7 +211,7 @@ body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
 .drawer.on{transform:none}
 .dwh{padding:22px var(--pad) 16px;border-bottom:1px solid var(--ad-line2);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .dwh__k{margin:0;font-size:13px;line-height:1.4;color:var(--ad-meta)}
-.dwh__t{margin:4px 0 0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:22px;line-height:1.25;text-transform:none;color:var(--ad-text)}
+.dwh__t{margin:6px 0 0;font-family:var(--disp);font-stretch:66%;font-weight:800;font-size:30px;line-height:1;text-transform:uppercase;color:var(--ad-text)}
 .dwh__s{margin:5px 0 0;font-size:14px;line-height:1.4;color:var(--ad-meta)}
 .dwx{flex:0 0 auto;min-width:38px;height:38px;padding:0 12px;border:1px solid var(--rule-l3);border-radius:999px;
   background:none;color:var(--ad-text);font-family:var(--disp);font-size:14px;font-weight:700;cursor:pointer}
@@ -216,8 +220,8 @@ body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
 .dwb form{display:block;max-width:100%;gap:0}
 .dwg{padding:20px 0;border-bottom:1px solid var(--ad-line2)}
 .dwg:last-child{border-bottom:0;padding-bottom:4px}
-.dwg__t{margin:0 0 14px;font-family:var(--disp);font-stretch:100%;font-size:14px;font-weight:700;
-  text-transform:none;color:var(--ad-text)}
+.dwg__t{margin:0 0 14px;font-family:var(--disp);font-stretch:80%;font-size:13px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
 .dwfield+.dwfield{margin-top:16px}
 .dwl{display:block;margin-bottom:6px;font-family:var(--disp);font-stretch:100%;font-size:14px;font-weight:500;color:var(--ad-text)}
 .dwhint{margin:-3px 0 6px;font-size:13px;line-height:1.45;color:var(--ad-meta)}
@@ -280,7 +284,7 @@ body.editing .hero:hover .phedit{opacity:1}
   .adshell{grid-template-columns:minmax(0,1fr);gap:22px}
   .adside{position:static;gap:16px}
   .adnav{max-height:270px;padding:12px;background:var(--ad-card);border-radius:var(--ad-r)}
-  .adview{padding:18px 16px}
+  .adview__t{font-size:36px}
   /* two to a row, so the panel shows three areas rather than one */
   .adnav__g{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px}
   .adnav__gt{grid-column:1/-1}

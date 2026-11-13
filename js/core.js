@@ -66,6 +66,23 @@ window.Studs = window.Studs || {};
       /* content saved before a collection existed gets that
          collection's seed rows, so a new screen is never empty */
       Object.keys(S.seed).forEach(function(k){ if(c[k] === undefined) c[k] = S.clone(S.seed[k]); });
+      /* "comps" once held the history chapters (rows with a "nav" and
+         no "title"). A browser that saved content back then still has
+         one of them where a competition belongs, and it shows up as a
+         card without a name. Such a row is swapped for the seed row
+         with the same id; every other saved row is left as it is. */
+      /* The same goes for the competition texts that used to be one
+         short paragraph: a saved row whose body is still a single
+         paragraph, where the seed row now has several, takes the
+         longer seed text. A row an editor has since written to more
+         than one paragraph is never touched. */
+      if(Array.isArray(c.comps)) c.comps = c.comps.map(function(r){
+        var s = r && (S.seed.comps || []).filter(function(x){ return x.id === r.id; })[0];
+        if(!s) return r;
+        var paras = function(t){ return String(t || "").split(/\n{2,}/).filter(Boolean).length; };
+        if(!r.title || (paras(r.body) <= 1 && paras(s.body) > 1)) return S.clone(s);
+        return r;
+      });
       return c;
     }catch(e){ return S.clone(S.seed); }
   };

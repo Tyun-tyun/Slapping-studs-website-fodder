@@ -88,8 +88,8 @@
     var draft = n.status === "draft";
     if(draft && !S.can("console.use")) return "";       // drafts are admin-only
     return '<div class="post" data-item>'+
-      ph("news:"+n.id, i===1?"gold":"", "Photo")+'<div>'+
-      '<h3 class="pheadline">'+esc(n.title)+'</h3>'+
+      ph("news:"+n.id, "", n.title)+'<div>'+
+      '<h3 class="pheadline"><a href="'+esc(S.postUrl(n.id))+'">'+esc(n.title)+'</a></h3>'+
       '<div class="pmeta">'+esc(n.date)+' · <b>'+esc(n.tag)+'</b> · '+esc(n.author)+
       (draft?'<span class="draftpill">Draft</span>':'')+'</div>'+
       '<p class="pex">'+esc(n.excerpt)+'</p></div>'+tools("news",n.id)+'</div>';
@@ -175,22 +175,26 @@
 
     host.innerHTML =
       '<article class="postfull" data-item>'+
-        '<h1 class="disp d2" style="margin:0">'+esc(n.title)+'</h1>'+
+        '<h1 class="disp d2">'+esc(n.title)+'</h1>'+
         /* date, tag and author as a plain line under the title */
-        '<p class="body postmeta" style="margin:14px 0 0">'+esc(n.date)+' &middot; <b>'+esc(n.tag)+'</b> &middot; '+esc(n.author)+
+        '<p class="postmeta">'+esc(n.date)+' &middot; <b>'+esc(n.tag)+'</b> &middot; '+esc(n.author)+
           (n.status==="draft"?'<span class="draftpill">Draft</span>':'')+'</p>'+
-        '<div class="ph postcover" data-slot="news:'+esc(n.id)+'" data-ph="Photo for this post"></div>'+
-        '<p class="postlead">'+esc(n.excerpt)+'</p>'+
-        '<div class="postbody">'+
-          (paras || '<p style="color:var(--edit)">'+
-                    'No full text yet. An admin can write it in the console under News posts.</p>')+
+        '<div class="postcols">'+
+          '<div class="posttext">'+
+            '<p class="postlead">'+esc(n.excerpt)+'</p>'+
+            '<div class="postbody">'+
+              (paras || '<p class="postnone">'+
+                        'No full text yet. An admin can write it in the console under News posts.</p>')+
+            '</div>'+
+          '</div>'+
+          '<div class="ph postcover" data-slot="news:'+esc(n.id)+'" data-ph="'+esc(n.title)+'"></div>'+
         '</div>'+
         tools("news",n.id)+
       '</article>'+
-      '<nav class="postnav">'+
-        (prev ? '<a class="tlink" href="'+esc(S.postUrl(prev.id))+'">&larr; '+esc(prev.title)+'</a>'
+      '<nav class="postnav" aria-label="Other posts">'+
+        (prev ? '<a class="postlink" href="'+esc(S.postUrl(prev.id))+'">&larr; '+esc(prev.title)+'</a>'
               : '<span></span>')+
-        (next ? '<a class="tlink" href="'+esc(S.postUrl(next.id))+'">'+esc(next.title)+' &rarr;</a>'
+        (next ? '<a class="postlink postlink--next" href="'+esc(S.postUrl(next.id))+'">'+esc(next.title)+' &rarr;</a>'
               : '<span></span>')+
       '</nav>';
   };
@@ -542,9 +546,9 @@
           }).join("")+
         '</tr></thead><tbody>'+
         table.map(function(r){
-          return '<tr data-item>'+
+          return '<tr data-item'+(r.us?' class="us"':'')+'>'+
             '<td>'+esc(r.pos)+'</td>'+
-            '<td class="pname">'+(r.us?'<span class="pus"></span>':'')+esc(r.team)+'</td>'+
+            '<td class="pname">'+esc(r.team)+'</td>'+
             '<td class="pnum">'+esc(r.gp)+'</td>'+
             '<td class="pnum">'+esc(r.w)+'</td>'+
             '<td class="pnum">'+esc(r.otw)+'</td>'+
@@ -727,32 +731,7 @@
         '<tr><th>'+esc(gs.away)+'</th>'+perAway.join("")+'<td class="t">'+esc(gs.as)+'</td></tr>'+
       '</tbody></table>' : '';
 
-    hero.innerHTML =
-      '<p class="eyebrow gs-comp">Game sheet'+(gs.comp ? ' &middot; <b>'+esc(gs.comp)+'</b>' : '')+'</p>'+
-      '<div class="gs-final">'+
-        '<div class="gs-side gs-side--home">'+
-          '<p class="gs-team'+(isUs(gs.home)?' us':'')+'">'+esc(gs.home)+'</p>'+
-          '<p class="gs-rec">Home'+(gs.homeRec ? ' &middot; '+esc(gs.homeRec) : '')+'</p>'+
-        '</div>'+
-        '<div class="gs-score"><b>'+esc(gs.hs)+'</b><span>'+esc(gs.status||"FT")+'</span><b>'+esc(gs.as)+'</b></div>'+
-        '<div class="gs-side gs-side--away">'+
-          '<p class="gs-team'+(isUs(gs.away)?' us':'')+'">'+esc(gs.away)+'</p>'+
-          '<p class="gs-rec">Away'+(gs.awayRec ? ' &middot; '+esc(gs.awayRec) : '')+'</p>'+
-        '</div>'+
-      '</div>'+
-      periods+
-      tools("gamesheets",gs.id);
-
     /* ---- the sheet, on paper -------------------------------- */
-    /* date / face-off / venue / referees ride on the gold strip
-       under the score (#gsmeta), the stats.html pattern */
-    var meta = "";
-    if($("#gsmeta")) $("#gsmeta").innerHTML =
-      [["Date",gs.date],["Face-off",gs.faceoff],["Venue",gs.venue],["Referees",gs.refs]]
-      .filter(function(m){ return m[1]; })
-      .map(function(m){ return statTile(m[0], m[1], "", m[0]!=="Face-off"); })
-      .join("");
-
     /* lineup: home side first, then away; grouped by position in
        the order a team sheet is written */
     var posOrder = ["Goalies","Defense","Forwards"];
@@ -796,48 +775,171 @@
       '<div class="gs-lineup__head"><span class="gs-h">Lineups</span><span class="gs-legend">G / A / PIM</span></div>'+
       side("home",gs.home)+side("away",gs.away) : '';
 
-    /* scoring summary: the mono/display split the mockup drew -
-       times and codes in mono, the scorer in display weight */
-    var scoring = goals.length ?
-      '<div class="tblwrap gs-tblwrap"><table class="gs-goals">'+
-        '<thead><tr><th>Per</th><th>Time</th><th>Team</th><th>Goal</th><th>Assists</th><th>Sit</th><th class="r">Score</th></tr></thead><tbody>'+
-        goals.map(function(g){
-          return '<tr data-item><td class="num">'+esc(g.per)+'</td><td class="num tm">'+esc(g.time)+'</td>'+
-            '<td class="code">'+esc(g.team)+'</td><td class="name">'+esc(g.scorer)+'</td>'+
-            '<td class="asst">'+esc(g.assists)+'</td><td class="num">'+esc(g.sit)+'</td>'+
-            '<td class="sc">'+esc(g.score)+tools("sheetgoals",g.id)+'</td></tr>';
-        }).join("")+'</tbody></table></div>' :
-      '<p class="gs-empty">No goals recorded.</p>';
+    /* ---- the game timeline -----------------------------------
+       Scoring and penalties used to be two tables. They are one
+       list now, drawn the way a live-score app draws a game: period
+       by period, home on the left, away on the right, the clock and
+       the running score on the spine between them. Nothing new is
+       typed in the console - the side of each event is worked out
+       from what is already there: the player's name in the lineup,
+       then (for goals) which half of the score went up, then the
+       team code learned from the goals. */
+    var sideOf = {};
+    lineup.forEach(function(r){ sideOf[r.name] = r.side || "home"; });
+    var codeSide = {};
+    function clock(t){
+      var m = String(t||"").match(/(\d+):(\d+)/);
+      return m ? (+m[1])*60 + (+m[2]) : 0;
+    }
+    function perN(p){
+      p = String(p||"").trim().toUpperCase();
+      return /^\d+$/.test(p) ? +p : (p === "OT" ? 4 : (p === "SO" ? 5 : 9));
+    }
+    function minText(m){
+      var t = String(m||"").trim();
+      if(/^\d+:\d+$/.test(t)) t = String(parseInt(t,10));
+      return t ? t+" min" : "";
+    }
 
-    var penalties = pens.length ?
-      pens.map(function(p){
-        return '<div class="gs-pen" data-item>'+
-          '<span class="gs-pen__t">'+esc(p.time)+(p.per ? '<i>('+esc(p.per)+')</i>' : '')+'</span>'+
-          '<span class="gs-pen__who"><b>'+esc(p.player)+'</b><span>'+esc(p.inf)+'</span></span>'+
-          '<span class="gs-pen__min">'+esc(p.min)+'</span>'+tools("sheetpens",p.id)+'</div>';
-      }).join("") :
-      '<p class="gs-empty">A clean game &mdash; no penalties.</p>';
+    var events = [], run = [0,0];
+    goals.slice().sort(function(a,b){
+      return perN(a.per)-perN(b.per) || clock(a.time)-clock(b.time);
+    }).forEach(function(g){
+      var sc = String(g.score||"").match(/(\d+)\s*[-–:]\s*(\d+)/);
+      var s = sideOf[g.scorer];
+      if(!s && sc){
+        if(+sc[1] > run[0]) s = "home"; else if(+sc[2] > run[1]) s = "away";
+      }
+      if(sc) run = [+sc[1], +sc[2]];
+      s = s || codeSide[g.team] || "home";
+      if(g.team) codeSide[g.team] = s;
+      events.push({kind:"goal", side:s, per:perN(g.per), time:g.time, r:g});
+    });
+    pens.forEach(function(p){
+      var m = String(p.player||"").match(/^\s*([A-Za-z0-9]+)\s*[·•|]\s*(.+)$/);
+      var code = m ? m[1] : "", who = m ? m[2] : String(p.player||"");
+      var s = sideOf[who.replace(/^#\d+\s*/, "")] || sideOf[who] || (code && codeSide[code]) || "home";
+      events.push({kind:"pen", side:s, per:perN(p.per), time:p.time, r:p, who:who});
+    });
 
-    var stars = [[gs.star1,gs.star1line],[gs.star2,gs.star2line],[gs.star3,gs.star3line]]
+    var SIT = {PP:"Power play", SH:"Short-handed", EN:"Empty net", PS:"Penalty shot"};
+    var usedSit = {};
+    var puck = '<svg class="gs-tl__puck" viewBox="0 0 22 16" aria-hidden="true">'+
+      '<path d="M1 5v5c0 2.8 4.5 5 10 5s10-2.2 10-5V5z" fill="currentColor" fill-opacity=".55"/>'+
+      '<ellipse cx="11" cy="5" rx="10" ry="4.2" fill="currentColor"/></svg>';
+
+    function evRow(e){
+      var r = e.r, ico, line, sub, mid;
+      if(e.kind === "goal"){
+        var sit = String(r.sit||"").toUpperCase().trim();
+        var tag = "";
+        if(sit && sit !== "EV"){
+          usedSit[sit] = 1;
+          tag = '<em class="gs-tl__tag'+(sit === "PP" ? ' pp' : '')+'" title="'+esc(SIT[sit]||sit)+'">'+esc(sit)+'</em>';
+        }
+        var as = String(r.assists||"").trim();
+        ico = puck;
+        line = '<b class="gs-tl__name">'+esc(r.scorer)+'</b>'+tag;
+        sub = as && as !== "—" ? '<span class="gs-tl__sub">'+esc(as)+'</span>' : '';
+        mid = '<span class="gs-tl__clock">'+esc(r.time)+'</span>'+
+          (r.score ? '<span class="gs-tl__sc">'+esc(r.score)+'</span>' : '');
+      } else {
+        ico = '<span class="gs-tl__min">'+esc(minText(r.min))+'</span>';
+        line = '<b class="gs-tl__name">'+esc(e.who)+'</b>';
+        sub = r.inf ? '<span class="gs-tl__sub">'+esc(r.inf)+'</span>' : '';
+        mid = '<span class="gs-tl__clock">'+esc(r.time)+'</span>';
+      }
+      var cell = '<div class="gs-tl__cell gs-tl__cell--'+e.side+'">'+ico+
+        '<span class="gs-tl__txt"><span class="gs-tl__line">'+line+'</span>'+sub+'</span></div>';
+      var none = '<div class="gs-tl__cell gs-tl__cell--empty"></div>';
+      return '<div class="gs-tl__ev gs-tl__ev--'+e.kind+'" data-item>'+
+        (e.side === "home" ? cell : none)+
+        '<div class="gs-tl__mid">'+mid+'</div>'+
+        (e.side === "away" ? cell : none)+
+        tools(e.kind === "goal" ? "sheetgoals" : "sheetpens", r.id)+'</div>';
+    }
+
+    function perName(n){
+      return n >= 1 && n <= 3 ? ["1st","2nd","3rd"][n-1]+" period" : (n === 4 ? "Overtime" : (n === 5 ? "Shootout" : "Other"));
+    }
+    var pset = {};
+    for(var pk=1; pk<=nper; pk++) pset[pk] = 1;
+    events.forEach(function(e){ pset[e.per] = 1; });
+    var plist = Object.keys(pset).map(Number).sort(function(a,b){ return a-b; });
+
+    var periodsHTML = plist.map(function(n){
+      var evs = events.filter(function(e){ return e.per === n; })
+        .sort(function(a,b){ return clock(a.time)-clock(b.time); });
+      var psc = n >= 1 && n <= nper ? esc(hp[n-1]||"0")+"–"+esc(ap[n-1]||"0") : "";
+      return '<div class="gs-tl__period"><div class="gs-tl__per"><span>'+perName(n)+'</span>'+
+        (psc ? '<b>'+psc+'</b>' : '')+'</div>'+
+        (evs.length ? evs.map(evRow).join("") : '<p class="gs-tl__none">No goals or penalties</p>')+'</div>';
+    }).join("");
+
+    var legend = Object.keys(usedSit).map(function(k){
+      return '<b>'+esc(k)+'</b> '+esc((SIT[k]||k).toLowerCase());
+    }).join(" &middot; ");
+
+    var timeline = events.length || nper ?
+      '<p class="gs-h">Game timeline</p>'+
+      '<div class="gs-tl__teams"><span class="gs-tl__tm gs-tl__tm--home'+(isUs(gs.home) ? ' us' : '')+'">'+esc(gs.home)+'</span><span></span>'+
+        '<span class="gs-tl__tm'+(isUs(gs.away) ? ' us' : '')+'">'+esc(gs.away)+'</span></div>'+
+      periodsHTML+
+      (legend ? '<p class="gs-tl__legend">'+legend+'</p>' : '') :
+      '<p class="gs-empty">No goals or penalties recorded.</p>';
+
+    /* ---- the ticket ----------------------------------------
+       The top of the page is one paper ticket: the teams and the
+       final on the main part, the three stars along its foot, and
+       when / where / who whistled on the tear-off stub. */
+    var stars = [[gs.star1,gs.star1line]]
       .filter(function(s){ return s[0]; })
-      .map(function(s,i){
-        return '<div class="gs-star"><span class="gs-star__n">'+(i+1)+'</span>'+
-          '<span class="gs-star__who"><b>'+esc(s[0])+'</b>'+(s[1] ? '<span>'+esc(s[1])+'</span>' : '')+'</span></div>';
+      .map(function(s){
+        return '<div class="gtk-star"><span class="gtk-k">Star of the game</span><b>'+esc(s[0])+'</b>'+
+          (s[1] ? '<span class="gtk-line">'+esc(s[1])+'</span>' : '')+'</div>';
       }).join("");
 
-    var report = String(gs.report||"").split(/\n\s*\n/)
-      .map(function(t){ return t.trim(); }).filter(Boolean)
-      .map(function(t){ return '<p>'+esc(t).replace(/\n/g,"<br>")+'</p>'; }).join("");
+    /* "SAT 29 MAR 2025" splits into a big day and a small line; a date
+       typed any other way is shown as it is */
+    var dm = String(gs.date||"").trim().match(/^(\w+)\s+(\d{1,2})\s+(\w+)\s+(\d{4})$/);
+    var cap = function(w){ return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase(); };
+    var stub =
+      (dm ? '<p class="gtk-day">'+esc(dm[2])+'</p><p class="gtk-mo">'+esc(cap(dm[1]))+' &middot; '+esc(cap(dm[3]))+' '+esc(dm[4])+'</p>'
+          : (gs.date ? '<p class="gtk-mo">'+esc(gs.date)+'</p>' : ''))+
+      (gs.faceoff ? '<p class="gtk-time">'+esc(gs.faceoff)+'</p>' : '')+
+      (gs.venue ? '<p class="gtk-place">'+esc(gs.venue)+'</p>' : '')+
+      (gs.refs ? '<p class="gtk-refs">Referees: '+esc(gs.refs)+'</p>' : '');
+
+    hero.innerHTML =
+      '<div class="gtk">'+
+        '<div class="gtk-main">'+
+          '<p class="gtk-comp">Game sheet'+(gs.comp ? ' &middot; <b>'+esc(gs.comp)+'</b>' : '')+'</p>'+
+          '<div class="gtk-final">'+
+            '<div class="gtk-side gtk-side--home">'+
+              '<p class="gtk-team'+(isUs(gs.home)?' us':'')+'">'+esc(gs.home)+'</p>'+
+              '<p class="gtk-rec">Home'+(gs.homeRec ? ' &middot; '+esc(gs.homeRec) : '')+'</p>'+
+            '</div>'+
+            '<div class="gtk-score"><p class="gtk-nums"><b'+(Number(gs.hs) > Number(gs.as) ? ' class="win"' : '')+'>'+esc(gs.hs)+'</b><i>:</i><b'+(Number(gs.as) > Number(gs.hs) ? ' class="win"' : '')+'>'+esc(gs.as)+'</b></p>'+
+              '<p class="gtk-status">'+esc(!gs.status || gs.status === "FT" ? "Full time" : gs.status)+'</p></div>'+
+            '<div class="gtk-side">'+
+              '<p class="gtk-team'+(isUs(gs.away)?' us':'')+'">'+esc(gs.away)+'</p>'+
+              '<p class="gtk-rec">Away'+(gs.awayRec ? ' &middot; '+esc(gs.awayRec) : '')+'</p>'+
+            '</div>'+
+            (stars ? '<div class="gtk-stars">'+stars+'</div>' : '<span></span>')+
+            '<span></span>'+
+            (periods ? '<div class="gtk-per">'+periods+'</div>' : '<span></span>')+
+          '</div>'+
+          '<div class="gtk-foot"></div>'+
+        '</div>'+
+        (stub ? '<div class="gtk-stub">'+stub+'</div>' : '')+
+      '</div>'+
+      tools("gamesheets",gs.id);
 
     sheet.innerHTML =
-      (meta ? '<div class="gs-meta">'+meta+'</div>' : '')+
       '<div class="gs-grid">'+
         '<aside class="gs-lineup">'+lineupHTML+'</aside>'+
         '<div class="gs-main">'+
-          '<section class="gs-block"><p class="gs-h">Scoring</p>'+scoring+'</section>'+
-          '<section class="gs-block gs-block--raised"><p class="gs-h">Penalties</p><div class="gs-pens">'+penalties+'</div></section>'+
-          (stars ? '<section class="gs-block"><p class="gs-h">Three stars</p><div class="gs-stars">'+stars+'</div></section>' : '')+
-          (report ? '<section class="gs-block gs-block--raised"><p class="gs-h">Game report</p><div class="gs-report">'+report+'</div></section>' : '')+
+          '<section class="gs-block gs-block--raised gs-tlwrap">'+timeline+'</section>'+
         '</div>'+
       '</div>';
   };
@@ -916,8 +1018,11 @@
 
     if($("#comps"))
       $("#comps").innerHTML = C().comps.map(function(c){
-        return '<div class="pcell" data-item><h3>'+esc(c.title)+'</h3>'+
-          '<p class="body">'+esc(c.body)+'</p>'+tools("comps",c.id)+'</div>';
+        /* the first paragraph is the answer in one line, the rest is the detail */
+        var ps = String(c.body||"").split(/\n{2,}/).filter(Boolean);
+        return '<div class="pcell'+(c.gold?' gold':'')+'" data-item><h3>'+esc(c.title)+'</h3>'+
+          '<div class="ptext">'+ps.map(function(p,i){ return '<p class="'+(i?'body':'body lead')+'">'+esc(p)+'</p>'; }).join("")+'</div>'+
+          tools("comps",c.id)+'</div>';
       }).join("");
 
     /* competitions.html gold strip: where each of our squads stands,

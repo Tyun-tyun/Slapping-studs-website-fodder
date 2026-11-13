@@ -50,7 +50,7 @@ body[data-page="about"] .abband{margin:0;position:relative;overflow:clip}
 body[data-page="about"] .abband .ph{aspect-ratio:16/6;min-height:200px}
 body[data-page="about"] .abband figcaption{
   margin:0;padding-top:12px;
-  font-size:15px;line-height:1.5;color:rgba(237,234,225,.72);
+  font-size:14px;line-height:1.5;color:var(--ink-m);
 }
 body[data-page="about"] #club{padding-bottom:clamp(20px,2.6vw,32px)}
 
@@ -106,13 +106,47 @@ body[data-page="about"] .fctlist dt{margin:0;font-size:15px;line-height:1.4;colo
 body[data-page="about"] .fctlist dd{margin:0;font-size:17px;line-height:1.6;color:var(--ink-b)}
 body[data-page="about"] .abwhere .tlink{display:inline-block;margin-top:clamp(24px,3vw,34px);font-size:17px}
 
+/* --- the member area's dressing: each section head sits on one
+   rule, the labels are small dark-gold capitals, lists are ruled
+   lightly and nothing is boxed. Layout and wording are unchanged. */
+body[data-page="about"] #story .phead,
+body[data-page="about"] #squads .phead,
+body[data-page="about"] #facts .phead{padding-bottom:12px;border-bottom:1px solid var(--rule-l3)}
+
+body[data-page="about"] .abfig .ph{border-radius:3px}
+body[data-page="about"] .abfig figcaption{font-size:14px}
+
+/* squads: a row is a rule, the division is the label */
+body[data-page="about"] .sqlist{gap:clamp(18px,2.4vw,28px)}
+body[data-page="about"] .sqrow{padding-top:clamp(18px,2.4vw,28px);border-top:1px solid var(--rule-l1)}
+body[data-page="about"] .sqrow:first-child{padding-top:0;border-top:0}
+body[data-page="about"] .sqdiv{
+  margin:12px 0 0;font-stretch:80%;font-size:13px;font-weight:700;line-height:1.4;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d);
+}
+
+/* facts: the key is the label, the pair is a ruled row */
+body[data-page="about"] .fctlist{gap:0}
+body[data-page="about"] .fctlist dt{padding-right:clamp(16px,2.4vw,36px)}
+body[data-page="about"] .fctlist dt,
+body[data-page="about"] .fctlist dd{padding:14px 0;border-top:1px solid var(--rule-l1)}
+body[data-page="about"] .fctlist dt{
+  padding-top:18px;font-stretch:80%;font-size:13px;font-weight:700;line-height:1.4;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d);
+}
+body[data-page="about"] .fctlist dt:first-of-type,
+body[data-page="about"] .fctlist dt:first-of-type + dd{border-top:0;padding-top:0}
+body[data-page="about"] .fctlist dt:first-of-type{padding-top:4px}
+
 @media (max-width:860px){
   body[data-page="about"] .abfigs,
   body[data-page="about"] .abwhere,
   body[data-page="about"] .sqrow,
   body[data-page="about"] .fctlist{grid-template-columns:minmax(0,1fr)}
-  body[data-page="about"] .fctlist{gap:4px 0}
-  body[data-page="about"] .fctlist dd{margin-bottom:14px}
+  body[data-page="about"] .fctlist{gap:0}
+  body[data-page="about"] .fctlist dt{padding:14px 0 4px}
+  body[data-page="about"] .fctlist dt:first-of-type{padding-top:0}
+  body[data-page="about"] .fctlist dd{padding:0 0 14px;border-top:0}
   body[data-page="about"] .abband .ph{aspect-ratio:4/3}
 }
 
@@ -197,7 +231,7 @@ body[data-page="about"] .abwhere .tlink{display:inline-block;margin-top:clamp(24
 <!-- The head, then the club's own squad photograph full bleed on
      its floor. This is where the gold strip of four squad tiles
      used to be; the squads are now the list in #squads below. -->
-<section class="panel pagehead" id="club" data-label="The club">
+<section class="panel pagehead bone on-bone" id="club" data-label="The club">
   <div class="panel__in">
     <div class="wrap">
       <div class="phead">

@@ -199,6 +199,37 @@ body[data-page="hockey"] .panel:not(.panel--cover):not(.pagehead){--sect-pad:cla
   .hk .hk-hero-rink text{font-size:26px}
   .hk .pos-dot text{font-size:19px}
 }
+
+/* ---------- paper sections (Basics, Positions, Ref signals) ----------
+   The page alternates ink and paper the way the home page does. The
+   drawings were made for a dark ground, so on paper their light
+   strokes and text flip to ink and the gold to the dark gold, the
+   same swap the scoring pages make. */
+body[data-page="hockey"] .panel.bone .hk-sub{color:var(--ink)}
+body[data-page="hockey"] .panel.bone .hk-sub.violation{color:var(--gold-d)}
+body[data-page="hockey"] .panel.bone .hk-text,
+body[data-page="hockey"] .panel.bone .hk-lede{color:var(--ink-b)}
+body[data-page="hockey"] .panel.bone .hk-caption{color:var(--ink-m)}
+body[data-page="hockey"] .panel.bone .hk-stat .num{color:var(--ink)}
+body[data-page="hockey"] .panel.bone .hk-stat .label{color:var(--ink-b)}
+body[data-page="hockey"] .panel.bone svg [stroke^="rgba(237"]{stroke:rgba(17,20,23,.34)}
+body[data-page="hockey"] .panel.bone svg [stroke="var(--ice)"]{stroke:var(--ink-m)}
+body[data-page="hockey"] .panel.bone svg [fill="var(--ice)"]{fill:var(--ink-m)}
+body[data-page="hockey"] .panel.bone svg [stroke="var(--gold)"]{stroke:var(--gold-d)}
+body[data-page="hockey"] .panel.bone svg [fill="var(--gold)"]{fill:var(--gold-d)}
+body[data-page="hockey"] .panel.bone svg text[fill^="rgba(237"]{fill:var(--ink-b)}
+/* position dots stay dark discs with light letters; the detail card is paper */
+body[data-page="hockey"] .panel.bone .pos-dot circle{fill:var(--ink);stroke:var(--ink)}
+body[data-page="hockey"] .panel.bone .pos-dot:hover circle,
+body[data-page="hockey"] .panel.bone .pos-dot.active circle{fill:var(--gold);stroke:var(--gold)}
+body[data-page="hockey"] .panel.bone .hk-panel{background:var(--bone3)}
+body[data-page="hockey"] .panel.bone .hk-panel .role-name{color:var(--gold-d)}
+body[data-page="hockey"] .panel.bone .hk-panel .role-desc{color:var(--ink-b)}
+/* referees: the dark halo only exists to hide the pale fringe on ink */
+body[data-page="hockey"] .panel.bone .hk-sig .sig-fig img{filter:none}
+body[data-page="hockey"] .panel.bone .hk-sig .sig-name{color:var(--ink)}
+body[data-page="hockey"] .panel.bone .hk-sig .sig-desc{color:var(--ink-b)}
+body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
 </style>
 </head>
 <!-- data-page  = which document this is; js/routes.js maps it to a URL
@@ -344,7 +375,7 @@ body[data-page="hockey"] .panel:not(.panel--cover):not(.pagehead){--sect-pad:cla
   </div>
 </nav>
 
-<section class="panel" id="rules" data-label="Basics">
+<section class="panel bone on-bone" id="rules" data-label="Basics">
   <div class="panel__in">
     <div class="wrap"><div class="hk">
       <div class="phead"><div>
@@ -586,7 +617,7 @@ body[data-page="hockey"] .panel:not(.panel--cover):not(.pagehead){--sect-pad:cla
   </div>
 </section>
 
-<section class="panel" id="positions" data-label="Positions">
+<section class="panel bone on-bone" id="positions" data-label="Positions">
   <div class="panel__in">
     <div class="wrap"><div class="hk">
       <div class="phead"><div>
@@ -637,7 +668,7 @@ body[data-page="hockey"] .panel:not(.panel--cover):not(.pagehead){--sect-pad:cla
   </div>
 </section>
 
-<section class="panel" id="signals" data-label="Signals">
+<section class="panel bone on-bone" id="signals" data-label="Signals">
   <div class="panel__in">
     <div class="wrap"><div class="hk">
       <div class="phead"><div>

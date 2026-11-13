@@ -157,31 +157,58 @@ body[data-page="account"]{background:var(--bone)}
 .lk-pill.on{background:var(--acc);color:var(--ink)}
 .lk-pill.off{background:var(--h);color:var(--muted)}
 
-/* ---------------- overview: the next two weeks ---------------- */
-.wk-label{font-size:15px;font-weight:700;margin:16px 0 8px}
-.wk-label:first-of-type{margin-top:0}
-.wk-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
-.wk-day{
-  display:flex;flex-direction:column;gap:6px;min-height:150px;padding:10px 8px 8px;
-  border:2px solid transparent;border-radius:var(--rc);background:var(--g);color:var(--text);text-decoration:none;
-  transition:background .12s;
+/* ---------------- overview: games and practices ---------------
+   Games are gold tickets: the title and the answer on the left, the
+   day torn off on the right along a dashed perforation, with notches
+   cut out of the card behind. Practices hang off one vertical line,
+   by week: date, a dot, the time, then Yes / Maybe / No. */
+.lk-trio{display:grid;grid-template-columns:repeat(3,minmax(64px,1fr));gap:8px;flex:none}
+.lk-trio button{
+  height:36px;padding:0 12px;border:1.5px solid var(--ctl);border-radius:var(--rk);background:transparent;color:var(--text);
+  font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .12s,color .12s;
 }
-.wk-day:hover{background:var(--r)}
-.wk-day.today{border-color:var(--ink)}
-.wk-dh{display:flex;flex-direction:column;gap:6px}
-.wk-dn{font-size:13px;font-weight:500;color:var(--faint)}
-.wk-dd{font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
-.wk-day.empty .wk-dh{opacity:.55}
-.wk-item{display:block;padding:6px 8px;border-radius:var(--rk);font-size:13px;line-height:1.3;font-variant-numeric:tabular-nums}
-.wk-item b{display:block;font-size:13px;font-weight:700}
-.wk-item span{display:block}
-.wk-item.p.in{background:var(--acc);color:var(--ink)}
-.wk-item.p.open{background:transparent;color:var(--text);border:1.5px solid var(--ink);padding:4.5px 6.5px}
-.wk-item.p.out{background:var(--h);color:var(--faint)}
-.wk-item.p.staff{background:var(--h);color:var(--text)}
-.wk-item.g{background:var(--r);color:var(--text)}
-.wk-item.g.ours{background:var(--ink);color:var(--bone)}
-.wk-item.e{background:var(--r);color:var(--text)}
+.lk-trio button:hover{background:var(--h)}
+.lk-trio button.on{background:var(--ink);border-color:var(--ink);color:var(--bone);font-weight:700}
+.lk-trio button.on.in,.lk-trio button.on.yes{background:var(--acc);border-color:var(--ink);color:var(--ink)}
+
+.tk{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr) 120px;margin-top:12px;
+  background:var(--acc);color:var(--ink);border-radius:var(--rc);
+}
+.tk-main{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:20px 24px;min-width:0}
+.tk-title{font-size:22px;font-weight:800;line-height:1.15;text-transform:none;letter-spacing:0;margin:0}
+.tk-title a{color:inherit;text-decoration:none}
+.tk-title a:hover{text-decoration:underline;text-underline-offset:3px}
+.tk-meta{margin:0;font-size:14px;font-weight:600}
+.tk-count{margin:0;font-size:14px}
+.tk-count b{font-size:18px}
+.tk .lk-trio{width:100%;max-width:300px}
+.tk .lk-trio button{border-color:var(--ink);color:var(--ink)}
+.tk .lk-trio button:hover{background:rgba(17,20,23,.1)}
+.tk .lk-trio button.on,.tk .lk-trio button.on.yes{background:var(--ink);color:var(--bone)}
+.tk-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:16px 8px;border-left:2px dashed rgba(17,20,23,.45);text-align:center}
+.tk-day b{font-size:52px;font-weight:800;line-height:1}
+.tk-day span{font-size:14px;font-weight:600}
+.tk-day::before,.tk-day::after,.tk::before,.tk::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:var(--s)}
+.tk-day::before{left:-9px;top:-8px}
+.tk-day::after{left:-9px;bottom:-8px}
+.tk::before{left:-8px;top:calc(50% - 8px)}
+.tk::after{right:-8px;top:calc(50% - 8px)}
+
+.pr-week{font-size:15px;font-weight:700;color:var(--faint);margin:20px 0 6px}
+.pr-week:first-of-type{margin-top:0}
+.pr-list{position:relative;list-style:none;margin:0;padding:0}
+.pr-list::before{content:"";position:absolute;left:73px;top:0;bottom:0;width:2px;background:var(--ctl)}
+.pr-row{position:relative;display:grid;grid-template-columns:64px 20px minmax(0,1fr) auto;column-gap:0;align-items:center;min-height:60px;padding:8px 0}
+.pr-row:target{background:var(--r);border-radius:var(--rk)}
+.pr-date{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;padding-right:8px}
+.pr-date b{font-size:24px;font-weight:800;line-height:1}
+.pr-date span{font-size:13px;color:var(--faint)}
+.pr-dot{position:relative;z-index:1;justify-self:center;width:12px;height:12px;border-radius:50%;border:2px solid var(--ink);background:var(--s)}
+.pr-dot.on{background:var(--ink)}
+.pr-time{padding-left:14px;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.pr-time span{display:block;font-size:13px;font-weight:400;color:var(--faint)}
+.pr-row.out .pr-date,.pr-row.out .pr-time{opacity:.55}
 
 /* ---------------- member points ------------------------------ */
 .pts{max-width:440px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;margin:4px 0 12px}
@@ -193,7 +220,10 @@ body[data-page="account"]{background:var(--bone)}
 /* ---------------- games -------------------------------------- */
 .lk-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;margin-top:8px}
 .lk-game h3{font-size:16px;font-weight:700;margin-bottom:4px}
-.lk-names{margin:12px 0 0;display:flex;flex-direction:column;gap:12px}
+/* answers as columns: one group per column, one person per line */
+.lk-names{margin:12px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px 20px;align-items:start}
+.lk-nl{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.lk-nl li{font-size:15px;line-height:1.35;overflow-wrap:anywhere}
 .lk-names dt{font-size:13px;font-weight:700;color:var(--faint)}
 .lk-names dd{margin:2px 0 0;font-size:15px;color:var(--text)}
 .lk-ask{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding:12px 14px;background:var(--r);border-radius:var(--rc)}
@@ -209,6 +239,127 @@ body[data-page="account"]{background:var(--bone)}
   font-style:normal;font-size:15px;font-weight:700;color:var(--ink);
 }
 .van .v.on{background:var(--acc);border-color:var(--acc)}
+
+/* Games & lifts and a game's own page, in the scoring table's colours:
+   cards on the paper ground with a hairline instead of a tone, the big
+   figures in the dark gold, a chosen answer filled gold, names in rows
+   under a ruled column head. */
+.lk-game{background:var(--g);border:1px solid var(--rule-l2)}
+.lk-game .lk-figure b{color:var(--gold-d);font-size:28px}
+.lk-game .lk-seg button.on,
+.lk-game .lk-seg button.on.in,
+.lk-game .lk-seg button.on.yes{background:var(--acc);color:var(--ink);font-weight:700}
+.lk-game .lk-more{color:var(--gold-d);text-decoration-color:var(--gold-d)}
+.lk-game .lk-names dt{padding-bottom:6px;border-bottom:1px solid var(--rule-l3);color:var(--ink-l)}
+.lk-game .lk-nl{margin-top:0;gap:0}
+.lk-game .lk-nl li{padding:7px 0;border-bottom:1px solid var(--rule-l1)}
+.lk-game .lk-nl li:last-child{border-bottom:0}
+.lk-game .van .v{border-color:var(--rule-l3)}
+.lk-game .van .v.on{border-color:var(--acc)}
+
+/* ---------------- overview in the game page's language -------
+   Overview and Training (.lk-ov), and only the dressing: the same grid, the
+   same cards in the same places, the same ticket. What changes is
+   what stats.html and a game sheet already do: cards are paper with
+   a hairline instead of a tone step; titles are the condensed
+   display face; every block opens on a rule; rows are ruled with
+   the lightest hairline; the labels over a list are small dark-gold
+   capitals; the big figures are condensed and dark gold; small
+   chips are flat bone tones. The ticket (.tk) is left alone: its
+   notches take the card colour, which is still the ground. */
+.lk-ov{--s:var(--g)}
+.lk-ov .lk-card{background:transparent;padding:0}
+.lk-ov{column-gap:72px}   /* the centre column gives way to the rail */
+.lk-ov .lk-col,.lk-ov.lk-col{gap:44px}
+
+.lk-ov .lk-cardhead{align-items:flex-end;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--rule-l3)}
+.lk-ov .lk-cardhead h2{
+  font-stretch:66%;font-weight:800;font-size:26px;line-height:1;letter-spacing:-.01em;text-transform:uppercase;
+}
+.lk-ov .lk-meta{font-size:14px;font-weight:600;color:var(--ink-m)}
+.lk-ov .lk-line{color:var(--ink-b);font-size:16px}
+.lk-ov .lk-empty{border-color:var(--rule-l3);color:var(--ink-m)}
+
+/* the link that closes a card: dark gold, on its own rule */
+.lk-ov .lk-more{
+  display:block;margin-top:16px;
+  font-size:14px;font-weight:700;color:var(--gold-d);text-decoration:none;
+}
+.lk-ov .lk-more:hover{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--gold-d)}
+
+/* practices: the week is a dark-gold label on a rule, like "1st period" */
+.lk-ov .pr-week{
+  margin:24px 0 4px;
+  font-stretch:80%;font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d);
+}
+.lk-ov .pr-week:first-of-type{margin-top:0}
+.lk-ov .pr-list::before{background:var(--rule-l3);width:1px;left:73.5px}
+.lk-ov .pr-date b{font-stretch:70%;font-weight:800;font-size:28px;line-height:.95}
+.lk-ov .pr-date span{font-size:13px;font-weight:600;color:var(--ink-l)}
+.lk-ov .pr-time{font-size:16px;font-weight:600}
+.lk-ov .pr-time span{font-size:14px;font-weight:400;color:var(--ink-m)}
+.lk-ov .pr-dot{border-width:1.5px}
+.lk-ov .pr-row.out .pr-date,.lk-ov .pr-row.out .pr-time{opacity:.5}
+
+/* reply buttons in the practice rows: flat squared chips on a hairline.
+   Yes is gold, the other answers are ink, as before. */
+.lk-ov .pr-row .lk-trio{gap:6px}
+.lk-ov .pr-row .lk-trio button{
+  height:34px;border:1px solid var(--rule-l3);border-radius:3px;background:transparent;
+  color:var(--ink-b);font-size:14px;font-weight:600;
+}
+.lk-ov .pr-row .lk-trio button:hover{background:var(--bone3);border-color:var(--ink-l)}
+.lk-ov .pr-row .lk-trio button.on{background:var(--ink);border-color:var(--ink);color:var(--bone);font-weight:700}
+.lk-ov .pr-row .lk-trio button.on.in,.lk-ov .pr-row .lk-trio button.on.yes{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+
+/* notices: the tag is a flat chip, the rows ruled lightly */
+.lk-ov .lk-notes li{border-top-color:var(--rule-l1);padding:12px 0;align-items:baseline;grid-template-columns:84px minmax(0,1fr) auto;gap:12px}
+.lk-ov .lk-notes b{
+  justify-self:start;padding:2px 8px;border-radius:3px;background:var(--bone4);
+  font-size:13px;font-weight:700;line-height:1.4;color:var(--ink-b);
+}
+.lk-ov .lk-notes p{font-size:16px;color:var(--ink-b);line-height:1.45}
+.lk-ov .lk-notes span{font-size:14px;color:var(--ink-m)}
+
+/* events: condensed date, ruled rows, flat reply control */
+.lk-ov .lk-row{border-top-color:var(--rule-l1)}
+.lk-ov .lk-when b{
+  font-stretch:66%;font-weight:800;font-size:18px;line-height:1.1;text-transform:uppercase;color:var(--ink);white-space:nowrap;
+}
+.lk-ov .lk-when span,.lk-ov .lk-what span{font-size:14px;color:var(--ink-m)}
+.lk-ov .lk-what b{font-size:16px;font-weight:600;color:var(--ink)}
+.lk-ov .lk-seg{background:transparent;padding:0;gap:6px}
+.lk-ov .lk-seg button{
+  height:34px;border:1px solid var(--rule-l3);border-radius:3px;background:transparent;color:var(--ink-b);font-weight:600;
+}
+.lk-ov .lk-seg button:hover{background:var(--bone3);border-color:var(--ink-l);color:var(--ink)}
+.lk-ov .lk-seg button.on{background:var(--ink);border-color:var(--ink);color:var(--bone);font-weight:700}
+.lk-ov .lk-seg button.on.in,.lk-ov .lk-seg button.on.yes{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+
+/* member points: the figure is the number the card exists to show */
+.lk-ov .lk-figure{display:flex;align-items:baseline;gap:8px;margin:4px 0 14px;font-size:16px;color:var(--ink-m)}
+.lk-ov .lk-figure b{
+  margin:0;font-stretch:66%;font-weight:800;font-size:64px;line-height:.82;letter-spacing:-.01em;color:var(--gold-d);
+}
+/* member points view: the stepper's figure in the condensed face */
+.lk-ov .lk-step b{font-stretch:70%;font-weight:800;font-size:20px;min-width:72px}
+.lk-ov .lk-step button{width:34px}
+.lk-ov .pts i{border:1px solid var(--rule-l3);border-radius:3px}
+.lk-ov .pts i.req{border:1.5px solid var(--ink)}
+.lk-ov .pts i.on{background:var(--gold);border-color:var(--gold)}
+.lk-ov .pts-note{margin:0}
+
+/* one column (tablet and phone): the two columns stack, the gap is vertical */
+@media (max-width:1100px){
+  .lk-ov{row-gap:44px}
+}
+@media (max-width:640px){
+  .lk-ov .lk-card{padding:0}
+  .lk-ov .lk-col,.lk-ov.lk-col{gap:36px}
+  .lk-ov .lk-cardhead h2{font-size:23px}
+  .lk-ov .pr-list::before{left:57.5px}
+  .lk-ov .lk-notes li{grid-template-columns:1fr auto}
+}
 
 /* ---------------- forms -------------------------------------- */
 .lk-form{display:flex;flex-direction:column;gap:16px;max-width:none}
@@ -273,15 +424,17 @@ body[data-page="account"]{background:var(--bone)}
   .lk-main{padding:20px 16px 48px}
   .lk-split{grid-template-columns:1fr;gap:24px}
   .lk-title{font-size:24px}
-  /* two rows of seven become a list of the days that have something */
-  .wk-grid{grid-template-columns:1fr}
-  .wk-day{min-height:0;display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:12px;row-gap:0;align-items:start}
-  .wk-dh{grid-column:1;grid-row:1 / span 9}
-  .wk-item{grid-column:2;margin-bottom:6px}
-  .wk-day.empty{display:none}
 }
 @media (max-width:640px){
   .lk-card{padding:16px}
+  .tk{grid-template-columns:minmax(0,1fr) 92px}
+  .tk-main{padding:16px}
+  .tk-title{font-size:19px}
+  .tk-day b{font-size:40px}
+  .pr-list::before{left:57px}
+  .pr-row{grid-template-columns:48px 20px minmax(0,1fr);row-gap:6px}
+  .pr-row .lk-trio{grid-column:3;padding-left:14px}
+  .lk-trio button{padding:0 6px}
   .lk-row{grid-template-columns:minmax(0,1fr) auto;gap:4px 12px}
   .lk-row .lk-when{grid-column:1 / -1;display:flex;gap:8px;align-items:baseline}
   .lk-row .lk-when span{margin:0}

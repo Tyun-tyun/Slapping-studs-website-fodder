@@ -41,6 +41,12 @@ function fit(){
   /* the founding line sits under it, and the chapters are pulled up to
      just under that line so no empty screen is left between them */
   r.setProperty('--hp-land',(bot+44).toFixed(1)+'px');
+  /* where the landed puck's lower edge sits, so the page can tell which chapter is under it */
+  r.setProperty('--hp-bot',bot.toFixed(1)+'px');
+  /* the landed puck's diameter on screen: the page keeps a clear column this wide
+     down the middle, and on a phone a plain band this deep behind it */
+  r.setProperty('--hp-d',(2*rest*s).toFixed(1)+'px');
+  r.setProperty('--hp-band',(bot-rest*s*.34+14).toFixed(1)+'px');
   var lh=land?land.offsetHeight:150;
   r.setProperty('--hi-pull',Math.max(0,h-(bot+44+lh+56)).toFixed(0));
 }
@@ -62,8 +68,11 @@ var anims=[];
 function grab(){ anims=hp.getAnimations({subtree:true}); anims.forEach(function(a){a.pause();}); }
 grab();
 var target=0,cur=0,raf=0;
+/* the track is the whole page now (the puck stays pinned through the
+   chapters), so the scrub runs over the runway element, not the track */
+var run=document.getElementById('hpRun');
 function progress(){
-  var r=track.getBoundingClientRect(), span=track.offsetHeight-hero.offsetHeight;
+  var r=track.getBoundingClientRect(), span=run?run.offsetHeight:track.offsetHeight-hero.offsetHeight;
   if(span<=0) return 1;
   return Math.min(1,Math.max(0,-r.top/span));
 }
@@ -82,17 +91,28 @@ function timeAt(p){
    still sits in the page: hide it for real, so the year on the far side
    is never "under" the near one */
 var puck=hp.querySelector('.hp-puck'), front=hp.querySelector('.hp-front'), back=hp.querySelector('.hp-back');
+/* hp.dataset.flip: "" = as scrubbed, "1" = the chapters have turned the puck
+   over (back face up), "2" = turning right now, both faces may show */
 function faces(){
   if(!puck||!front||!back) return;
   var m=getComputedStyle(puck).transform, c=1;
   if(m&&m.indexOf('matrix3d(')===0) c=parseFloat(m.slice(9).split(',')[10]);
-  front.style.visibility=c<0?'hidden':'';
-  back.style.visibility=c<0?'':'hidden';
+  var f=hp.dataset.flip||'';
+  if(f==='2'){ front.style.visibility=''; back.style.visibility=''; return; }
+  var hideFront=(c<0)!==(f==='1');
+  front.style.visibility=hideFront?'hidden':'';
+  back.style.visibility=hideFront?'':'hidden';
 }
+window.hpFaces=faces;   /* the page script calls it after it turns the puck over */
 function paint(){
   var t=timeAt(cur);
   for(var i=0;i<anims.length;i++) anims[i].currentTime=t;
   faces();
+  /* once the puck has landed and glided up, the rink dissolves and the puck is
+     left alone on the page ground, pinned there while the chapters pass under it */
+  hero.style.setProperty('--hp-rink',(1-Math.min(1,Math.max(0,(cur-.78)/.08))).toFixed(3));
+  /* on a phone the pinned puck is then drawn smaller (history.html, .hp-pz) */
+  hero.style.setProperty('--hp-shrink',(1-.34*Math.min(1,Math.max(0,(cur-.80)/.06))).toFixed(3));
   if(land){ var l=Math.min(1,Math.max(0,(cur-L0)/(L1-L0))); land.style.opacity=l; land.style.transform='translateY('+((1-l)*16).toFixed(1)+'px)'; land.style.visibility=l?'':'hidden'; }
 }
 function tick(){

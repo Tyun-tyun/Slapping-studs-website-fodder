@@ -450,17 +450,13 @@ window.Studs.seed = {
     {id:"kt9",item:"Bottle of water",loan:"Bring your own"}
   ],
 
+  /* body: a blank line starts a new paragraph; the first one is set large as
+     the one-line answer. gold: the one competition that is the title. */
   comps:[
-    {id:"c1",yr:"01",nav:"The founding",kicker:"Chapter 01 · 1982",
-     h:"In the\nbeginning",
-     lead:"The Slapping Studs were born in February 1982, founded by Reinout Koelemij, Bert ten Vergert, Andre ten Vergert, Steven Gerdingh and Ché Hsin Falkenström — Ché most of all.",
-     body:"At first the club played as part of the then first-division club Enschede Lions, in the national recreation league under the NIJB, against recreation teams from Heerenveen, Leeuwarden, Groningen and Assen. Friendlies followed against the Icehawks (Eindhoven), The Saints (Nijmegen) and Rheine.\n\nChé led on the ice and Bert ten Vergert coached, trying to teach the finer points of hockey to members who were mostly beginners from the university — while opponents had skated since childhood. It got harder still when the local club folded in 1987.\n\nLosing a lot builds a strong bond, and the membership stayed steady for a long time. The bright spots were the games against other student teams, where the levels were closer. From 1987 the NSK became the yearly highlight, and the Studs and Hooking from Eindhoven were the driving force behind the NSHL, the student league.\n\nAdapted from Timo Benthem's history of the club on slappingstuds.nl.",
-     quote:"We're an association first and a team second. The results are what happens along the way.",
-     cap:"Archive — first squads, jerseys, early clippings",
-     shots:"3",media:"row"},
-    {id:"c2",title:"Sixth division North",body:"Slapping Studs 1 and 2. HELA Amsterdam, Blue Mountain Cougars Hoorn 3, OG Capitals Leeuwarden 6, Enschede Lions, Zoetermeer Wild Panters — and each other."},
-    {id:"c3",title:"NSK",body:"The Dutch Student Championship closes the season: a two-day event hosted by a different student ice hockey team each year."},
-    {id:"c4",title:"Night tournament",body:"Our own end-of-season tournament at IJsbaan Twente. Hockey and a party, played into the night."}
+    {id:"c1",title:"Fifth division North",gold:true,body:"The Striking Stallions won it: the first divisional title in the club's history.\n\nEight teams played the 2025–26 season, and the Stallions finished first with 40 points from 16 games and a goal difference of +38.\n\nThe deciding game went to the last period. Down 3–1 after two, the Stallions won it 4–3, in front of supporters who had travelled with the team.\n\nIt was not a one-horse race. Leiden Blues finished second with 34 points, six behind, and Slapstick Flyers Heerenveen third with 29, so the title was decided over the whole season and not in a single week.\n\nThe full table, with every team's wins, overtime wins, losses and goal difference, is further down this page."},
+    {id:"c2",title:"Sixth division North",body:"Two of our squads play here: Slapping Studs 1 and Slapping Studs 2.\n\nSeven teams make up the division: HELA Amsterdam, Blue Mountain Cougars Hoorn 3, OG Capitals Leeuwarden 6, Enschede Lions and Zoetermeer Wild Panters, plus the two Studs squads, who also meet each other.\n\nAt the moment Studs 1 are second with 28 points and Studs 2 sixth with 12.\n\nStuds 1 have won nine of their 14 games and one more in overtime, with a goal difference of +18. Studs 2 have won four. Enschede Lions lead the division with 34 points.\n\nBecause both squads are in the same division, they meet each other in competition. It is the one fixture nobody on either bench needs reminding about."},
+    {id:"c3",title:"NSK",body:"The Dutch Student Championship closes the season.\n\nIt is a two-day tournament, hosted by a different student ice hockey team each year, so the host changes every year.\n\nFor the Studs it has been the yearly highlight since 1987: against other student teams the levels are closer than in the regular league.\n\nThat suits a club where most members start in the Cadets and nobody is expected to arrive knowing how to play. The most recent NSK result in the archive is the final round in Tilburg in 2022–23, where Studs 1 finished fourth.\n\nLook for the dates and the host in the club calendar and in the announcements on the home page."},
+    {id:"c4",title:"Night tournament",body:"Our own tournament, played at the end of the season at IJsbaan Twente.\n\nHockey and a party, played into the night, on the ice where the club trains.\n\nIt is the one competition of the four that the club hosts itself.\n\nThe 2026 edition is on 26 April: ice from 20:00 until 04:00 the next morning. Sign-up opened on 2 March, announced by the Off-Ice Committee.\n\nThe night is photographed too: 312 photos from the 2026 edition are in the member albums."}
   ],
 
   /* vis: "public" | "member" | "coach"  — who may open it
@@ -528,15 +524,19 @@ window.Studs.seed = {
        creditUrl  link for the credit (licence or source page)
        shots   "0" = no photo, "1" = one photo
        media   "side" (beside the text) or "wide" (full width above)
+       (the whole text of c6-c10 is DUMMY and their pictures are stand-ins, re-used from other chapters,
+        so the layout can be judged; replace both before launch)
        gold    true for the one chapter that is the title
 
      PARTLY PLACEHOLDER — the founding and the title are built from
-     the club's own pages. 1990s, 2000s and "Every April" are
+     the club's own pages. The five-year chapters run 1982, 1987 ... 2022; those
+     with no text of their own (1987, 1997, 2007, 2012, 2017) are marked
+     placeholders. 1992, 2002 and "Every April" are
      plausible structure only and must be checked against the
      archive before launch. The 1982/1985/1964 photos are archive
      pictures of Dutch hockey and of the campus, not of the club. */
   chapters:[
-    {id:"c1",yr:"1982",nav:"The founding",kicker:"February 1982",
+    {id:"c1",yr:"1982",nav:"The foundation",kicker:"February 1982",
      h:"Some students,\nlooking for action",
      lead:"The Slapping Studs were not founded as a project or a plan. They were founded because a rink was there and nobody had booked the ice.",
      body:"The founders started out inside Enschede Lions, playing the national recreation league against Heerenveen, Leeuwarden, Groningen and Assen, with Bert ten Vergert as coach and Ché Hsin Falkenström leading on the ice.\n\nFour decades later that is still roughly how new members arrive: no tryout, no experience asked for, just the next introduction practice and a borrowed set of gear.",
@@ -546,7 +546,17 @@ window.Studs.seed = {
      credit:"Photo: Hans van Dijk / Anefo, CC0",
      creditUrl:"https://commons.wikimedia.org/wiki/File:Nog_veel_mensen_op_het_ijs._IJshockey_op_Amsterdamse_grachten,_Bestanddeelnr_931-9165.jpg",
      shots:"1",media:"side"},
-    {id:"c2",yr:"1990s",nav:"Growing pains",kicker:"The 1990s",
+    {id:"c6",yr:"1987",nav:"Learning the game",kicker:"1987–1991",
+     h:"Learning the game\ntogether",
+     lead:"Most of the squad had never stood on skates before the first practice.",
+     body:"Practice nights were about staying upright first and playing hockey second. Borrowed sticks, mismatched helmets and a lot of falling over made up most of the early seasons.\n\nFriendly games against other student teams were the highlight of the year, and the bar afterwards counted as part of the match.",
+     quote:"Nobody asked how well you could skate.",
+     cap:"Stand-in picture: a match on the Leidseplein in Amsterdam, December 1985.",
+     img:"assets/ijshockeywedstrijd-op-het-leidseplein-te-amsterdam-tussen.jpg",
+     credit:"Photo: Bart Molendijk / Anefo, CC0",
+     creditUrl:"https://commons.wikimedia.org/wiki/File:IJshockeywedstrijd_op_het_Leidseplein_te_Amsterdam_tussen_leden_van_college_van_,_Bestanddeelnr_933-5129.jpg",
+     shots:"1",media:"side"},
+    {id:"c2",yr:"1992",nav:"Growing pains",kicker:"The 1990s",
      h:"One rink,\ntoo many skaters",
      lead:"",
      body:"By the 1990s the club had outgrown a single training slot. IJsbaan Twente became the fixed home rink and the season took the shape it still has: on the ice from October, off it from April.\n\nThe ice was split into groups by level so a first-year who had never skated and a player with a club background could share the same hour without either standing around. That split is still how a practice is run.",
@@ -556,7 +566,17 @@ window.Studs.seed = {
      credit:"Photo: Bart Molendijk / Anefo, CC0",
      creditUrl:"https://commons.wikimedia.org/wiki/File:IJshockeywedstrijd_op_het_Leidseplein_te_Amsterdam_tussen_leden_van_college_van_,_Bestanddeelnr_933-5129.jpg",
      shots:"1",media:"side"},
-    {id:"c3",yr:"2000s",nav:"Going international",kicker:"The 2000s",
+    {id:"c7",yr:"1997",nav:"Away days",kicker:"1997–2001",
+     h:"Away days,\nlong drives",
+     lead:"A season was measured in car journeys as much as in games.",
+     body:"Away fixtures meant a convoy of cars, a shared thermos and a plan that fell apart at the first motorway exit. The team that arrived late still played; the team that arrived early waited for them.\n\nBack in Enschede, practice settled into a rhythm that new members could count on, week after week.",
+     quote:"",
+     cap:"Stand-in picture: the campus of the Technische Hogeschool Twente in 1964.",
+     img:"assets/technische-hogeschool-twente-en-de-campus-interieur.jpg",
+     credit:"Photo: Joop van Bilsen / Anefo, CC0",
+     creditUrl:"https://commons.wikimedia.org/wiki/File:Technische_Hogeschool_Twente_en_de_campus_(interieur),_Bestanddeelnr_916-7797.jpg",
+     shots:"1",media:"side"},
+    {id:"c3",yr:"2002",nav:"Going international",kicker:"The 2000s",
      h:"English\non the ice",
      lead:"A Dutch student club where nobody has to apologise for not speaking Dutch yet. New arrivals still mention it first.",
      body:"As the University of Twente took in more international students, so did the Studs. Once roughly a quarter of the members were internationals, the working language on the ice, on the game sheets and eventually on this website switched to English.\n\nIt changed how the club recruits: an exchange student with one semester left will still come to an introduction practice, because there is nothing to lose in the language of it.",
@@ -566,7 +586,35 @@ window.Studs.seed = {
      credit:"Photo: Joop van Bilsen / Anefo, CC0",
      creditUrl:"https://commons.wikimedia.org/wiki/File:Technische_Hogeschool_Twente_en_de_campus_(interieur),_Bestanddeelnr_916-7797.jpg",
      shots:"1",media:"wide"},
-    {id:"c4",yr:"2026",nav:"The title",kicker:"March 2026",gold:true,
+    {id:"c8",yr:"2007",nav:"The calendar",kicker:"2007–2011",
+     h:"A club with\na calendar",
+     lead:"By now the year had a shape: practice, league, tournament, party.",
+     body:"New faces arrived every September, and the older players taught them what the generation before had taught them. League fixtures filled the winter and the off-ice evenings filled the gaps.\n\nThe committee handed over, the sticks were retaped, and the next season started much like the last one. Some things were reinvented every year; others never changed at all.",
+     quote:"Same rink, new faces.",
+     cap:"Stand-in picture: IJsbaan Twente in Enschede, the club's home rink.",
+     img:"assets/ijsbaan-twente.jpg",
+     credit:"Photo: Tubantia, CC BY-SA 3.0",
+     creditUrl:"https://creativecommons.org/licenses/by-sa/3.0",
+     shots:"1",media:"side"},
+    {id:"c9",yr:"2012",nav:"Bigger tournaments",kicker:"2012–2016",
+     h:"Longer benches,\nbigger tournaments",
+     lead:"More players meant more lines, and more lines meant more opinions.",
+     body:"The bench got longer, the changing room got louder, and a second squad stopped being a plan and became a fact.\n\nTournament weekends grew into small expeditions, with a spreadsheet for the cars and a group chat for everything else.",
+     quote:"",
+     cap:"Stand-in picture: ice hockey on an Amsterdam canal, January 1982.",
+     img:"assets/nog-veel-mensen-op-het-ijs-ijshockey.jpg",
+     credit:"Photo: Hans van Dijk / Anefo, CC0",
+     creditUrl:"https://commons.wikimedia.org/wiki/File:Nog_veel_mensen_op_het_ijs._IJshockey_op_Amsterdamse_grachten,_Bestanddeelnr_931-9165.jpg",
+     shots:"1",media:"side"},
+    {id:"c10",yr:"2017",nav:"Steady years",kicker:"2017–2021",
+     h:"Steady\nyears",
+     lead:"The club had grown into its shape: regular practice, a squad for every level.",
+     body:"What changed was mostly the equipment. What stayed the same was the feeling of lacing up before the ice opened, and the walk to the bar afterwards.",
+     quote:"We keep showing up.",
+     cap:"Stand-in picture: the squad, season 2025–26.",
+     img:"assets/photos/hero-squad-2026.jpg",
+     shots:"1",media:"side"},
+    {id:"c4",yr:"2022",nav:"The title",kicker:"March 2026",gold:true,
      h:"Down 3–1\nafter two periods",
      lead:"The first divisional title in forty-four seasons, won in the last twenty minutes of the last game.",
      body:"The Striking Stallions went into the third period of the decisive game a goal short and finished it 4–3, in front of supporters who had travelled with the team.\n\nSlapping Studs 1 finished second in the 6th Division North the same season. It was, by some distance, the best year the club had put together.",
@@ -576,7 +624,7 @@ window.Studs.seed = {
      credit:"Photo: Tubantia, CC BY-SA 3.0",
      creditUrl:"https://creativecommons.org/licenses/by-sa/3.0",
      shots:"1",media:"side"},
-    {id:"c5",yr:"Every April",nav:"Traditions",kicker:"Off-ice",
+    {id:"c5",yr:"2027",nav:"Traditions",kicker:"Off-ice",
      h:"What happens\nwhen the rink shuts",
      lead:"The ice goes out in April and the club does not.",
      body:"The Off-Ice Committee runs the calendar through the summer: the night tournament, drinks, the board handover, the trip that gets planned every year and happens most years.\n\nMembers tend to describe the Studs as the fixed point in their week. The hockey is the excuse; the group is the point.",

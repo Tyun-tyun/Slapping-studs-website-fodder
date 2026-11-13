@@ -2,7 +2,7 @@
    account.js — the member area (account.html).
 
    One document, one view per area, chosen by ?v= in the URL:
-     overview   the next two weeks, replies, member points, events
+     overview   upcoming games and practices with replies, member points, events
      schedule   training and club events: I'm in / I'm out
      games      each game: who can play, who travels and how
      game       one game on its own page (?v=game&id=e1)
@@ -201,7 +201,11 @@
     out.goalies = out.yes.filter(function(p){ return p.pos === "Goaltender"; }).length;
     return out;
   }
-  function names(list){ return list.map(function(p){ return p.name+(p.mine ? " (you)" : ""); }).join(", "); }
+  /* names as a column: one person per line */
+  function nameList(items){
+    return '<ul class="lk-nl">'+items.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join("")+'</ul>';
+  }
+  function names(list){ return nameList(list.map(function(p){ return p.name+(p.mine ? " (you)" : ""); })); }
 
   /* ---------------- travel to an away game ------------------- */
   function tripRow(acc, ev){
@@ -307,7 +311,10 @@
   function pill(kind, text){ return '<span class="lk-pill '+kind+'">'+esc(text)+'</span>'; }
 
   /* ---------------- overview --------------------------------
-     Question: what do I need to sort out this week?           */
+     Question: what do I need to sort out? The next games as
+     tickets and the next four weeks of practice as a timeline,
+     each with its reply buttons right there; member points,
+     club events and the board's notices sit beside them.      */
   function viewOverview(acc){
     var open = openReplies(acc, 7), rule = pointsRule(), pts = pointsOf(acc);
 
@@ -317,69 +324,75 @@
     var finding = facts.length ? facts.join(", ").replace(/^./, function(c){ return c.toUpperCase(); })+"." : "Nothing waiting on you this week.";
 
     var h = head("Overview", esc(finding));
-    h += weekCard(acc);
-    h += '<div class="lk-grid lk-grid--2">';
-    h += '<div class="lk-col">'+repliesCard(acc, open)+nextGameCard(acc)+'</div>';
-    h += '<div class="lk-col">'+pointsCard(acc)+eventsCard(acc)+boardCard()+'</div>';
+    h += '<div class="lk-grid lk-grid--rail lk-ov">';
+    h += '<div class="lk-col">'+gamesCard(acc)+practicesCard(acc)+'</div>';
+    h += '<div class="lk-col">'+eventsCard(acc)+boardCard()+pointsCard(acc)+'</div>';
     h += '</div>';
     return h;
   }
 
-  /* The next fourteen days as two rows of seven. Every day names
-     itself; a practice says whether I'm in, a game says home or
-     away, an event says what it is. Today has a dark frame. */
-  function weekCard(acc){
-    var days = 14, all = slots(S.demoToday, days), ev = upcomingEvents();
-    function cell(i){
-      var d = addDays(S.demoToday, i), id = iso(d), items = "", target = "schedule", gameId = "";
-      all.filter(function(s){ return s.date === id; }).forEach(function(s){
-        var r = acc.team ? rsvpOf(acc.id, s.date) : "staff";
-        var word = r === "in" ? "You’re in" : r === "out" ? "You’re out" : r === "staff" ? "" : "No reply yet";
-        items += '<span class="wk-item p '+(r || "open")+'"><b>Practice</b><span>'+esc(s.time)+'</span>'+(word ? '<span>'+word+'</span>' : "")+'</span>';
-      });
-      ev.filter(function(x){ return iso(x.d) === id; }).forEach(function(x){
-        if(isGame(x.e)){
-          var ours = x.e.team === acc.team || (acc.coaches||[]).indexOf(x.e.team) > -1;
-          items += '<span class="wk-item g'+(ours ? " ours" : "")+'"><b>'+(x.e.kind === "home" ? "Home game" : "Away game")+'</b><span>'+esc(eventTime(x.e))+'</span><span>'+esc(x.e.team)+'</span></span>';
-          if(!gameId){ gameId = x.e.id; target = "game"; }
-        }else{
-          items += '<span class="wk-item e"><b>Club event</b><span>'+esc(x.e.title)+'</span><span>'+esc(eventTime(x.e))+'</span></span>';
-        }
-      });
-      var href = target === "game" ? S.accountUrl("game", gameId) : S.accountUrl("schedule")+"#d-"+id;
-      return '<a class="wk-day'+(i === 0 ? " today" : "")+(items ? "" : " empty")+'" href="'+href+'" data-lkview="'+target+'">'+
-        '<span class="wk-dh"><span class="wk-dn">'+DAYS[d.getDay()].slice(0,3)+'</span><span class="wk-dd">'+d.getDate()+'</span></span>'+items+'</a>';
-    }
-    function row(from, label){
-      var out = "";
-      for(var i=from;i<from+7;i++) out += cell(i);
-      return '<h3 class="wk-label">'+label+' · '+fmtDay(addDays(S.demoToday, from))+' – '+fmtDay(addDays(S.demoToday, from+6))+'</h3><div class="wk-grid">'+out+'</div>';
-    }
-    return '<section class="lk-card"><div class="lk-cardhead"><h2>Your next two weeks</h2></div>'+
-      row(0, "This week")+row(7, "Next week")+'</section>';
+  /* three reply buttons that stay three at any width: Yes, Maybe, No.
+     The value each one writes is the data's own word (in / maybe /
+     out for practices, yes / maybe / no for games). */
+  function trio(attr, id, vals, current){
+    return '<div class="lk-trio" role="group">'+[["Yes",vals[0]],["Maybe",vals[1]],["No",vals[2]]].map(function(o){
+      var on = o[1] === current;
+      return '<button type="button" '+attr+'="'+esc(id+"|"+o[1])+'" aria-pressed="'+on+'"'+(on ? ' class="on '+o[1]+'"' : "")+'>'+o[0]+'</button>';
+    }).join("")+'</div>';
   }
 
-  function replyRow(acc, x){
-    if(x.kind === "practice"){
-      return '<li class="lk-row"><div class="lk-when"><b>'+fmtDay(x.d)+'</b><span>'+esc(x.slot.time)+'</span></div>'+
-        '<div class="lk-what"><b>Practice</b><span>IJsbaan Twente · '+relDay(x.d)+'</span></div>'+
-        seg("data-rsvp", x.slot.date, [["in","I’m in"],["out","I’m out"]], "")+'</li>';
-    }
-    return '<li class="lk-row"><div class="lk-when"><b>'+fmtDay(x.d)+'</b><span>'+esc(eventTime(x.e))+'</span></div>'+
-      '<div class="lk-what"><b>'+esc(x.e.title)+'</b><span>'+esc(eventPlace(x.e))+' · '+relDay(x.d)+'</span></div>'+
-      seg("data-avail", x.e.id, x.kind === "game" ? [["yes","Can play"],["no","Can’t"]] : [["yes","Going"],["no","Not going"]], "")+'</li>';
+  /* The next games of my squad (or squads, for a coach) as gold
+     tickets: the day torn off on the right, the answer under the
+     title. Only the squad itself is asked who can play. */
+  function gamesCard(acc){
+    var squads = acc.team ? [acc.team] : (acc.coaches||[]);
+    var all = upcomingEvents().filter(function(x){ return isGame(x.e) && squads.indexOf(x.e.team) > -1; });
+    var list = all.slice(0, 2);
+    var body = list.map(function(x){
+      var e = x.e, t = squadAnswers(acc, e), own = acc.team === e.team;
+      var ask = own ? trio("data-avail", e.id, ["yes","maybe","no"], availOf(acc.id, e.id))
+        : '<p class="tk-count"><b class="num">'+t.yes.length+'</b> of '+t.total+' '+esc(e.team)+' players can play so far</p>';
+      return '<article class="tk'+(e.kind === "home" ? " home" : "")+'">'+
+        '<div class="tk-main">'+
+          '<h3 class="tk-title"><a href="'+S.accountUrl("game", e.id)+'" data-lkview="game">'+esc(e.title)+'</a></h3>'+
+          '<p class="tk-meta">'+(e.kind === "home" ? "Home" : "Away")+(eventPlace(e) ? " · "+esc(eventPlace(e)) : "")+(acc.team ? "" : " · "+esc(e.team))+'</p>'+
+          ask+
+        '</div>'+
+        '<div class="tk-day"><b class="num">'+x.d.getDate()+'</b><span>'+DAYS[x.d.getDay()].slice(0,3)+' '+MON[x.d.getMonth()]+'</span><span class="num">'+esc(eventTime(e))+'</span></div>'+
+      '</article>';
+    }).join("");
+    return '<section class="lk-card"><div class="lk-cardhead"><h2>Upcoming games</h2>'+(list.length ? '<span class="lk-meta">'+relDay(list[0].d)+'</span>' : "")+'</div>'+
+      (body || '<p class="lk-empty">No games for your squad left this season.</p>')+
+      '<a class="lk-more" href="'+S.accountUrl("games")+'" data-lkview="games">All games &amp; lifts</a></section>';
   }
-  function repliesCard(acc, open){
-    if(!acc.team){
-      return '<section class="lk-card"><div class="lk-cardhead"><h2>Needs a reply</h2></div>'+
-        '<p class="lk-empty">Coaches don’t reply to practices. Who can play is on each game’s page under <a href="'+S.accountUrl("games")+'" data-lkview="games">Games &amp; lifts</a>.</p></section>';
-    }
-    return '<section class="lk-card"><div class="lk-cardhead"><h2>Needs a reply</h2><span class="lk-meta">'+open.length+' in the next 7 days</span></div>'+
-      (open.length ? '<ul class="lk-list">'+open.slice(0,5).map(function(x){ return replyRow(acc, x); }).join("")+'</ul>'+
-        (open.length > 5 ? '<a class="lk-more" href="'+S.accountUrl("schedule")+'" data-lkview="schedule">All '+open.length+' in Training</a>' : "")
-        : '<p class="lk-empty">You’ve answered everything for the coming week.</p>')+
-      '</section>';
+
+  /* The next four weeks of practice, by week, down one line. Date on
+     the left, time in the middle, the reply on the right. A coach
+     has no replies to give, so sees how many are coming instead. */
+  function weekStart(d){ return addDays(d, -((d.getDay() + 6) % 7)); }
+  function practicesCard(acc){
+    var all = slots(S.demoToday, 28), weeks = [], seen = {};
+    all.forEach(function(s){
+      var k = iso(weekStart(s.d));
+      if(!seen[k]){ seen[k] = {start:weekStart(s.d), list:[]}; weeks.push(seen[k]); }
+      seen[k].list.push(s);
+    });
+    var body = weeks.map(function(w){
+      return '<h3 class="pr-week">Week of '+w.start.getDate()+' '+MON[w.start.getMonth()]+'</h3><ul class="pr-list">'+
+        w.list.map(function(s){
+          var mine = acc.team ? rsvpOf(acc.id, s.date) : "";
+          return '<li class="pr-row'+(mine === "out" ? " out" : "")+'" id="d-'+s.date+'">'+
+            '<div class="pr-date"><b class="num">'+s.d.getDate()+'</b><span>'+MON[s.d.getMonth()]+'</span><span>'+DAYS[s.d.getDay()].slice(0,3)+'</span></div>'+
+            '<i class="pr-dot'+(mine ? " on" : "")+'" aria-hidden="true"></i>'+
+            '<div class="pr-time num">'+esc(s.time)+(acc.team ? "" : '<span>'+goingCount(s.date)+' going so far</span>')+'</div>'+
+            (acc.team ? trio("data-rsvp", s.date, ["in","maybe","out"], mine) : "")+'</li>';
+        }).join("")+'</ul>';
+    }).join("");
+    return '<section class="lk-card"><div class="lk-cardhead"><h2>Practices</h2><span class="lk-meta">'+all.length+' in the next four weeks</span></div>'+
+      (body || '<p class="lk-empty">No practices in the next four weeks.</p>')+
+      '<a class="lk-more" href="'+S.accountUrl("schedule")+'" data-lkview="schedule">All of Training</a></section>';
   }
+
   function boardCard(){
     var a = C().announcements.slice(0,3);
     return '<section class="lk-card"><div class="lk-cardhead"><h2>From the board</h2><span class="lk-meta">'+C().announcements.length+' notices</span></div>'+
@@ -387,20 +400,9 @@
         return '<li><b>'+esc(x.tag)+'</b><p>'+esc(x.text)+'</p><span>'+esc(x.when)+'</span></li>';
       }).join("")+'</ul>' : '<p class="lk-empty">No notices from the board right now.</p>')+'</section>';
   }
-  function nextGameCard(acc){
-    var squads = acc.team ? [acc.team] : (acc.coaches||[]);
-    var g = upcomingEvents().filter(function(x){ return isGame(x.e) && squads.indexOf(x.e.team) > -1; })[0];
-    if(!g) return '<section class="lk-card"><div class="lk-cardhead"><h2>Next game</h2></div><p class="lk-empty">No games for your squad left this season.</p></section>';
-    var t = squadAnswers(acc, g.e), mine = acc.team === g.e.team ? availOf(acc.id, g.e.id) : "";
-    return '<section class="lk-card"><div class="lk-cardhead"><h2>Next game</h2><span class="lk-meta">'+relDay(g.d)+'</span></div>'+
-      '<p class="lk-big">'+esc(g.e.title)+'</p>'+
-      '<p class="lk-line">'+fmtLong(g.d)+' · '+esc(g.e.meta)+'</p>'+
-      '<p class="lk-figure"><b class="num">'+t.yes.length+'</b><span> of '+t.total+' '+esc(g.e.team)+' players can play so far</span></p>'+
-      (acc.team === g.e.team ? seg("data-avail", g.e.id, [["yes","Can play"],["maybe","Maybe"],["no","Can’t"]], mine) : "")+
-      '<a class="lk-more" href="'+S.accountUrl("game", g.e.id)+'" data-lkview="game">Open the game page</a></section>';
-  }
 
-  /* Member points: one square per point on the scale, the ones I
+  
+/* Member points: one square per point on the scale, the ones I
      have filled in gold, the ones the club asks for outlined dark. */
   function pointsCard(acc){
     var rule = pointsRule(), pts = Math.min(pointsOf(acc), rule.max), sq = "";
@@ -454,7 +456,7 @@
             var s = it.practice, mine = rsvpOf(acc.id, s.date);
             return '<li class="lk-row" id="d-'+s.date+'"><div class="lk-when"><b>'+fmtDay(s.d)+'</b><span>'+esc(s.time)+'</span></div>'+
               '<div class="lk-what"><b>Practice</b><span>'+relDay(s.d)+' · '+goingCount(s.date)+' going so far</span></div>'+
-              (acc.team ? seg("data-rsvp", s.date, [["in","I’m in"],["out","I’m out"]], mine) : "")+'</li>';
+              (acc.team ? seg("data-rsvp", s.date, [["in","I’m in"],["maybe","Maybe"],["out","I’m out"]], mine) : "")+'</li>';
           }
           var e = it.event;
           return '<li class="lk-row lk-row--event" id="d-'+iso(it.d)+'"><div class="lk-when"><b>'+fmtDay(it.d)+'</b><span>'+esc(eventTime(e))+'</span></div>'+
@@ -467,8 +469,8 @@
     var rail = acc.team ? '<section class="lk-card"><div class="lk-cardhead"><h2>In your own calendar</h2></div>'+
         '<p class="lk-line">Every practice you haven’t said no to for the next six weeks, plus the games and events you’re going to, as one file for Google, Apple or Outlook calendar.</p>'+
         '<button type="button" class="lk-btn" data-ics="1">Download calendar file</button></section>' : "";
-    h += rail ? '<div class="lk-grid lk-grid--rail"><div class="lk-col">'+body+'</div><div class="lk-col">'+rail+'</div></div>'
-              : '<div class="lk-col">'+body+'</div>';
+    h += rail ? '<div class="lk-grid lk-grid--rail lk-ov"><div class="lk-col">'+body+'</div><div class="lk-col">'+rail+'</div></div>'
+              : '<div class="lk-col lk-ov">'+body+'</div>';
     return h;
   }
 
@@ -498,7 +500,7 @@
       '<p class="lk-figure"><b class="num">'+t.yes.length+'</b><span> of '+t.total+' can play · '+t.maybe.length+' maybe · '+t.no.length+' can’t · '+t.none.length+' no reply · '+t.goalies+(t.goalies === 1 ? " goalie" : " goalies")+'</span></p>'+
       '<dl class="lk-names">'+
       [["yes","Can play"],["maybe","Maybe"],["no","Can’t play"],["none","No reply yet"]].map(function(k){
-        return t[k[0]].length ? '<div><dt>'+k[1]+' · '+t[k[0]].length+'</dt><dd>'+esc(names(t[k[0]]))+'</dd></div>' : "";
+        return t[k[0]].length ? '<div><dt>'+k[1]+' · '+t[k[0]].length+'</dt><dd>'+names(t[k[0]])+'</dd></div>' : "";
       }).join("")+'</dl>';
     if(ours && acc.team === e.team){
       h += '<div class="lk-ask"><span>Can you play?</span>'+seg("data-avail", e.id, [["yes","Can play"],["maybe","Maybe"],["no","Can’t"]], availOf(acc.id, e.id))+'</div>';
@@ -537,9 +539,9 @@
     var vp = vanPeople(e.id), cars = carPeople(e.id);
     var drivers = vp.filter(function(r){ return r.drive === "yes"; });
     var h = '<h3>Getting to '+esc(eventPlace(e) || "the rink")+'</h3>'+vanHTML(e.id)+'<dl class="lk-names">'+
-      '<div><dt>In the van · '+vp.length+'</dt><dd>'+(vp.length ? esc(vp.map(function(r){ return r.name; }).join(", ")) : "Nobody yet")+'</dd></div>'+
-      '<div><dt>Can drive the van</dt><dd>'+(drivers.length ? esc(drivers.map(function(r){ return r.name; }).join(", ")) : "Nobody has offered yet")+'</dd></div>'+
-      (cars.length ? '<div><dt>Own car · '+cars.length+'</dt><dd>'+esc(cars.map(function(r){ return r.name+(r.drive === "yes" ? " (driving)" : ""); }).join(", "))+'</dd></div>' : "")+
+      '<div><dt>In the van · '+vp.length+'</dt><dd>'+(vp.length ? nameList(vp.map(function(r){ return r.name; })) : "Nobody yet")+'</dd></div>'+
+      '<div><dt>Can drive the van</dt><dd>'+(drivers.length ? nameList(drivers.map(function(r){ return r.name; })) : "Nobody has offered yet")+'</dd></div>'+
+      (cars.length ? '<div><dt>Own car · '+cars.length+'</dt><dd>'+nameList(cars.map(function(r){ return r.name+(r.drive === "yes" ? " (driving)" : ""); }))+'</dd></div>' : "")+
       '</dl>'+tripForm(acc, e);
     return h;
   }
@@ -585,7 +587,7 @@
     var short = people.filter(function(p){ return pointsFor(p.id) < rule.need; }).length;
     var h = head("Member points", people.length+" members · "+short+" below the "+rule.need+" needed"+
       (S.isAdmin() ? ". The number needed is set in the admin console." : "."));
-    h += '<div class="lk-col">'+Object.keys(teams).sort().map(function(t){
+    h += '<div class="lk-col lk-ov">'+Object.keys(teams).sort().map(function(t){
       return '<section class="lk-card"><div class="lk-cardhead"><h2>'+esc(t)+'</h2><span class="lk-meta">'+teams[t].length+' members</span></div><ul class="lk-list">'+
         teams[t].sort(function(a,b){ return a.name.localeCompare(b.name); }).map(function(p){
           var v = pointsFor(p.id);
@@ -693,7 +695,7 @@
       if((t = e.target.closest("[data-rsvp]"))){
         var a = t.dataset.rsvp.split("|"), prev = rsvpOf(acc.id, a[0]);
         setRsvp(acc.id, a[0], a[1]);
-        done(a[1] === "in" ? "You’re in for "+fmtLong(parse(a[0])) : "You’re out for "+fmtLong(parse(a[0])), function(){
+        done({in:"You’re in for ", maybe:"Maybe for ", out:"You’re out for "}[a[1]]+fmtLong(parse(a[0])), function(){
           if(prev) setRsvp(acc.id, a[0], prev);
           else C().rsvps = col("rsvps").filter(function(x){ return !(x.who === acc.id && x.date === a[0]); });
           done("Reply undone");
