@@ -63,6 +63,7 @@ window.Studs = window.Studs || {};
       var raw = localStorage.getItem(S.KEY_CONTENT);
       if(!raw) return S.clone(S.seed);
       var c = JSON.parse(raw);
+      var savedChaptersRev = c.chaptersRev|0;   /* read before the fill below adds the seed's */
       /* content saved before a collection existed gets that
          collection's seed rows, so a new screen is never empty */
       Object.keys(S.seed).forEach(function(k){ if(c[k] === undefined) c[k] = S.clone(S.seed[k]); });
@@ -76,6 +77,15 @@ window.Studs = window.Studs || {};
          paragraph, where the seed row now has several, takes the
          longer seed text. A row an editor has since written to more
          than one paragraph is never touched. */
+      /* The history chapters were rewritten (a chapter for every five years,
+         1982 to 2027). A browser that saved the old list keeps showing it
+         whatever js/data.js says, so a saved list from an older revision is
+         swapped for the seed once; after that it is the editor's again. */
+      if(savedChaptersRev < (S.seed.chaptersRev|0)){
+        c.chapters = S.clone(S.seed.chapters);
+        c.chaptersRev = S.seed.chaptersRev;
+        try{ localStorage.setItem(S.KEY_CONTENT, JSON.stringify(c)); }catch(e){}   /* so it happens once */
+      }
       if(Array.isArray(c.comps)) c.comps = c.comps.map(function(r){
         var s = r && (S.seed.comps || []).filter(function(x){ return x.id === r.id; })[0];
         if(!s) return r;

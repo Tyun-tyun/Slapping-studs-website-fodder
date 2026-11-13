@@ -535,6 +535,10 @@ window.Studs.seed = {
      plausible structure only and must be checked against the
      archive before launch. The 1982/1985/1964 photos are archive
      pictures of Dutch hockey and of the campus, not of the club. */
+  /* bump this number whenever the chapters below are rewritten: a browser that
+     saved the old chapters (an edit in the console) swaps them for these once,
+     see S.load in js/core.js */
+  chaptersRev:3,
   chapters:[
     {id:"c1",yr:"1982",nav:"The foundation",kicker:"February 1982",
      h:"Some students,\nlooking for action",
