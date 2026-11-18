@@ -908,37 +908,37 @@ body .panel > .strip .stat .n,.stat .n{font-size:16px;color:#141210}
    and their colours (gold home, ink away) are data and stay.
    The hero and the join section are not touched.
    ============================================================ */
-body[data-page="home"] #news .cal,
-body[data-page="home"] #news .annlist{background:transparent;padding:0}
+body[data-page="home"] #calendar .cal,
+body[data-page="home"] #calendar .annlist{background:transparent;padding:0}
 
 /* each title sits on one rule; both heads share the row's floor, so
    the two rules run on one line */
-body[data-page="home"] #news .nh-cal,
-body[data-page="home"] #news .nh-ann{
+body[data-page="home"] #calendar .nh-cal,
+body[data-page="home"] #calendar .nh-ann{
   padding-bottom:12px;margin-bottom:clamp(16px,2vw,22px);
   border-bottom:1px solid var(--rule-l3);
 }
 
 /* calendar */
-body[data-page="home"] #news .callegend{font-size:14px;font-weight:600;color:var(--ink-m)}
-body[data-page="home"] #news .calsw{border-radius:3px}
-body[data-page="home"] #news .calhead{margin-bottom:14px}
-body[data-page="home"] #news .calmonth{font-stretch:66%;font-size:22px;color:var(--ink)}
-body[data-page="home"] #news .calnav{border-radius:3px}
-body[data-page="home"] #news .calweekdays{font-size:13px;font-weight:600;color:var(--ink-m)}
-body[data-page="home"] #news .calcell{border-radius:3px}
-body[data-page="home"] #news .caldate{font-stretch:70%;font-weight:800;font-size:20px;line-height:1}
-body[data-page="home"] #news .calcell--pad .caldate{font-weight:600;font-size:18px}
+body[data-page="home"] #calendar .callegend{font-size:14px;font-weight:600;color:var(--ink-m)}
+body[data-page="home"] #calendar .calsw{border-radius:3px}
+body[data-page="home"] #calendar .calhead{margin-bottom:14px}
+body[data-page="home"] #calendar .calmonth{font-stretch:66%;font-size:22px;color:var(--ink)}
+body[data-page="home"] #calendar .calnav{border-radius:3px}
+body[data-page="home"] #calendar .calweekdays{font-size:13px;font-weight:600;color:var(--ink-m)}
+body[data-page="home"] #calendar .calcell{border-radius:3px}
+body[data-page="home"] #calendar .caldate{font-stretch:70%;font-weight:800;font-size:20px;line-height:1}
+body[data-page="home"] #calendar .calcell--pad .caldate{font-weight:600;font-size:18px}
 
 /* announcements */
-body[data-page="home"] #news .ann{padding:14px 0;border-top:1px solid var(--rule-l1)}
-body[data-page="home"] #news .ann:first-child{border-top:0;padding-top:0}
-body[data-page="home"] #news .ann .tag{
+body[data-page="home"] #calendar .ann{padding:14px 0;border-top:1px solid var(--rule-l1)}
+body[data-page="home"] #calendar .ann:first-child{border-top:0;padding-top:0}
+body[data-page="home"] #calendar .ann .tag{
   padding:2px 8px;border-radius:3px;background:var(--bone4);color:var(--ink-b);
   font-size:13px;font-weight:700;line-height:1.4;
 }
-body[data-page="home"] #news .annwhen{font-size:14px;color:var(--ink-m)}
-body[data-page="home"] #news .anntext{font-weight:400;color:var(--ink-b)}
+body[data-page="home"] #calendar .annwhen{font-size:14px;color:var(--ink-m)}
+body[data-page="home"] #calendar .anntext{font-weight:400;color:var(--ink-b)}
 
 /* ---- the join section, on ink: the same moves in the dark's own
    tones. The title sits on one rule, the fields lose their fill and
@@ -1014,3 +1014,63 @@ body[data-page="training"] #trainmember .gatemsg strong{color:var(--ink)!importa
 body[data-page="training"] #trainmember .gatemsg .btn{border-color:var(--ink);color:var(--ink)}
 body[data-page="training"] #trainmember .gatemsg .btn:hover{background:var(--ink);color:var(--bone)}
 
+
+/* ============================================================
+   HOME NEWS, set like a news front page: white-on-paper, no boxes,
+   the newest story leads (text left, picture right), three more
+   stand under it in a row. Headline in the one display face at
+   plain weight and width - sentence case, not the poster caps -
+   the text under it quiet, the time and the kind last. A story
+   without a picture is just text; a hairline sits above each.
+   ============================================================ */
+body[data-page="home"] #front .phead{
+  padding-bottom:12px;margin-bottom:clamp(18px,2.4vw,28px);
+  border-bottom:1px solid var(--rule-l3);
+}
+.frontfeed{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  column-gap:clamp(20px,2.4vw,32px);row-gap:clamp(24px,3vw,36px);
+}
+.fs{position:relative;display:flex;flex-direction:column;min-width:0}
+.fs .ph{order:0;aspect-ratio:3/2;margin-bottom:14px;border-radius:3px}
+.fs .ph:not(.has-photo){display:none}
+body.editing .fs .ph:not(.has-photo){display:block}
+.fs:not(:first-child){padding-top:14px;border-top:1px solid var(--rule-l1)}
+.fs:not(:first-child):has(.has-photo){padding-top:0;border-top:0}
+.fs__h{order:1;margin:0;font-size:clamp(19px,1.7vw,22px);font-weight:700;line-height:1.2;color:var(--ink);text-wrap:balance}
+.fs__h a{color:inherit;text-decoration:none}
+.fs__h a::after{content:"";position:absolute;inset:0}
+.fs:hover .fs__h a{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.fs__h a:focus-visible{outline:none}
+.fs__h a:focus-visible::after{outline:2px solid var(--gold-d);outline-offset:4px}
+.fs__ex{order:2;margin:10px 0 0;font-size:16px;line-height:1.5;color:var(--ink-b)}
+.fs__meta{order:3;margin-top:12px;font-size:14px;line-height:1.4;color:var(--ink-m);display:flex;flex-wrap:wrap;align-items:center;gap:0 10px}
+.fs__meta i{width:1px;height:12px;background:var(--rule-l3)}
+.fs .itools{top:0;right:0}
+
+/* the lead: across the full row, text left and the picture right */
+.fs:first-child{
+  grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);
+  column-gap:clamp(20px,3vw,44px);align-content:start;
+  padding-bottom:4px;
+}
+.fs:first-child > :not(.ph):not(.itools){grid-column:1}
+.fs:first-child .ph{grid-column:2;grid-row:1 / span 3;margin:0;aspect-ratio:16/10}
+.fs:first-child .fs__h{font-size:clamp(26px,3vw,38px);line-height:1.12;align-self:end}
+.fs:first-child .fs__ex{font-size:18px;line-height:1.55;align-self:start}
+.fs:first-child .fs__meta{align-self:start}
+/* no picture on the lead: text only, a comfortable measure */
+.fs:first-child:not(:has(.has-photo)){grid-template-columns:minmax(0,46rem)}
+.fs:first-child:not(:has(.has-photo)) > *{grid-column:1}
+
+body[data-page="home"] #calendar .newsgrid{grid-template-columns:minmax(0,1fr);grid-template-areas:"calhead" "calbody"}
+
+@media (max-width:980px){
+  .frontfeed{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:720px){
+  .frontfeed{grid-template-columns:minmax(0,1fr)}
+  .fs:first-child{display:flex}
+  .fs:first-child .ph{margin-bottom:14px}
+  .fs:first-child .fs__h{font-size:26px}
+}

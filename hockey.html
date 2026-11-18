@@ -28,25 +28,26 @@
 <!-- ===== /SHARED HEAD ===== -->
 
 <!-- ===== PAGE-LOCAL STYLES - Hockey 101 only =====
-     Everything below spends tokens.css values and nothing else:
-     ink for the ground, bone for text, gold as the only accent,
-     ice for labels and the quieter rink markings. The interactive
-     diagrams (zones, positions, gear) are unique to this page, so
-     their styles live here rather than in components.css. All
-     classes are prefixed hk- so nothing collides with the shared
-     sheets (.rail, .stat, .rule and .dot already mean other
-     things there). -->
+     The page is worked on paper from top to bottom, the way
+     training.html, stats.html and history.html are: bone for the
+     ground, ink for text, the dark gold for accents that are read
+     and the jersey gold for surfaces (the strip, the active chip).
+     The interactive drawings (zones, positions, gear) are unique to
+     this page, so their styles live here rather than in paper.css.
+     All classes are prefixed hk- so nothing collides with the shared
+     sheets (.rail, .stat, .rule and .dot already mean other things
+     there). -->
 <style>
-/* Type on this page uses five steps only: the .d2 display (hero
-   headline, the stat numbers), the .d3 section heading, a 24px
-   sub-heading, 17px body and 15px for captions and small text.
-   Sections are told apart by a step in tone (ink / ink2), never by
-   a hairline; panels inside a section are one tone lighter. */
-.hk-lede{margin:0 0 clamp(28px,4vw,44px)}
-.hk-sub{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;text-transform:uppercase;font-size:24px;line-height:1.05;color:var(--bone);margin:0 0 10px}
-.hk-sub.violation{color:var(--gold)}
-.hk-text{font-size:17px;line-height:1.6;color:rgba(237,234,225,.8);max-width:60ch;margin:0}
-.hk-caption{font-size:15px;line-height:1.55;color:var(--ice);margin:14px 0 0;max-width:62ch}
+/* Type on this page uses five steps only: the page title, the .d3
+   section heading, a display sub-heading, 17px body and 15px for
+   captions and small text. Sections are told apart by space and by
+   one step in tone (bone / bone3), never by a hairline. Every rink
+   is a sheet of ice one tone off the paper it lies on. */
+.hk-sub{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;text-transform:uppercase;font-size:clamp(24px,2.4vw,32px);line-height:1;color:var(--ink);margin:0 0 12px}
+.hk-sub.violation{color:var(--gold-d)}
+.hk-text{font-size:17px;line-height:1.6;color:var(--ink-b);max-width:52ch;margin:0}
+.hk-caption{font-size:15px;line-height:1.55;color:var(--ink-m);margin:14px 0 0;max-width:62ch}
+body[data-page="hockey"] .phead{margin-bottom:clamp(28px,4vw,52px)}
 
 /* drawings: SVG text scales with its viewBox, so each diagram sets
    a size that lands at 14-18px on screen; phones get a bigger one
@@ -57,94 +58,88 @@
 #zone-rink text{font-size:17px}
 .hk-icon text{font-size:15px}
 
-/* ---------- section rail (in-page nav) ---------- */
-.hk-rail{display:block;position:sticky;top:var(--hdr);z-index:40;background:var(--ink3)}
-.hk-rail .wrap{width:100%;display:flex;align-items:center;flex-wrap:wrap;gap:2px 6px;min-height:52px;padding-block:6px}
-.hk-rail .brand{font-size:15px;font-weight:700;color:var(--bone);white-space:nowrap;flex:none;margin-right:14px}
-.hk-tab{display:inline-flex;align-items:center;gap:8px;background:none;border:0;color:rgba(237,234,225,.66);font-family:var(--disp);font-size:15px;letter-spacing:0;font-weight:500;cursor:pointer;white-space:nowrap;padding:8px 10px;transition:color .18s}
-.hk-tab i{width:7px;height:7px;border-radius:50%;background:rgba(237,234,225,.3);flex:none;transition:background .18s}
-.hk-tab:hover{color:var(--bone)}
-.hk-tab.active{color:var(--bone)}
-.hk-tab.active i{background:var(--gold)}
-body[data-page="hockey"] .panel[id]:not(.pagehead){scroll-margin-top:calc(var(--hdr) + 60px)}
+/* The drawings were made for a dark ground. On paper their light
+   strokes and text flip to ink and the gold to the dark gold - the
+   same swap the scoring pages make. The gear figures keep their own
+   colours, so the swap is limited to the rinks and the rule icons. */
+.hk :is(.hk-hero-rink,.hk-dia,#zone-rink,#position-rink,.icon) [stroke^="rgba(237"]{stroke:rgba(17,20,23,.34)}
+.hk :is(.hk-hero-rink,.hk-dia,#zone-rink,#position-rink,.icon) [stroke="var(--ice)"]{stroke:var(--ink-m)}
+.hk :is(.hk-hero-rink,.hk-dia,#zone-rink,#position-rink,.icon) [fill="var(--ice)"]{fill:var(--ink-m)}
+.hk :is(.hk-hero-rink,.hk-dia,#zone-rink,#position-rink,.icon) [stroke="var(--gold)"]{stroke:var(--gold-d)}
+.hk :is(.hk-hero-rink,.hk-dia,#zone-rink,#position-rink,.icon) [fill="var(--gold)"]{fill:var(--gold-d)}
+.hk :is(.hk-hero-rink,.hk-dia,#zone-rink,#position-rink,.icon) text[fill^="rgba(237"]{fill:var(--ink-b)}
+.hk .hk-sheet{fill:var(--bone3)}
 
-/* ---------- figures (the drawings; no photographs on this page) --- */
+/* ---------- page head: title and lead on the left, the rink drawn
+     to scale on the right; the gold strip under both ------------- */
 .hk-photo{margin:0}
-
-/* ---------- page head: one column, the rink drawing large and centred
-     (the opening photograph was dropped at the club's request) ----- */
-.hk-hero{display:block}
-.hk-hero .pagelead{max-width:64ch}
-.hk-hero-fig{max-width:980px;margin:clamp(24px,3vw,40px) auto 0}
+.hk-hero{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:clamp(28px,4.4vw,72px);align-items:end}
 .hk-hero-rink{width:100%;display:block;margin:0}
-.hk-hero-fig .hk-caption{max-width:66ch}
+.hk-hero-fig .hk-caption{max-width:60ch}
 
-/* ---------- basics: the four figures on the page's own ground,
-     no fill, no boxes, no dividers ------------------------------- */
-.hk-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(26px,3.2vw,52px);margin:clamp(6px,1.4vw,18px) 0 clamp(52px,6.5vw,96px)}
-.hk-stat .num{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;font-size:clamp(44px,6.2vw,90px);line-height:.88;color:var(--bone)}
-.hk-stat .label{font-size:17px;line-height:1.35;color:rgba(237,234,225,.72);margin-top:12px;max-width:16ch}
+/* ---------- section rail (in-page nav): the squad-filter chips of
+     the stats page, on the second paper tone ---------------------- */
+.hk-rail{display:block;position:sticky;top:var(--hdr);z-index:40;background:var(--bone2)}
+.hk-rail .wrap{width:100%;display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:56px;padding-block:8px}
+.hk-tab{background:transparent;border:0;color:var(--ink-b);font-family:var(--disp);font-size:15px;letter-spacing:0;font-weight:600;cursor:pointer;white-space:nowrap;padding:9px 16px;transition:background .15s,color .15s}
+.hk-tab:hover{background:var(--bone4);color:var(--ink)}
+.hk-tab.active{background:var(--gold);color:#141210}
+.hk-tab:focus-visible,.hk-item:focus-visible,.hk-toggle button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+body[data-page="hockey"] .panel[id]:not(#what){scroll-margin-top:calc(var(--hdr) + 60px)}
 
+/* ---------- basics: three rules on the paper, then the two calls,
+     each with its words on the left and the play drawn on the right */
 .hk-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(28px,4vw,64px)}
-.hk-quick .icon{width:44px;height:44px;display:block;margin-bottom:16px}
-
-.hk-call{margin-top:clamp(56px,7vw,104px)}
-.hk-call .hk-photo{max-width:900px;margin:clamp(24px,3vw,40px) auto 0}
+.hk-quick .icon{width:44px;height:44px;display:block;margin-bottom:18px}
+.hk-call{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);gap:clamp(28px,4.4vw,72px);align-items:center;margin-top:clamp(56px,7vw,104px)}
 .hk-call svg{width:100%;display:block}
-.hk-call .hk-caption{margin-inline:0}
+/* the long notes inside the two drawings ran across the rink lines;
+   the caption under each drawing says the same thing */
+.hk .hk-dia .hk-note{display:none}
 
-/* ---------- zones + positions (rink diagrams, centred) ---------- */
-.hk-rinklayout{display:block}
-.hk-rinklayout svg{width:100%;max-width:900px;display:block;margin:0 auto}
-#position-rink{max-width:660px}
+/* ---------- drawing + legend (zones, positions, gear) ------------
+     The drawing on one side, every entry of its legend readable on
+     the other. Tapping either side marks the pair: nothing is hidden
+     behind a tap, the tap only shows what belongs together. */
+.hk-pair{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(28px,4.4vw,72px);align-items:center}
+.hk-pair svg{width:100%;display:block}
+.hk-list{display:flex;flex-direction:column;gap:2px}
+.hk-item{display:grid;grid-template-columns:34px minmax(0,1fr);column-gap:16px;align-items:start;width:100%;text-align:left;background:transparent;border:0;padding:14px 16px;margin:0;color:inherit;font:inherit;cursor:pointer;transition:background .15s}
+.hk-item:hover,.hk-item.active{background:var(--bone3)}
+.hk-item .key{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--bone);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.hk-item.active .key:not(.key--sq){background:var(--gold);color:#141210}
+.hk-item .key--sq{border-radius:0;width:34px;height:34px}
+.hk-item .key--def{background:var(--ice)}
+.hk-item .key--neutral{background:var(--bone4)}
+.hk-item .key--off{background:var(--gold)}
+.hk-item .nm{display:block;font-size:17px;font-weight:700;line-height:1.3;color:var(--ink);padding-top:5px}
+.hk-item .ds{display:block;font-size:15px;line-height:1.5;color:var(--ink-b);margin-top:4px}
+
+/* zones: a quiet tint at rest, the full colour when picked */
+.zone-hotspot{cursor:pointer}
+.zone-tint{transition:fill .18s}
+.zone-tint[data-zone="def"]{fill:rgba(147,169,184,.22)}
+.zone-tint[data-zone="neutral"]{fill:rgba(17,20,23,0)}
+.zone-tint[data-zone="off"]{fill:rgba(247,195,37,.24)}
+.zone-tint[data-zone="def"]:is(.hover,.active){fill:rgba(147,169,184,.7)}
+.zone-tint[data-zone="neutral"]:is(.hover,.active){fill:var(--bone4)}
+.zone-tint[data-zone="off"]:is(.hover,.active){fill:rgba(247,195,37,.8)}
+
+/* positions: dark discs with light letters, gold when picked */
 .pos-dot{cursor:pointer}
-.pos-dot circle{transition:fill .15s,stroke .15s}
+.pos-dot circle{fill:var(--ink);stroke:var(--ink);transition:fill .15s,stroke .15s}
 .pos-dot:hover circle,.pos-dot.active circle{fill:var(--gold);stroke:var(--gold)}
 .hk .pos-dot text{font-size:15px;font-weight:700;fill:var(--bone);pointer-events:none}
-.hk .pos-dot:hover text,.hk .pos-dot.active text{fill:var(--ink)}
-.hk-panel{padding:clamp(24px,2.6vw,36px);min-height:150px;max-width:780px;margin:clamp(28px,3.4vw,44px) auto 0}
-.panel.ink2 .hk-panel,.panel.ink2 .hk-detail{background:var(--ink3)}
-.panel:not(.ink2) .hk-panel,.panel:not(.ink2) .hk-detail{background:var(--ink2)}
-.hk-panel .role-name,.hk-detail .part-name{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;text-transform:uppercase;font-size:24px;line-height:1.05;color:var(--gold);margin-bottom:12px}
-.hk-panel .role-desc,.hk-detail .part-desc{font-size:17px;line-height:1.6;color:rgba(237,234,225,.8)}
-.zone-hotspot{cursor:pointer;transition:opacity .15s}
-.zone-hotspot:hover,.zone-hotspot.active{opacity:.6}
-
-/* ---------- equipment ---------- */
-.hk-toggle{display:inline-flex;background:var(--ink3);padding:4px;margin-bottom:36px}
-.hk-toggle button{background:none;border:0;color:rgba(237,234,225,.75);font-family:var(--disp);font-size:15px;letter-spacing:0;font-weight:600;padding:10px 22px;cursor:pointer;transition:background .18s,color .18s}
-.hk-toggle button:hover{color:var(--bone)}
-.hk-toggle button.active{background:var(--gold);color:#141210}
-.hk-equiplayout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:clamp(28px,4vw,56px);align-items:center}
-.hk-figure{width:100%;max-width:400px;display:block;margin:0 auto}
-.hk-figure[hidden]{display:none}
-.hotspot{cursor:pointer;outline:none;transition:opacity .18s}
-.hk-figure.has-active .hotspot:not(.active){opacity:.38}
-.hotspot:hover,.hotspot.active,.hotspot:focus-visible{filter:url(#hk-glow)}
-.hk-pin{pointer-events:none;transition:opacity .18s}
-.hk-figure.has-active .hk-pin:not(.active){opacity:.3}
-.hk-pin circle{fill:var(--ink);stroke:var(--gold);stroke-width:1.2}
-.hk .hk-pin text{font-size:13px;font-weight:700;fill:var(--gold);text-anchor:middle;dominant-baseline:central}
-.hk-pin.active circle{fill:var(--gold)}
-.hk .hk-pin.active text{fill:#141210}
-.hk-pin line{stroke:var(--gold);stroke-width:1;stroke-dasharray:2 2;opacity:.7}
-.hk-ice{stroke:var(--ice);stroke-width:1;opacity:.5}
-.hk-ln{stroke:#0B0D0F;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
-.hk-ln2{stroke:#0B0D0F;stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round;fill:none}
-.hk-sh{fill:#D9A81C}
-#equip-figure-goalie .hotspot > path[fill]:not([stroke]),#equip-figure-goalie .hotspot > rect[fill]:not([stroke]){stroke:#0B0D0F;stroke-width:2;stroke-linejoin:round}
-.hk-detail{padding:clamp(24px,2.6vw,36px);min-height:170px}
-.hk-fact{margin-top:24px;font-size:15px;color:var(--ice);line-height:1.6}
-.hk-fact b{color:var(--gold);font-weight:700}
+.hk .pos-dot:hover text,.hk .pos-dot.active text{fill:#141210}
 
 /* ---------- glossary: heading on the left, the words on the right */
+.panel.bone.hk-tone{background:var(--bone3)}
 .hk-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);gap:clamp(28px,5vw,96px);align-items:start}
-.hk-split .hk-lede{margin-bottom:0}
-.hk-split .phead{margin-bottom:18px}
+body[data-page="hockey"] .hk-split .phead{margin-bottom:0}
 .hk-glossary{display:grid;gap:clamp(22px,2.6vw,32px)}
-.hk-term{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:8px 28px;align-items:baseline}
+.hk-term{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:8px 28px;align-items:baseline}
 .hk-term .word{margin:0}
-.hk-term .def{font-size:17px;line-height:1.6;color:rgba(237,234,225,.8);max-width:60ch}
+.hk-term .def{font-size:17px;line-height:1.6;color:var(--ink-b);max-width:60ch;margin:0}
 
 /* ---------- referee signals: picture beside its words, no boxes */
 .hk-sigs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(32px,4vw,56px) clamp(24px,3vw,48px)}
@@ -154,44 +149,100 @@ body[data-page="hockey"] .panel[id]:not(.pagehead){scroll-margin-top:calc(var(--
 .hk-sig .sig-desc{grid-row:3}
 .hk-sig .sig-tag{grid-row:4}
 .hk-sig .sig-fig{grid-column:1;grid-row:1 / -1;height:180px;display:flex;align-items:flex-end;justify-content:center}
-/* The cut-out referees keep a pale fringe from their source files.
-   A tight dark halo traced round each figure swallows it and gives
-   the drawing an edge against the ink ground. This is the one
-   deliberate exception to "no shadows on resting elements": it is
-   an outline on a cut-out, not a lift off the page. */
-.hk-sig .sig-fig img{max-height:100%;max-width:100%;width:auto;
-  filter:drop-shadow(0 0 1px #0B0D0F) drop-shadow(0 0 1px #0B0D0F) drop-shadow(0 0 2.5px rgba(11,13,15,.85))}
-.hk-sig .sig-name{font-size:17px;font-weight:700;color:var(--bone);margin-bottom:6px}
-.hk-sig .sig-desc{font-size:15px;line-height:1.5;color:rgba(237,234,225,.75)}
-.hk-sig .sig-tag{font-size:15px;color:var(--gold);margin-top:8px}
+.hk-sig .sig-fig img{max-height:100%;max-width:100%;width:auto}
+.hk-sig .sig-name{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.hk-sig .sig-desc{font-size:15px;line-height:1.5;color:var(--ink-b)}
+.hk-sig .sig-tag{font-size:15px;font-weight:600;color:var(--gold-d);margin-top:8px}
 
-/* ---------- closing (on ink, like the rest of the page) ----------
-     Two columns so the send-off uses the full measure: the line on
-     the left, where it is going on the right. */
+/* ---------- gear: the figure on the left, its seven pieces listed
+     on the right under the same numbers as the pins ---------------- */
+.hk-toggle{display:inline-flex;gap:6px;margin-bottom:clamp(20px,3vw,36px)}
+.hk-toggle button{background:var(--bone3);border:0;color:var(--ink-b);font-family:var(--disp);font-size:15px;letter-spacing:0;font-weight:600;padding:10px 22px;cursor:pointer;transition:background .15s,color .15s}
+.hk-toggle button:hover{background:var(--bone4);color:var(--ink)}
+.hk-toggle button.active{background:var(--gold);color:#141210}
+.hk-equiplayout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(28px,4.4vw,72px);align-items:center}
+.hk-figure{width:100%;max-width:420px;display:block;margin:0 auto}
+.hk-figure[hidden]{display:none}
+.hotspot{cursor:pointer;outline:none;transition:opacity .18s}
+.hk-figure.has-active .hotspot:not(.active){opacity:.38}
+.hotspot:hover,.hotspot.active,.hotspot:focus-visible{filter:url(#hk-glow)}
+.hk-pin{pointer-events:none;transition:opacity .18s}
+.hk-figure.has-active .hk-pin:not(.active){opacity:.3}
+.hk-pin circle{fill:var(--ink);stroke:var(--ink);stroke-width:1.2}
+.hk .hk-pin text{font-size:13px;font-weight:700;fill:var(--bone);text-anchor:middle;dominant-baseline:central}
+.hk-pin.active circle{fill:var(--gold);stroke:var(--gold)}
+.hk .hk-pin.active text{fill:#141210}
+.hk-pin line{stroke:var(--ink);stroke-width:1;stroke-dasharray:2 2;opacity:.6}
+.hk-ice{stroke:var(--ink-m);stroke-width:1;opacity:.6}
+.hk-ln{stroke:#0B0D0F;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.hk-ln2{stroke:#0B0D0F;stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round;fill:none}
+.hk-sh{fill:#D9A81C}
+#equip-figure-goalie .hotspot > path[fill]:not([stroke]),#equip-figure-goalie .hotspot > rect[fill]:not([stroke]){stroke:#0B0D0F;stroke-width:2;stroke-linejoin:round}
+.hk-list--gear{margin:18px -16px 0}
+.hk-list--gear .hk-item{padding-block:10px}
+.hk-fact{margin:20px 0 0;font-size:15px;color:var(--ink-m);line-height:1.6;max-width:52ch}
+.hk-fact b{color:var(--gold-d);font-weight:700}
+
+/* ---------- the ice machine: a 3D model built from the four-view
+     drawing (js/zamboni.js), on a sheet one tone off the paper, with
+     its facts beside it. On a wide screen the block pins under the
+     rail and each step of the scroll turns the machine to the next
+     view; on a phone, or with reduced motion, nothing pins and the
+     facts are a plain list. Without WebGL the drawing is left out. */
+.hk-zam-stage{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-template-areas:"view head" "view facts";grid-template-rows:auto auto;align-content:center;column-gap:clamp(28px,4.4vw,72px)}
+.hk-zam-head{grid-area:head}
+body[data-page="hockey"] .hk-zam-head .phead{margin-bottom:clamp(24px,3vw,40px)}
+.hk-zam-view{grid-area:view;align-self:center;display:none;position:relative;background:var(--bone3);aspect-ratio:16/11;max-height:calc(100svh - var(--hdr) - 120px)}
+.hk-zam.has-3d .hk-zam-view{display:block}
+.hk-zam:not(.has-3d) .hk-zam-stage{grid-template-columns:1fr;grid-template-areas:"head" "facts"}
+.hk-zam-view canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+.hk-zam:not(.is-pinned) .hk-zam-view canvas{cursor:grab}
+.hk-zam-facts{grid-area:facts;display:grid;gap:clamp(28px,3vw,40px)}
+.hk-zam-fig{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;font-size:clamp(44px,4.6vw,68px);line-height:.95;color:var(--ink);margin:0 0 10px}
+.hk-zam-fig small{font-size:.5em;font-weight:800}
+.hk-zam-step{display:none;font-size:15px;color:var(--ink-m);margin:0 0 14px}
+.hk-zam.is-pinned{height:calc(100svh - var(--hdr) - 56px + 280vh)}
+.hk-zam.is-pinned .hk-zam-stage{position:sticky;top:calc(var(--hdr) + 56px);height:calc(100svh - var(--hdr) - 56px)}
+.hk-zam.is-pinned .hk-zam-facts{gap:0;min-height:15em;align-items:start}
+.hk-zam.is-pinned .hk-zam-fact{grid-area:1 / 1;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.hk-zam.is-pinned .hk-zam-fact.active{opacity:1;visibility:visible}
+.hk-zam.is-pinned .hk-zam-fig{font-size:clamp(64px,7.4vw,116px)}
+.hk-zam.is-pinned .hk-zam-step{display:block}
+body[data-page="hockey"] #machine > .panel__in{padding-block:clamp(20px,3vw,44px)}
+
+/* ---------- closing: the line on the left, where it goes on the right */
 .hk-close{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(28px,5vw,88px);align-items:end}
 .hk-close h2{margin:0}
 .hk-close .body{margin:0 0 26px;max-width:40ch}
 .hk-ctas{display:flex;gap:12px;flex-wrap:wrap}
-@media (max-width:620px){.hk-close{grid-template-columns:1fr;align-items:start;gap:26px}}
 
-/* ---------- section rhythm: tone steps, a little less air ---------- */
-body[data-page="hockey"] .panel:not(.panel--cover):not(.pagehead){--sect-pad:clamp(56px,7vw,104px)}
+/* ---------- section rhythm: space, a little less of it than usual */
+body[data-page="hockey"] .panel:not(.panel--strip){--sect-pad:clamp(56px,7vw,104px)}
+body[data-page="hockey"] #rules + #zones > .panel__in,
+body[data-page="hockey"] #zones + #positions > .panel__in,
+body[data-page="hockey"] #signals + #gear > .panel__in{padding-top:clamp(20px,3vw,44px)}
 
 @media (max-width:1000px){
   .hk-sigs{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:900px){
-  .hk-equiplayout,.hk-split{grid-template-columns:1fr}
+  .hk-hero,.hk-call,.hk-pair,.hk-equiplayout,.hk-split{grid-template-columns:1fr}
+  .hk-zam .hk-zam-stage{grid-template-columns:1fr;grid-template-areas:"head" "view" "facts";row-gap:clamp(24px,4vw,36px)}
+  body[data-page="hockey"] .hk-zam-head .phead{margin-bottom:0}
+  .hk-hero{align-items:start}
   .hk-quick{grid-template-columns:1fr;gap:36px}
+  body[data-page="hockey"] .hk-split .phead{margin-bottom:8px}
+  .hk-list{margin-inline:-16px}
 }
 @media (max-width:720px){
-  .hk-stats{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:28px}
   .hk-term{grid-template-columns:1fr}
 }
+@media (max-width:620px){
+  .hk-close{grid-template-columns:1fr;align-items:start;gap:26px}
+}
 @media (max-width:600px){
-  .hk-rail .brand{display:none}
-  .hk-tab{padding:7px 8px}
-  body[data-page="hockey"] .panel[id]:not(.pagehead){scroll-margin-top:calc(var(--hdr) + 100px)}
+  .hk-tab{padding:8px 12px}
+  body[data-page="hockey"] .panel[id]:not(#what){scroll-margin-top:calc(var(--hdr) + 110px)}
   .hk-sigs{grid-template-columns:1fr}
   .hk-sig .sig-fig{height:150px}
   .hk .hk-dia text,.hk #zone-rink text{font-size:25px}
@@ -199,37 +250,6 @@ body[data-page="hockey"] .panel:not(.panel--cover):not(.pagehead){--sect-pad:cla
   .hk .hk-hero-rink text{font-size:26px}
   .hk .pos-dot text{font-size:19px}
 }
-
-/* ---------- paper sections (Basics, Positions, Ref signals) ----------
-   The page alternates ink and paper the way the home page does. The
-   drawings were made for a dark ground, so on paper their light
-   strokes and text flip to ink and the gold to the dark gold, the
-   same swap the scoring pages make. */
-body[data-page="hockey"] .panel.bone .hk-sub{color:var(--ink)}
-body[data-page="hockey"] .panel.bone .hk-sub.violation{color:var(--gold-d)}
-body[data-page="hockey"] .panel.bone .hk-text,
-body[data-page="hockey"] .panel.bone .hk-lede{color:var(--ink-b)}
-body[data-page="hockey"] .panel.bone .hk-caption{color:var(--ink-m)}
-body[data-page="hockey"] .panel.bone .hk-stat .num{color:var(--ink)}
-body[data-page="hockey"] .panel.bone .hk-stat .label{color:var(--ink-b)}
-body[data-page="hockey"] .panel.bone svg [stroke^="rgba(237"]{stroke:rgba(17,20,23,.34)}
-body[data-page="hockey"] .panel.bone svg [stroke="var(--ice)"]{stroke:var(--ink-m)}
-body[data-page="hockey"] .panel.bone svg [fill="var(--ice)"]{fill:var(--ink-m)}
-body[data-page="hockey"] .panel.bone svg [stroke="var(--gold)"]{stroke:var(--gold-d)}
-body[data-page="hockey"] .panel.bone svg [fill="var(--gold)"]{fill:var(--gold-d)}
-body[data-page="hockey"] .panel.bone svg text[fill^="rgba(237"]{fill:var(--ink-b)}
-/* position dots stay dark discs with light letters; the detail card is paper */
-body[data-page="hockey"] .panel.bone .pos-dot circle{fill:var(--ink);stroke:var(--ink)}
-body[data-page="hockey"] .panel.bone .pos-dot:hover circle,
-body[data-page="hockey"] .panel.bone .pos-dot.active circle{fill:var(--gold);stroke:var(--gold)}
-body[data-page="hockey"] .panel.bone .hk-panel{background:var(--bone3)}
-body[data-page="hockey"] .panel.bone .hk-panel .role-name{color:var(--gold-d)}
-body[data-page="hockey"] .panel.bone .hk-panel .role-desc{color:var(--ink-b)}
-/* referees: the dark halo only exists to hide the pale fringe on ink */
-body[data-page="hockey"] .panel.bone .hk-sig .sig-fig img{filter:none}
-body[data-page="hockey"] .panel.bone .hk-sig .sig-name{color:var(--ink)}
-body[data-page="hockey"] .panel.bone .hk-sig .sig-desc{color:var(--ink-b)}
-body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
 </style>
 </head>
 <!-- data-page  = which document this is; js/routes.js maps it to a URL
@@ -277,15 +297,21 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
      ================================================================ -->
 <main>
 
-<section class="panel pagehead" id="what" data-label="Hockey 101">
+<!-- Paper head + gold strip, the stats.html / training.html design:
+     the title at display size, one plain line under it, the rink
+     drawn to scale beside it, and the four numbers of the game on
+     the gold strip. -->
+<section class="panel panel--strip bone on-bone" id="what" data-label="Hockey 101">
   <div class="panel__in">
     <div class="wrap"><div class="hk hk-hero">
-      <h1 class="disp d2">Never watched<br>hockey before?</h1>
-      <p class="body pagelead">Hockey 101 for first-timers at the rink: everything you need to actually follow a Slapping Studs game &mdash; no prior knowledge required.</p>
+      <div>
+        <h1 class="disp pgtitle">Hockey 101</h1>
+        <p class="body pagelead">Never watched hockey before? Everything you need to follow a Slapping Studs game from the stands. No prior knowledge required.</p>
+      </div>
       <figure class="hk-photo hk-hero-fig">
       <svg id="rink-hero" class="hk-hero-rink" viewBox="0 0 700 330">
     <!-- boards: 200ft x 85ft rink, 28ft corner radius, scale 3.2px/ft -->
-    <rect x="3" y="3" width="634" height="266" rx="90" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
+    <rect x="3" y="3" width="634" height="266" rx="90" class="hk-sheet" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
 
     <!-- goal lines (11ft from end boards) -->
     <line x1="35" y1="3" x2="35" y2="269" stroke="var(--ice)" stroke-opacity=".55" stroke-width="2"/>
@@ -360,18 +386,24 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
       </figure>
     </div></div>
   </div>
+  <div class="strip"><div class="wrap">
+    <div class="stat"><div class="v">5+1</div><div class="n">players on the ice per team</div></div>
+    <div class="stat"><div class="v">3×20</div><div class="n">minute periods</div></div>
+    <div class="stat"><div class="v">60</div><div class="n">minutes of play time</div></div>
+    <div class="stat"><div class="v">1</div><div class="n">puck, always in play</div></div>
+  </div></div>
 </section>
 
 <!-- in-page rail: sticks under the header from here down -->
 <nav class="hk-rail" id="hkrail" aria-label="Sections of this page">
   <div class="wrap">
-    <span class="brand">Hockey 101</span>
-    <button class="hk-tab active" data-target="rules"><i></i>Basics</button>
-    <button class="hk-tab" data-target="zones"><i></i>Zones</button>
-    <button class="hk-tab" data-target="positions"><i></i>Positions</button>
-    <button class="hk-tab" data-target="glossary"><i></i>Glossary</button>
-    <button class="hk-tab" data-target="signals"><i></i>Ref signals</button>
-    <button class="hk-tab" data-target="gear"><i></i>Gear</button>
+    <button class="hk-tab active" data-target="rules">Basics</button>
+    <button class="hk-tab" data-target="zones">Zones</button>
+    <button class="hk-tab" data-target="positions">Positions</button>
+    <button class="hk-tab" data-target="glossary">Glossary</button>
+    <button class="hk-tab" data-target="signals">Ref signals</button>
+    <button class="hk-tab" data-target="gear">Gear</button>
+    <button class="hk-tab" data-target="machine">Ice machine</button>
   </div>
 </nav>
 
@@ -380,15 +412,8 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
     <div class="wrap"><div class="hk">
       <div class="phead"><div>
         <h2 class="disp d3">The basics</h2>
+        <p class="body pagesub">The rules that matter: one game, three periods, and a handful of rules that decide almost everything you'll see.</p>
       </div></div>
-      <p class="body hk-lede">The rules that matter: one game, three periods, and a handful of rules that decide almost everything you'll see.</p>
-
-      <div class="hk-stats">
-        <div class="hk-stat"><div class="num">5+1</div><div class="label">players on ice per team</div></div>
-        <div class="hk-stat"><div class="num">3×20</div><div class="label">minute periods</div></div>
-        <div class="hk-stat"><div class="num">60</div><div class="label">min. of play time</div></div>
-        <div class="hk-stat"><div class="num">1</div><div class="label">puck, always in play</div></div>
-      </div>
 
       <div class="hk-quick">
         <div class="hk-rule">
@@ -414,8 +439,8 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
           <p class="hk-text">Attacking players can't cross the blue line into the offensive zone before the puck does. Whistle, faceoff, reset.</p>
         </div>
         <figure class="hk-photo">
-          <svg class="hk-dia" viewBox="0 -22 640 294" role="img" aria-label="Offside: two attackers across the blue line before the puck">
-            <rect x="3" y="3" width="634" height="266" rx="90" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
+          <svg class="hk-dia hk-play" viewBox="0 -22 640 294" role="img" aria-label="Offside: two attackers across the blue line before the puck">
+            <rect x="3" y="3" width="634" height="266" rx="90" class="hk-sheet" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
             <line x1="35" y1="3" x2="35" y2="269" stroke="var(--ice)" stroke-opacity=".55" stroke-width="2"/>
             <line x1="605" y1="3" x2="605" y2="269" stroke="var(--ice)" stroke-opacity=".55" stroke-width="2"/>
             <line x1="240" y1="3" x2="240" y2="269" stroke="var(--gold)" stroke-width="3" opacity="0.5"/>
@@ -451,13 +476,23 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
             <text x="400" y="0" text-anchor="middle" class="hk-strong" fill="var(--gold)">Offside line</text>
 
             <!-- puck, still behind the line -->
-            <circle cx="360" cy="136" r="7" fill="var(--gold)"/>
-            <text x="360" y="106" text-anchor="middle" fill="rgba(237,234,225,.76)">puck</text>
+            <!-- The play runs with the scroll (script at the foot of the
+                 page): data-from is where a piece starts relative to
+                 where it is drawn, data-span the part of the scroll it
+                 moves through. Without the script, or with reduced
+                 motion, the drawing is simply the moment of the whistle. -->
+            <line class="hk-trail" x1="262" y1="136" x2="351" y2="136" data-to="351" data-span="0,1" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="3 5"/>
+            <line class="hk-trail" x1="300" y1="70" x2="439" y2="70" data-to="439" data-span="0,.75" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="3 5"/>
+            <line class="hk-trail" x1="310" y1="200" x2="459" y2="200" data-to="459" data-span="0,.75" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="3 5"/>
+            <g data-from="-98,0" data-span="0,1">
+              <circle cx="360" cy="136" r="7" fill="var(--gold)"/>
+              <text x="360" y="106" text-anchor="middle" fill="rgba(237,234,225,.76)">puck</text>
+            </g>
 
-            <!-- attacking players already across, illegally -->
-            <circle cx="450" cy="70" r="9" fill="var(--gold)"/>
-            <circle cx="470" cy="200" r="9" fill="var(--gold)"/>
-            <text x="460" y="235" text-anchor="middle" class="hk-note" fill="var(--gold)">players cross before the puck → whistle</text>
+            <!-- attacking players: across the line before the puck -->
+            <circle cx="450" cy="70" r="9" fill="var(--gold)" data-from="-150,0" data-span="0,.75"/>
+            <circle cx="470" cy="200" r="9" fill="var(--gold)" data-from="-160,0" data-span="0,.75"/>
+            <text x="500" y="141" text-anchor="start" class="hk-strong" fill="var(--gold)" data-show=".8">Whistle</text>
           </svg>
           <figcaption class="hk-caption">The moment two attackers are already in the offensive zone while the puck is still behind the blue line &mdash; players crossed before the puck, so the whistle goes.</figcaption>
         </figure>
@@ -469,8 +504,8 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
           <p class="hk-text">Shooting the puck the length of the ice past the opponent's goal line without it being touched stops play — teams can't just dump it and change.</p>
         </div>
         <figure class="hk-photo">
-          <svg class="hk-dia" viewBox="0 0 640 272" role="img" aria-label="Icing: a shot from the defensive zone crosses the far goal line untouched">
-            <rect x="3" y="3" width="634" height="266" rx="90" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
+          <svg class="hk-dia hk-play" viewBox="0 0 640 272" role="img" aria-label="Icing: a shot from the defensive zone crosses the far goal line untouched">
+            <rect x="3" y="3" width="634" height="266" rx="90" class="hk-sheet" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
             <line x1="35" y1="3" x2="35" y2="269" stroke="var(--ice)" stroke-opacity=".55" stroke-width="2"/>
             <line x1="605" y1="3" x2="605" y2="269" stroke="var(--ice)" stroke-opacity=".55" stroke-width="2"/>
             <line x1="240" y1="3" x2="240" y2="269" stroke="var(--gold)" stroke-width="3" opacity="0.5"/>
@@ -503,15 +538,18 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
             </g>
 
             <!-- puck start, own end -->
-            <circle cx="55" cy="200" r="7" fill="var(--gold)"/>
+            <circle cx="55" cy="200" r="7" fill="none" stroke="var(--gold)" stroke-width="2"/>
             <text x="14" y="232" text-anchor="start" fill="rgba(237,234,225,.76)">shot from own zone</text>
 
             <!-- full-length flight path, untouched -->
-            <path d="M55 200 Q320 236 605 130" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="6 5"/>
-            <path d="M605 130 L592 122 L594 136 Z" fill="var(--gold)"/>
+            <!-- the flight is uncovered as the puck travels (see the
+                 offside drawing above for how the scroll drives it) -->
+            <clipPath id="icingClip"><rect class="hk-reveal" x="0" y="0" width="640" height="272"/></clipPath>
+            <path d="M55 200 Q320 215 605 100" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="6 5" clip-path="url(#icingClip)"/>
+            <circle class="hk-fly" data-path="55,200,320,215,605,100" data-span="0,.85" cx="605" cy="100" r="7" fill="var(--gold)"/>
 
             <!-- violation point -->
-            <text x="596" y="88" text-anchor="end" class="hk-strong" fill="var(--gold)">Crosses goal line untouched</text>
+            <text x="590" y="26" text-anchor="end" class="hk-strong" fill="var(--gold)" data-show=".8">Crosses goal line untouched</text>
             <text x="320" y="30" text-anchor="middle" class="hk-note" fill="rgba(237,234,225,.76)">passes the centre line first — that's what makes it icing, not just a clear</text>
           </svg>
           <figcaption class="hk-caption">Shot from behind the centre line, travels the length of the ice, and no one touches it before the far goal line. Passing the centre line first is what makes it icing, not just a clear.</figcaption>
@@ -521,15 +559,15 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
   </div>
 </section>
 
-<section class="panel ink2" id="zones" data-label="Zones">
+<section class="panel bone on-bone" id="zones" data-label="Zones">
   <div class="panel__in">
     <div class="wrap"><div class="hk">
       <div class="phead"><div>
         <h2 class="disp d3">Reading the ice: three zones</h2>
+        <p class="body pagesub">The blue lines split the rink into three zones — this is the whole reason offside and icing exist. Tap a zone.</p>
       </div></div>
-      <p class="body hk-lede">The blue lines split the rink into three zones — this is the whole reason offside and icing exist. Tap a zone.</p>
 
-      <div class="hk-rinklayout">
+      <div class="hk-pair">
         <svg id="zone-rink" viewBox="0 -14 640 324">
           <!-- direction arrow -->
           <line x1="60" y1="18" x2="580" y2="18" stroke="var(--ice)" stroke-width="1.2"/>
@@ -541,13 +579,13 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
 
             <!-- zone tints, clipped to rink shape -->
             <g clip-path="url(#rinkClip)">
-              <rect class="zone-hotspot" data-zone="def" x="3" y="3" width="237" height="266" fill="rgba(147,169,184,.10)"/>
-              <rect class="zone-hotspot" data-zone="neutral" x="240" y="3" width="160" height="266" fill="rgba(237,234,225,.06)"/>
-              <rect class="zone-hotspot" data-zone="off" x="400" y="3" width="237" height="266" fill="rgba(247,195,37,.12)"/>
+              <rect class="zone-tint" data-zone="def" x="3" y="3" width="237" height="266" fill="rgba(147,169,184,.10)"/>
+              <rect class="zone-tint" data-zone="neutral" x="240" y="3" width="160" height="266" fill="rgba(237,234,225,.06)"/>
+              <rect class="zone-tint" data-zone="off" x="400" y="3" width="237" height="266" fill="rgba(247,195,37,.12)"/>
             </g>
 
             <!-- boards -->
-            <rect x="3" y="3" width="634" height="266" rx="90" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
+            <rect x="3" y="3" width="634" height="266" rx="90" class="hk-sheet" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
 
             <!-- goal lines -->
             <line x1="35" y1="3" x2="35" y2="269" stroke="var(--ice)" stroke-opacity=".55" stroke-width="2"/>
@@ -608,9 +646,10 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
           </g>
         </svg>
 
-        <div class="hk-panel">
-          <div class="role-name" id="zone-title">Tap a zone</div>
-          <div class="role-desc" id="zone-desc">Same rink, three jobs. Which zone you're in changes what you're supposed to be doing.</div>
+        <div class="hk-list" id="zone-list">
+          <button class="hk-item" data-zone="def"><span class="key key--sq key--def"></span><span><span class="nm">Defensive zone</span><span class="ds">The area in front of your own net. Priority: break up the attack, block shots, and get the puck out. This is where icing calls start.</span></span></button>
+          <button class="hk-item" data-zone="neutral"><span class="key key--sq key--neutral"></span><span><span class="nm">Neutral zone</span><span class="ds">The buffer between the two blue lines. This is where the offside rule lives: attackers can't cross the far blue line ahead of the puck.</span></span></button>
+          <button class="hk-item" data-zone="off"><span class="key key--sq key--off"></span><span><span class="nm">Offensive zone</span><span class="ds">The attacking zone, in front of the opponent's net. Once your team is set up here, you can pass and shoot freely, until the puck leaves the zone.</span></span></button>
         </div>
       </div>
     </div></div>
@@ -622,12 +661,12 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
     <div class="wrap"><div class="hk">
       <div class="phead"><div>
         <h2 class="disp d3">Who's who on the ice</h2>
+        <p class="body pagesub">Tap a spot on the rink to see what that player is actually responsible for.</p>
       </div></div>
-      <p class="body hk-lede">Tap a spot on the rink to see what that player is actually responsible for.</p>
 
-      <div class="hk-rinklayout">
+      <div class="hk-pair">
         <svg id="position-rink" viewBox="0 0 500 260">
-          <rect x="4" y="4" width="492" height="252" rx="50" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
+          <rect x="4" y="4" width="492" height="252" rx="50" class="hk-sheet" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="2"/>
           <line x1="250" y1="4" x2="250" y2="256" stroke="rgba(237,234,225,.28)" stroke-width="1.5"/>
           <rect x="4" y="90" width="14" height="80" fill="none" stroke="rgba(237,234,225,.28)" stroke-width="1.5"/>
 
@@ -639,23 +678,26 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
           <g class="pos-dot" data-pos="rw"><circle cx="200" cy="205" r="17" fill="var(--ink2)" stroke="rgba(237,234,225,.76)" stroke-width="1.5"/><text x="200" y="209" text-anchor="middle">RW</text></g>
         </svg>
 
-        <div class="hk-panel">
-          <div class="role-name" id="pos-title">Tap a position</div>
-          <div class="role-desc" id="pos-desc">Goalie, defence, centre, wings — each one has a clear job. Start with the goalie.</div>
+        <div class="hk-list" id="pos-list">
+          <button class="hk-item" data-pos="g"><span class="key">G</span><span><span class="nm">Goalie</span><span class="ds">The only player allowed to use a blocking glove and drop to cover the puck. Job one: stop it from crossing the line, whatever it takes.</span></span></button>
+          <button class="hk-item" data-pos="d"><span class="key">D</span><span><span class="nm">Defence</span><span class="ds">Two of them, working as a pair. They stay back to break up attacks, block shots, and start the puck moving up ice.</span></span></button>
+          <button class="hk-item" data-pos="c"><span class="key">C</span><span><span class="nm">Centre</span><span class="ds">Covers the most ice of anyone. Takes faceoffs, links defence and attack, and is usually first back on defence.</span></span></button>
+          <button class="hk-item" data-pos="lw"><span class="key">LW</span><span><span class="nm">Left wing</span><span class="ds">Skates the left side, battles along the boards, and looks to finish plays set up through the middle.</span></span></button>
+          <button class="hk-item" data-pos="rw"><span class="key">RW</span><span><span class="nm">Right wing</span><span class="ds">Mirrors the left wing on the right side: width in the attack, support on the way back.</span></span></button>
         </div>
       </div>
     </div></div>
   </div>
 </section>
 
-<section class="panel ink2" id="glossary" data-label="Glossary">
+<section class="panel bone on-bone hk-tone" id="glossary" data-label="Glossary">
   <div class="panel__in">
     <div class="wrap"><div class="hk hk-split">
       <div>
         <div class="phead"><div>
-          <h2 class="disp d3">Words you'll hear on the bench</h2>
-        </div></div>
-        <p class="body hk-lede">The five terms that come up in almost every game.</p>
+        <h2 class="disp d3">Words you'll hear on the bench</h2>
+        <p class="body pagesub">The five terms that come up in almost every game.</p>
+      </div></div>
       </div>
       <div class="hk-glossary">
         <div class="hk-term"><h3 class="hk-sub word">Faceoff</h3><p class="def">Two players battle for the puck as an official drops it — how play restarts after every stoppage.</p></div>
@@ -673,8 +715,8 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
     <div class="wrap"><div class="hk">
       <div class="phead"><div>
         <h2 class="disp d3">What the ref is signalling</h2>
+        <p class="body pagesub">The whistle blew — here's how to read the arms before the announcer catches up. These are the nine penalty signals you'll see most often; a minor penalty means two minutes in the box.</p>
       </div></div>
-      <p class="body hk-lede">The whistle blew — here's how to read the arms before the announcer catches up. These are the nine penalty signals you'll see most often; a minor penalty means two minutes in the box.</p>
       <div class="hk-sigs">
         <div class="hk-sig">
           <div class="sig-fig"><img src="assets/signals/elbowing.png" alt="Referee signalling elbowing" loading="lazy"></div>
@@ -735,13 +777,13 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
   </div>
 </section>
 
-<section class="panel ink2" id="gear" data-label="Gear">
+<section class="panel bone on-bone" id="gear" data-label="Gear">
   <div class="panel__in">
     <div class="wrap"><div class="hk">
       <div class="phead"><div>
         <h2 class="disp d3">The gear, explained</h2>
+        <p class="body pagesub">Hockey is fast and physical, so the equipment isn't optional — every piece is there for a reason.</p>
       </div></div>
-      <p class="body hk-lede">Hockey is fast and physical, so the equipment isn't optional — every piece is there for a reason.</p>
 
       <div class="hk-toggle">
         <button class="active" data-kit="player">Player</button>
@@ -982,11 +1024,9 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
         </svg>
 
         <div>
-          <div class="hk-detail">
-            <div class="part-name" id="equip-title">Tap the figure</div>
-            <div class="part-desc" id="equip-desc">Seven pieces of kit, each answering a different way the game can hurt you or slow you down.</div>
-          </div>
-          <div class="hk-fact" id="fun-fact">A full outfield kit weighs roughly <b>8–10 kg</b> — before the skates even touch the ice.</div>
+          <p class="hk-text" id="equip-desc">Seven pieces of kit, each answering a different way the game can hurt you or slow you down.</p>
+          <div class="hk-list hk-list--gear" id="equip-list"></div>
+          <p class="hk-fact" id="fun-fact">A full outfield kit weighs roughly <b>8–10 kg</b>, before the skates even touch the ice.</p>
         </div>
       </div>
     </div></div>
@@ -994,10 +1034,62 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
 </section>
 
 
-<!-- The send-off. It used to sit on bone; the club did not want a
-     light band on this page, so it stays on ink and is told apart
-     from the gear section above it by the step back from --ink2. -->
-<section class="panel" id="closing" data-label="Ready">
+<!-- The ice machine. A 3D model built from the four-view drawing
+     and turned by the scroll: js/zamboni.js has the model and the
+     behaviour, the hk-zam styles above have the layout. Each fact
+     belongs to one view, in this order: side, front, top, rear,
+     three-quarter. -->
+<section class="panel bone on-bone" id="machine" data-label="Ice machine">
+  <div class="panel__in">
+    <div class="wrap"><div class="hk hk-zam" id="zam">
+      <div class="hk-zam-stage">
+        <div class="hk-zam-head">
+          <div class="phead"><div>
+            <h2 class="disp d3">The ice machine</h2>
+            <p class="body pagesub">Between periods the players leave and this drives out. A few minutes later the ice is new. Scroll to walk around it.</p>
+          </div></div>
+        </div>
+        <div class="hk-zam-view" role="img" aria-label="A 3D model of an ice resurfacing machine that turns as you scroll"></div>
+        <div class="hk-zam-facts">
+          <div class="hk-zam-fact">
+            <p class="hk-zam-step">1 / 5</p>
+            <p class="hk-zam-fig">1949</p>
+            <h3 class="hk-sub">Built by a rink owner</h3>
+            <p class="hk-text">Frank Zamboni ran an ice rink in Paramount, California, and was tired of how long it took to clean. He spent years in his workshop on a machine that could do it in one pass; the first one that worked, the Model A, rolled out in 1949.</p>
+          </div>
+          <div class="hk-zam-fact">
+            <p class="hk-zam-step">2 / 5</p>
+            <p class="hk-zam-fig">15 <small>km/h</small></p>
+            <h3 class="hk-sub">Flat out, a slow bike ride</h3>
+            <p class="hk-text">A magazine once put one on a test track and clocked 9.7 mph, a little over 15 km/h. On the ice it goes slower still: the driver is laying a sheet of water, not racing the clock.</p>
+          </div>
+          <div class="hk-zam-fact">
+            <p class="hk-zam-step">3 / 5</p>
+            <p class="hk-zam-fig">1.2 <small>km</small></p>
+            <h3 class="hk-sub">One clean-up, one long lap</h3>
+            <p class="hk-text">From above you see the pattern: overlapping ovals from the boards inward. Added up, the machine covers about three quarters of a mile every time it cleans the ice, and it does that several times a game night.</p>
+          </div>
+          <div class="hk-zam-fact">
+            <p class="hk-zam-step">4 / 5</p>
+            <p class="hk-zam-fig">26 <small>kg</small></p>
+            <h3 class="hk-sub">The work happens at the back</h3>
+            <p class="hk-text">The sled it drags holds a steel blade weighing about 26 kg that shaves the top off the ice. Augers carry the shavings forward into the big tank, and a cloth behind the blade spreads warm water that freezes into the new surface.</p>
+          </div>
+          <div class="hk-zam-fact">
+            <p class="hk-zam-step">5 / 5</p>
+            <p class="hk-zam-fig">15 <small>min</small></p>
+            <h3 class="hk-sub">It used to take a crew and an hour</h3>
+            <p class="hk-text">Before the machine, three or four people scraped the rink, shovelled the snow, sprayed water and waited: more than an hour each time. The Model A did the same job, alone, in about fifteen minutes.</p>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+
+<!-- The send-off, on the second paper tone like the glossary. -->
+<section class="panel bone on-bone hk-tone" id="closing" data-label="Ready">
   <div class="panel__in">
     <div class="wrap"><div class="hk hk-close">
       <h2 class="disp d3">Ready for all sixty minutes</h2>
@@ -1057,6 +1149,9 @@ body[data-page="hockey"] .panel.bone .hk-sig .sig-tag{color:var(--gold-d)}
 <script src="js/views.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/app.js"></script>
+<!-- Hockey 101 only: the 3D ice machine -->
+<script src="js/three.min.js"></script>
+<script src="js/zamboni.js"></script>
 <script>
 /* Hockey 101 page behaviour: rail, zones, positions, gear.
    Scoped so nothing leaks next to the site's own globals. */
@@ -1078,81 +1173,87 @@ function updateRail(){
 window.addEventListener('scroll', updateRail, {passive:true});
 updateRail();
 
-// ---- zones ----
-const zoneData = {
-  def:     ["Defensive zone", "The area in front of your own net. Priority: break up the attack, block shots, and get the puck out — this is where icing calls start."],
-  neutral: ["Neutral zone", "The buffer between the two blue lines. This is where the offside rule lives — attackers can't cross the far blue line ahead of the puck."],
-  off:     ["Offensive zone", "The attacking zone, in front of the opponent's net. Once your team is set up here, you can pass and shoot freely — until the puck leaves the zone."]
-};
+// ---- zones: the rink and its legend mark each other ----
+const zoneTints = document.querySelectorAll('.zone-tint');
+const zoneItems = document.querySelectorAll('#zone-list .hk-item');
+function pickZone(zone){
+  zoneTints.forEach(t => t.classList.toggle('active', t.dataset.zone === zone));
+  zoneItems.forEach(i => i.classList.toggle('active', i.dataset.zone === zone));
+}
+function hoverZone(zone){
+  zoneTints.forEach(t => t.classList.toggle('hover', t.dataset.zone === zone));
+}
 document.querySelectorAll('.zone-hotspot').forEach(z => {
-  z.addEventListener('click', () => {
-    document.querySelectorAll('.zone-hotspot').forEach(x=>x.classList.remove('active'));
-    z.classList.add('active');
-    const [name, desc] = zoneData[z.dataset.zone];
-    document.getElementById('zone-title').textContent = name;
-    document.getElementById('zone-desc').textContent = desc;
-  });
+  z.addEventListener('click', () => pickZone(z.dataset.zone));
+  z.addEventListener('mouseenter', () => hoverZone(z.dataset.zone));
+  z.addEventListener('mouseleave', () => hoverZone(null));
+});
+zoneItems.forEach(i => {
+  i.addEventListener('click', () => pickZone(i.dataset.zone));
+  i.addEventListener('mouseenter', () => hoverZone(i.dataset.zone));
+  i.addEventListener('mouseleave', () => hoverZone(null));
 });
 
-// ---- positions ----
-const posData = {
-  g:  ["Goalie", "The only player allowed to use a blocking glove and drop to cover the puck. Job one: stop it from crossing the line, whatever it takes."],
-  d1: ["Defence", "Stays back to break up attacks, blocks shots, and starts the puck moving up ice. Works as a pair with the other defender."],
-  d2: ["Defence", "Same job as the other defender — the two of them cover the width of the defensive zone together."],
-  c:  ["Centre", "Covers the most ice of anyone. Takes faceoffs, links defence and attack, and is usually first back on defence."],
-  lw: ["Left wing", "Skates the left side, battles along the boards, and looks to finish plays set up through the middle."],
-  rw: ["Right wing", "Mirrors the left wing on the right side — width in the attack, support on the way back."]
-};
-document.querySelectorAll('.pos-dot').forEach(dot => {
-  dot.addEventListener('click', () => {
-    document.querySelectorAll('.pos-dot').forEach(d=>d.classList.remove('active'));
-    dot.classList.add('active');
-    const [name, desc] = posData[dot.dataset.pos];
-    document.getElementById('pos-title').textContent = name;
-    document.getElementById('pos-desc').textContent = desc;
-  });
-});
+// ---- positions: both defenders share one entry ----
+const posDots = document.querySelectorAll('.pos-dot');
+const posItems = document.querySelectorAll('#pos-list .hk-item');
+const posKey = p => (p === 'd1' || p === 'd2') ? 'd' : p;
+function pickPos(key){
+  posDots.forEach(d => d.classList.toggle('active', posKey(d.dataset.pos) === key));
+  posItems.forEach(i => i.classList.toggle('active', i.dataset.pos === key));
+}
+posDots.forEach(d => d.addEventListener('click', () => pickPos(posKey(d.dataset.pos))));
+posItems.forEach(i => i.addEventListener('click', () => pickPos(i.dataset.pos)));
 
-// ---- equipment ----
+// ---- equipment: the list carries the same numbers as the pins ----
+const partOrder = ['helmet','shoulders','gloves','stick','pants','shins','skates'];
 const playerParts = {
-  helmet:   ["Helmet + visor", "Mandatory. A cage or visor guards against sticks and pucks at face height — the single most common serious injury without it."],
-  shoulders:["Shoulder pads", "Padding across the chest, back, shoulders and upper arms — absorbs checks and blocked shots without slowing your swing."],
+  helmet:   ["Helmet + visor", "Mandatory. A cage or visor guards against sticks and pucks at face height, the most common serious injury without it."],
+  shoulders:["Shoulder pads", "Padding across the chest, back, shoulders and upper arms. Absorbs checks and blocked shots without slowing your swing."],
   gloves:   ["Gloves", "Protect the hands and wrists from slashes and falls, while still letting you feel the stick precisely."],
   stick:    ["Stick", "Curved blade for handling and shooting the puck; length and flex are chosen per player and position."],
-  pants:    ["Girdle / shorts", "Heavily padded shorts covering hips, thighs and tailbone — where most of the checking impact lands."],
-  shins:    ["Shin guards + socks", "Hard shells over the knee and shin, worn under the team socks — they take blocked shots and stick blades all game."],
-  skates:   ["Skates", "Stiff boot for ankle support plus a steel blade — built for hard stops and sharp direction changes, not comfort."]
+  pants:    ["Girdle / shorts", "Heavily padded shorts covering hips, thighs and tailbone, where most of the checking impact lands."],
+  shins:    ["Shin guards + socks", "Hard shells over the knee and shin, worn under the team socks. They take blocked shots and stick blades all game."],
+  skates:   ["Skates", "Stiff boot for ankle support plus a steel blade, built for hard stops and sharp direction changes, not comfort."]
 };
 const goalieParts = {
   helmet:   ["Mask", "A full cage-and-shell mask built to take direct shots at 100+ km/h without transferring the impact."],
-  shoulders:["Chest & arm protector", "Oversized, heavily padded — designed to be a big, safe surface to block shots with, not to move quickly."],
+  shoulders:["Chest & arm protector", "Oversized and heavily padded: a big, safe surface to block shots with, not something to move quickly in."],
   gloves:   ["Trapper (catch glove)", "One hand wears this padded mitt built purely for catching the puck out of the air."],
   stick:    ["Blocker + goalie stick", "The other hand carries a flat paddle glove and a wide-bladed stick for pad saves and clears."],
   pants:    ["Goalie pants", "Wider and thicker than a skater's, padded to close the gap between the chest protector and the leg pads."],
-  shins:    ["Leg pads", "Large padded shields down each leg — the reason a goalie's silhouette looks nothing like a skater's."],
+  shins:    ["Leg pads", "Large padded shields down each leg, the reason a goalie's silhouette looks nothing like a skater's."],
   skates:   ["Goalie skates", "Lower profile with less curve, built for lateral sliding across the crease rather than speed up ice."]
 };
 let currentKit = playerParts;
 const figures = document.querySelectorAll('.hk-figure');
+const equipList = document.getElementById('equip-list');
+function renderParts(){
+  equipList.innerHTML = partOrder.map((p,i) =>
+    '<button class="hk-item" data-part="'+p+'"><span class="key">'+(i+1)+'</span><span><span class="nm"></span><span class="ds"></span></span></button>').join('');
+  equipList.querySelectorAll('.hk-item').forEach(item => {
+    const [name, desc] = currentKit[item.dataset.part];
+    item.querySelector('.nm').textContent = name;
+    item.querySelector('.ds').textContent = desc;
+    item.addEventListener('click', () => pickPart(item.dataset.part));
+  });
+}
 function clearFigures(){
   figures.forEach(f => {
     f.classList.remove('has-active');
     f.querySelectorAll('.hotspot, .hk-pin').forEach(x => x.classList.remove('active'));
   });
 }
-function pickPart(h){
-  const fig = h.closest('.hk-figure');
+function pickPart(part){
+  const fig = [...figures].find(f => !f.hasAttribute('hidden'));
   clearFigures();
   fig.classList.add('has-active');
-  h.classList.add('active');
-  fig.querySelectorAll('.hk-pin').forEach(p => p.classList.toggle('active', p.dataset.part === h.dataset.part));
-  const [name, desc] = currentKit[h.dataset.part];
-  document.getElementById('equip-title').textContent = name;
-  document.getElementById('equip-desc').textContent = desc;
+  fig.querySelectorAll('.hotspot, .hk-pin').forEach(x => x.classList.toggle('active', x.dataset.part === part));
+  equipList.querySelectorAll('.hk-item').forEach(i => i.classList.toggle('active', i.dataset.part === part));
 }
 document.querySelectorAll('.hotspot').forEach(h => {
-  h.addEventListener('click', () => pickPart(h));
-  h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickPart(h); } });
+  h.addEventListener('click', () => pickPart(h.dataset.part));
+  h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickPart(h.dataset.part); } });
 });
 document.querySelectorAll('.hk-toggle button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1162,15 +1263,63 @@ document.querySelectorAll('.hk-toggle button').forEach(btn => {
     currentKit = goalie ? goalieParts : playerParts;
     figures.forEach(f => { if (f.dataset.kit === btn.dataset.kit) f.removeAttribute('hidden'); else f.setAttribute('hidden', ''); });
     clearFigures();
-    document.getElementById('equip-title').textContent = 'Tap the figure';
+    renderParts();
     document.getElementById('equip-desc').textContent = goalie
-      ? "The goalie kit looks like a different sport — every piece is oversized for one job: blocking."
+      ? "The goalie kit looks like a different sport. Every piece is oversized for one job: blocking."
       : "Seven pieces of kit, each answering a different way the game can hurt you or slow you down.";
     document.getElementById('fun-fact').innerHTML = goalie
-      ? 'A full goalie kit can weigh <b>15–18 kg</b> — nearly double an outfield player\'s.'
-      : 'A full outfield kit weighs roughly <b>8–10 kg</b> — before the skates even touch the ice.';
+      ? 'A full goalie kit can weigh <b>15–18 kg</b>, nearly double an outfield player\'s.'
+      : 'A full outfield kit weighs roughly <b>8–10 kg</b>, before the skates even touch the ice.';
   });
 });
+renderParts();
+
+// ---- offside and icing play out as the reader scrolls past ----
+// Progress runs from 0, when a drawing comes up from the bottom of
+// the screen, to 1, when it reaches the middle; scrolling back up
+// rewinds it. With reduced motion the drawings stay at the whistle.
+const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const plays = document.querySelectorAll('.hk-play');
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const ease = t => t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+const span = (el, p) => {
+  const [a, b] = (el.dataset.span || '0,1').split(',').map(Number);
+  return ease(clamp01((p - a) / (b - a)));
+};
+function drawPlay(svg, p){
+  svg.querySelectorAll('[data-from]').forEach(el => {
+    const [dx, dy] = el.dataset.from.split(',').map(Number);
+    const k = 1 - span(el, p);
+    el.setAttribute('transform', 'translate(' + (dx*k).toFixed(1) + ' ' + (dy*k).toFixed(1) + ')');
+  });
+  svg.querySelectorAll('.hk-trail').forEach(el => {
+    const x1 = +el.getAttribute('x1');
+    el.setAttribute('x2', (x1 + (+el.dataset.to - x1) * span(el, p)).toFixed(1));
+  });
+  svg.querySelectorAll('.hk-fly').forEach(el => {
+    const [x0, y0, cx, cy, x1, y1] = el.dataset.path.split(',').map(Number);
+    const t = span(el, p), u = 1 - t;
+    const x = u*u*x0 + 2*u*t*cx + t*t*x1, y = u*u*y0 + 2*u*t*cy + t*t*y1;
+    el.setAttribute('cx', x.toFixed(1));
+    el.setAttribute('cy', y.toFixed(1));
+    svg.querySelectorAll('.hk-reveal').forEach(r => r.setAttribute('width', x.toFixed(1)));
+  });
+  svg.querySelectorAll('[data-show]').forEach(el => {
+    const from = +el.dataset.show;
+    el.style.opacity = clamp01((p - from) / (1 - from));
+  });
+}
+function updatePlays(){
+  const vh = window.innerHeight;
+  plays.forEach(svg => {
+    const r = svg.getBoundingClientRect();
+    const mid = r.top + r.height / 2;
+    drawPlay(svg, still ? 1 : clamp01((vh * .95 - mid) / (vh * .45)));
+  });
+}
+window.addEventListener('scroll', updatePlays, {passive:true});
+window.addEventListener('resize', updatePlays);
+updatePlays();
 })();
 </script>
 </body>

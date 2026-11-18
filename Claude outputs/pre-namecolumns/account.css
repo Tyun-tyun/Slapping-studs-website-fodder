@@ -1,0 +1,337 @@
+/* ============================================================
+   account.css — the member area (account.html). An app screen,
+   not a page, so it keeps its own rules, all scoped to .lk:
+
+   - Light, on the club's paper tones: bone as the ground, a
+     slightly deeper bone for each card, a deeper one still for a
+     panel inside a card. Ink for text, the club gold for data.
+   - Colour on data only. Gold marks my replies, the squad's
+     yes-answers, the places taken in the van and my member
+     points. Buttons, tabs and the nav stay neutral; the one
+     primary action per view is an ink pill.
+   - Gold is a fill here, never text: on paper it is unreadable,
+     so words use --gold-d.
+   - Archivo only, sentence case, tabular figures on every number.
+     App sizes: 28 title, 18 card title, 15 body, 13 meta, 24 figure.
+
+   The grid: a 232px sidebar and a fluid canvas inside the site's
+   1340 + 2x56 frame. Canvas padding 32px; one 16px gutter between
+   cards, vertical and horizontal.
+   ============================================================ */
+
+body[data-page="account"]{background:var(--bone)}
+
+.lk{
+  --g:var(--bone);       /* ground */
+  --s:var(--bone3);      /* card */
+  --r:var(--bone2);      /* nested panel, control fill */
+  --h:var(--bone4);      /* hover, a taken place */
+  --line:var(--rule-l2); /* the one structural line: sidebar edge, row rules */
+  --ctl:var(--rule-l3);  /* control outline */
+  --text:var(--ink);
+  --muted:var(--ink-b);  /* secondary text */
+  --faint:var(--ink-m);  /* meta */
+  --acc:var(--gold);     /* the one data hue, as a fill */
+  --acc-t:var(--gold-d); /* the same as text */
+  --neg:var(--danger-d);
+  --gap:16px;
+  --rc:8px;              /* card radius (tight) */
+  --rk:6px;              /* control radius */
+
+  display:grid;
+  grid-template-columns:232px minmax(0,1fr);
+  max-width:calc(var(--maxw) + 112px);
+  margin:0 auto;
+  min-height:100svh;
+  padding-top:var(--hdr,74px);
+  background:var(--g);
+  color:var(--text);
+  font-family:var(--disp);
+  font-stretch:100%;
+  font-size:15px;
+  line-height:1.5;
+}
+.lk .num{font-variant-numeric:tabular-nums}
+.lk h2,.lk h3{font-family:var(--disp);font-stretch:100%;text-transform:none;letter-spacing:0;margin:0;color:var(--text)}
+
+/* ---------------- sidebar --------------------------------- */
+.lk-side{
+  position:sticky;top:var(--hdr,74px);align-self:start;
+  height:calc(100svh - var(--hdr,74px) - var(--adminbar-h,0px));   /* the board's admin bar sits along the bottom */
+  display:flex;flex-direction:column;gap:24px;
+  padding:32px 20px 24px 24px;
+  border-right:1px solid var(--line);
+}
+.lk-me{display:flex;align-items:center;gap:12px}
+.lk-face{width:48px;height:48px;flex:0 0 48px;border-radius:50%;overflow:hidden;background:var(--r)}
+.lk-face svg{width:100%;height:100%;display:block}
+.lk-name{font-weight:700;font-size:15px;line-height:1.25}
+.lk-scope{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--faint);margin-top:3px}
+.lk-nav{display:flex;flex-direction:column;align-items:stretch;gap:2px}  /* layout.css styles every <nav> as the header bar */
+.lk-nav a{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  height:38px;padding:0 10px;margin:0 -10px;border-radius:var(--rk);
+  font-size:15px;font-weight:500;color:var(--muted);text-decoration:none;
+  transition:color .12s,background .12s;
+}
+.lk-nav a:hover{color:var(--text);background:var(--s)}
+.lk-nav a[aria-current="page"]{color:var(--text);font-weight:700;background:var(--h)}
+.lk-count{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;min-width:22px;height:20px;padding:0 6px;border-radius:10px;
+  display:inline-grid;place-items:center;background:var(--acc);color:var(--ink)}
+.lk-sidefoot{margin-top:auto;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.lk-sidefoot a,.lk-sidefoot button{font:inherit;font-size:14px;color:var(--faint);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:none}
+.lk-sidefoot a:hover,.lk-sidefoot button:hover{color:var(--text)}
+
+/* ---------------- canvas and title -------------------------- */
+.lk-main{padding:32px 32px 64px;min-width:0;display:flex;flex-direction:column;gap:var(--gap)}
+.lk-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:8px}
+.lk-title{font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:28px;line-height:1.15;letter-spacing:-.01em;text-transform:none;margin:0;color:var(--text)}
+.lk-sub{margin:6px 0 0;font-size:16px;color:var(--muted);max-width:72ch}
+.lk-actions{display:flex;gap:8px;align-items:center}
+.lk-saved{font-size:14px;color:var(--acc-t);min-height:20px}
+
+/* ---------------- cards ------------------------------------- */
+.lk-card{background:var(--s);border-radius:var(--rc);padding:20px 24px;min-width:0}
+.lk-cardhead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:12px}
+.lk-cardhead h2{font-size:18px;font-weight:700;line-height:1.3}
+.lk-meta{font-size:13px;color:var(--faint)}
+.lk-line{margin:0 0 12px;color:var(--muted);font-size:15px}
+.lk-big{margin:0 0 4px;font-size:20px;font-weight:700;line-height:1.25}
+.lk-figure{margin:12px 0;display:block;color:var(--muted);font-size:15px}
+.lk-figure b{font-size:24px;font-weight:700;color:var(--text);margin-right:4px}
+.lk-empty{margin:0;padding:14px 16px;border:1px dashed var(--ctl);border-radius:var(--rc);color:var(--muted);font-size:15px}
+.lk-empty a,.lk-line a{color:var(--text)}
+.lk-more{display:table;margin-top:12px;font-size:14px;font-weight:700;color:var(--text);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--ctl)}
+.lk-more:hover{text-decoration-color:var(--text)}
+
+.lk-grid{display:grid;gap:var(--gap);align-items:start}
+.lk-grid--rail{grid-template-columns:minmax(0,1fr) 360px}
+.lk-grid--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lk-col{display:flex;flex-direction:column;gap:var(--gap);min-width:0}
+
+/* ---------------- controls ---------------------------------- */
+.lk-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 20px;
+  border-radius:999px;border:0;background:var(--ink);color:var(--bone);font:inherit;font-size:14px;font-weight:700;
+  text-decoration:none;cursor:pointer;white-space:nowrap;transition:background .12s,transform .1s;
+}
+.lk-btn:hover{background:var(--ink3)}
+.lk-btn:active{transform:translateY(1px)}
+.lk-textbtn{font:inherit;font-size:14px;font-weight:700;color:var(--text);background:none;border:0;padding:6px 0;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--ctl);white-space:nowrap}
+.lk-textbtn:hover{text-decoration-color:var(--text)}
+.lk :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* reply control: two or three neutral buttons; the chosen one shows
+   the answer, in gold only when it is a yes - that is data */
+.lk-seg{display:inline-flex;flex:none;background:var(--r);border-radius:var(--rk);padding:3px;gap:2px}
+.lk-seg button{
+  height:32px;padding:0 12px;border:0;border-radius:4px;background:transparent;color:var(--muted);
+  font:inherit;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;
+}
+.lk-seg button:hover{color:var(--text);background:var(--h)}
+.lk-seg button.on{background:var(--ink);color:var(--bone);font-weight:700}
+.lk-seg button.on.in,.lk-seg button.on.yes{background:var(--acc);color:var(--ink)}
+
+/* ---------------- lists ------------------------------------- */
+.lk-list{list-style:none;margin:0;padding:0}
+.lk-row{display:grid;grid-template-columns:112px minmax(0,1fr) auto;gap:16px;align-items:center;min-height:60px;padding:10px 0;border-top:1px solid var(--line)}
+.lk-row:first-child{border-top:0}
+.lk-when b,.lk-what b{display:block;font-size:15px;font-weight:700;line-height:1.3}
+.lk-when span,.lk-what span{display:block;font-size:13px;color:var(--faint);margin-top:2px;font-variant-numeric:tabular-nums}
+.lk-when b{font-variant-numeric:tabular-nums}
+.lk-row:target{background:var(--r);margin:0 -12px;padding-inline:12px;border-radius:var(--rk)}
+
+.lk-notes{list-style:none;margin:0;padding:0}
+.lk-notes li{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:16px;padding:10px 0;border-top:1px solid var(--line);align-items:baseline}
+.lk-notes li:first-child{border-top:0}
+.lk-notes b{font-size:14px;font-weight:700}
+.lk-notes p{margin:0;font-size:15px}
+.lk-notes span{font-size:13px;color:var(--faint);white-space:nowrap}
+
+.lk-kv{list-style:none;margin:8px 0 0;padding:0}
+.lk-kv li{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:36px;padding:6px 0;border-top:1px solid var(--line);font-size:15px}
+.lk-kv li:first-child{border-top:0}
+
+.lk-pill{display:inline-flex;align-items:center;flex:none;height:22px;padding:0 8px;border-radius:4px;font-size:13px;font-weight:700;white-space:nowrap}
+.lk-pill.on{background:var(--acc);color:var(--ink)}
+.lk-pill.off{background:var(--h);color:var(--muted)}
+
+/* ---------------- overview: games and practices ---------------
+   Games are gold tickets: the title and the answer on the left, the
+   day torn off on the right along a dashed perforation, with notches
+   cut out of the card behind. Practices hang off one vertical line,
+   by week: date, a dot, the time, then Yes / Maybe / No. */
+.lk-trio{display:grid;grid-template-columns:repeat(3,minmax(64px,1fr));gap:8px;flex:none}
+.lk-trio button{
+  height:36px;padding:0 12px;border:1.5px solid var(--ctl);border-radius:var(--rk);background:transparent;color:var(--text);
+  font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .12s,color .12s;
+}
+.lk-trio button:hover{background:var(--h)}
+.lk-trio button.on{background:var(--ink);border-color:var(--ink);color:var(--bone);font-weight:700}
+.lk-trio button.on.in,.lk-trio button.on.yes{background:var(--acc);border-color:var(--ink);color:var(--ink)}
+
+.tk{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr) 120px;margin-top:12px;
+  background:var(--acc);color:var(--ink);border-radius:var(--rc);
+}
+.tk-main{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:20px 24px;min-width:0}
+.tk-title{font-size:22px;font-weight:800;line-height:1.15;text-transform:none;letter-spacing:0;margin:0}
+.tk-title a{color:inherit;text-decoration:none}
+.tk-title a:hover{text-decoration:underline;text-underline-offset:3px}
+.tk-meta{margin:0;font-size:14px;font-weight:600}
+.tk-count{margin:0;font-size:14px}
+.tk-count b{font-size:18px}
+.tk .lk-trio{width:100%;max-width:300px}
+.tk .lk-trio button{border-color:var(--ink);color:var(--ink)}
+.tk .lk-trio button:hover{background:rgba(17,20,23,.1)}
+.tk .lk-trio button.on,.tk .lk-trio button.on.yes{background:var(--ink);color:var(--bone)}
+.tk-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:16px 8px;border-left:2px dashed rgba(17,20,23,.45);text-align:center}
+.tk-day b{font-size:52px;font-weight:800;line-height:1}
+.tk-day span{font-size:14px;font-weight:600}
+.tk-day::before,.tk-day::after,.tk::before,.tk::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:var(--s)}
+.tk-day::before{left:-9px;top:-8px}
+.tk-day::after{left:-9px;bottom:-8px}
+.tk::before{left:-8px;top:calc(50% - 8px)}
+.tk::after{right:-8px;top:calc(50% - 8px)}
+
+.pr-week{font-size:15px;font-weight:700;color:var(--faint);margin:20px 0 6px}
+.pr-week:first-of-type{margin-top:0}
+.pr-list{position:relative;list-style:none;margin:0;padding:0}
+.pr-list::before{content:"";position:absolute;left:73px;top:0;bottom:0;width:2px;background:var(--ctl)}
+.pr-row{position:relative;display:grid;grid-template-columns:64px 20px minmax(0,1fr) auto;column-gap:0;align-items:center;min-height:60px;padding:8px 0}
+.pr-row:target{background:var(--r);border-radius:var(--rk)}
+.pr-date{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;padding-right:8px}
+.pr-date b{font-size:24px;font-weight:800;line-height:1}
+.pr-date span{font-size:13px;color:var(--faint)}
+.pr-dot{position:relative;z-index:1;justify-self:center;width:12px;height:12px;border-radius:50%;border:2px solid var(--ink);background:var(--s)}
+.pr-dot.on{background:var(--ink)}
+.pr-time{padding-left:14px;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.pr-time span{display:block;font-size:13px;font-weight:400;color:var(--faint)}
+.pr-row.out .pr-date,.pr-row.out .pr-time{opacity:.55}
+
+/* ---------------- member points ------------------------------ */
+.pts{max-width:440px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;margin:4px 0 12px}
+.pts i{display:block;aspect-ratio:1;border-radius:4px;background:transparent;border:1.5px solid var(--ctl)}
+.pts i.req{border:2px solid var(--ink)}
+.pts i.on{background:var(--acc)}
+.pts-note{margin:0}
+
+/* ---------------- games -------------------------------------- */
+.lk-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;margin-top:8px}
+.lk-game h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.lk-names{margin:12px 0 0;display:flex;flex-direction:column;gap:12px}
+.lk-names dt{font-size:13px;font-weight:700;color:var(--faint)}
+.lk-names dd{margin:2px 0 0;font-size:15px;color:var(--text)}
+.lk-ask{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding:12px 14px;background:var(--r);border-radius:var(--rc)}
+.lk-ask span{font-weight:700}
+.lk-trip{margin-top:8px}
+
+/* the club van: nine places, the driver's among them */
+.vanbox{margin:8px 0 0}
+.van{display:grid;grid-template-columns:repeat(3,minmax(0,56px));gap:8px;width:max-content;max-width:100%}
+.van .v{
+  display:grid;place-items:center;width:56px;height:56px;border-radius:var(--rk);
+  background:transparent;border:1.5px solid var(--ctl);
+  font-style:normal;font-size:15px;font-weight:700;color:var(--ink);
+}
+.van .v.on{background:var(--acc);border-color:var(--acc)}
+
+/* ---------------- forms -------------------------------------- */
+.lk-form{display:flex;flex-direction:column;gap:16px;max-width:none}
+.lk-form label,.lk-setpanel label{display:flex;flex-direction:column;gap:8px;font-family:var(--disp);font-size:14px;font-weight:500;color:var(--text);margin:0}
+.lk-form small{font-size:13px;color:var(--faint);font-weight:400}
+.lk-fpair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.lk input,.lk select{height:40px;padding:0 12px;border:1px solid var(--ctl);border-radius:var(--rk);background:var(--g);color:var(--text);font:inherit;font-size:15px}
+.lk input:focus,.lk select:focus{border-color:var(--ink);outline:none}
+.lk input:disabled{color:var(--muted);background:var(--r);border-color:transparent}
+.lk input::placeholder{color:var(--faint)}
+
+/* ---------------- profile (settings) ------------------------- */
+.lk-set{display:grid;grid-template-columns:300px minmax(0,1fr);gap:32px;padding:24px 0;border-top:1px solid var(--line)}
+.lk-head + .lk-set{border-top:0;padding-top:8px}
+.lk-setlabel h2{font-size:16px;font-weight:700}
+.lk-setlabel p{margin:6px 0 0;font-size:14px;color:var(--muted)}
+.lk-setpanel{display:flex;flex-direction:column;gap:16px}
+.lk-preview{margin-top:16px;padding:16px;text-align:left;max-width:220px}
+.lk-previewav{width:100%;aspect-ratio:1/1;background:var(--r);border-radius:var(--rk);overflow:hidden}
+.lk-previewav svg{width:100%;height:100%;display:block}
+.lk-previewname{margin-top:10px;font-weight:700;font-size:15px}
+.lk-previewname .no{font-family:"NY Rangers","Archivo",sans-serif;color:var(--acc-t);font-weight:400;margin-right:6px}
+.lk-avrow{display:grid;grid-template-columns:110px minmax(0,1fr);gap:16px;align-items:center}
+.lk-avlabel{font-size:14px;font-weight:500}
+.lk-avopts{display:flex;flex-wrap:wrap;gap:6px}
+.lk-avopts button{
+  height:32px;padding:0 12px;border-radius:var(--rk);border:1px solid var(--ctl);background:transparent;color:var(--muted);
+  font:inherit;font-size:14px;cursor:pointer;
+}
+.lk-avopts button:hover{color:var(--text);border-color:var(--ink)}
+.lk-avopts button.on{background:var(--ink);border-color:var(--ink);color:var(--bone);font-weight:700}
+.lk-avopts.sw button{width:32px;padding:0;display:grid;place-items:center;border-radius:50%}
+.lk-avopts.sw button i{width:22px;height:22px;border-radius:50%;background:var(--sw)}
+.lk-avopts.sw button.on{background:transparent;border:2px solid var(--ink)}
+.lk-avfoot{display:flex;gap:20px;flex-wrap:wrap}
+.lk-switch{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.lk-switch + .lk-switch{padding-top:16px;border-top:1px solid var(--line)}
+.lk-switch b{font-size:15px;font-weight:700;margin-right:8px}
+.lk-switch p{margin:6px 0 0;font-size:14px;color:var(--muted);max-width:56ch}
+.lk-toggle{flex:none;position:relative;width:36px;height:20px;border-radius:10px;border:0;background:var(--ctl);cursor:pointer;padding:0;margin-top:2px;transition:background .15s}
+.lk-toggle i{position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:var(--bone);transition:transform .15s}
+.lk-toggle.on{background:var(--acc)}
+.lk-toggle.on i{transform:translateX(16px);background:var(--ink)}
+
+/* ---------------- tablet and phone --------------------------- */
+@media (max-width:1100px){
+  .lk-grid--rail,.lk-grid--2{grid-template-columns:1fr}
+  .lk-set{grid-template-columns:1fr;gap:16px}
+  .lk-preview{display:none}
+}
+@media (max-width:860px){
+  .lk{grid-template-columns:1fr}
+  /* the sidebar folds into one row of areas under the site bar */
+  .lk-side{
+    position:sticky;top:var(--hdr,74px);z-index:5;height:auto;flex-direction:row;align-items:center;gap:12px;
+    padding:10px 16px;border-right:0;border-bottom:1px solid var(--line);background:var(--g);overflow-x:auto;
+  }
+  .lk-me,.lk-sidefoot{display:none}
+  .lk-nav{flex-direction:row;gap:4px}
+  .lk-nav a{margin:0;height:38px;padding:0 12px;white-space:nowrap;background:var(--s)}
+  .lk-nav a[aria-current="page"]{background:var(--ink);color:var(--bone)}
+  .lk-main{padding:20px 16px 48px}
+  .lk-split{grid-template-columns:1fr;gap:24px}
+  .lk-title{font-size:24px}
+}
+@media (max-width:640px){
+  .lk-card{padding:16px}
+  .tk{grid-template-columns:minmax(0,1fr) 92px}
+  .tk-main{padding:16px}
+  .tk-title{font-size:19px}
+  .tk-day b{font-size:40px}
+  .pr-list::before{left:57px}
+  .pr-row{grid-template-columns:48px 20px minmax(0,1fr);row-gap:6px}
+  .pr-row .lk-trio{grid-column:3;padding-left:14px}
+  .lk-trio button{padding:0 6px}
+  .lk-row{grid-template-columns:minmax(0,1fr) auto;gap:4px 12px}
+  .lk-row .lk-when{grid-column:1 / -1;display:flex;gap:8px;align-items:baseline}
+  .lk-row .lk-when span{margin:0}
+  .lk-notes li{grid-template-columns:1fr auto}
+  .lk-notes p{grid-column:1 / -1;grid-row:2}
+  .lk-fpair{grid-template-columns:1fr}
+  .lk-avrow{grid-template-columns:1fr;gap:8px}
+}
+
+/* a list in the narrow column: the reply control drops under the text */
+.lk-list--stack .lk-row{grid-template-columns:88px minmax(0,1fr);row-gap:8px}
+.lk-list--stack .lk-seg{grid-column:2;justify-self:start}
+@media (max-width:640px){
+  .lk-list--stack .lk-row{grid-template-columns:minmax(0,1fr)}
+  .lk-list--stack .lk-seg{grid-column:1 / -1}
+}
+
+/* member points: a stepper per member */
+.lk-row--pts{grid-template-columns:minmax(0,1fr) auto;min-height:56px}
+.lk-step{align-items:center}
+.lk-step b{min-width:64px;text-align:center;font-size:15px;font-weight:700}
+.lk-step button{width:32px;padding:0;font-size:18px;font-weight:700;color:var(--text)}
+.lk-step button:disabled{opacity:.35;cursor:default}
+.lk-low{color:var(--neg)!important;font-weight:700}

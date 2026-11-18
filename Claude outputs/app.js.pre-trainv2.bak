@@ -1,0 +1,479 @@
+/* ============================================================
+   app.js — page setup, header behaviour, the single delegated
+   click handler, and boot. Loads last.
+   ============================================================ */
+
+(function(S){
+  "use strict";
+  var $ = S.$, $$ = S.$$;
+
+  /* ---------------- pages -----------------------------------
+     There is no client-side router any more. Every page is its
+     own document, the browser navigates between them, and each
+     one says what it is in <body data-page> / <body data-nav>.
+     Links are built by Studs.url() in js/routes.js.
+
+     Section anchors (hockey.html#gear) are plain fragments:
+     the browser scrolls to them and .band[id] carries a
+     scroll-margin-top so the fixed header does not cover the
+     heading. See css/layout.css.
+
+     What is left here is the little that markup cannot do on
+     its own: refuse a gated page, pick the gallery's filter out
+     of the query string, and light up the right nav item.      */
+
+  /* Refuse a page this visitor may not open. Convenience, not
+     security — the real check belongs on the server. */
+  function guard(){
+    var gate = S.GATED[S.page()];
+    if(gate && !gate()){
+      location.replace(S.url("signin"));
+      return false;
+    }
+    return true;
+  }
+
+  /* The gallery reads its section filter and any open album out
+     of the query string, so both survive a reload and can be
+     pasted to someone else. */
+  function readGalleryUrl(){
+    if(S.page() !== "pictures") return;
+    var cats = ["games","tournaments","promo","coach"];
+    var cat  = S.query("cat");
+    S.state.picFilter = cats.indexOf(cat) > -1 ? cat : "all";
+    S.state.openAlbum = S.query("album") || null;
+  }
+
+  /* The sign-up form is on two pages now, and on the home page it
+     sits half way down — so after sending, or after asking for a
+     blank one, put the part that changed on screen instead of
+     throwing the reader back to the top of the document. */
+  function showJoin(sel){
+    var el = $(sel);
+    if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior:"smooth"});
+    else window.scrollTo(0,0);
+  }
+
+  S.markNav = function(){
+    var current = document.body.dataset.nav || "";
+    $$(".navitem").forEach(function(n){
+      n.classList.toggle("active", n.dataset.nav === current);
+    });
+  };
+
+  /* ---------------- hero wordmark subline --------------------
+     The subline reads as one unit with the wordmark above it only
+     if it spans exactly the same width, and its own text is far
+     too short at that font-size to reach it on its own - CSS
+     justify can stretch a short line to fill a box, but only if
+     something tells it how wide that box should be. This measures
+     the rendered "SLAPPING STUDS" and pins the subline to that
+     pixel width; text-align-last:justify (set in components.css)
+     does the actual stretching. Has to re-run once the real
+     NY Rangers face is in (fonts.ready), or it measures the
+     fallback font's width instead. */
+  function syncWordmarkWidth(){
+    var h1 = $(".wordmark-hero"), sub = $(".wordmark-sub");
+    if(!h1 || !sub) return;
+    /* Reset to the CSS clamp() before every measurement, or a
+       resize handler would compound yesterday's scale-up onto
+       today's and drift larger with every call. */
+    sub.style.fontSize = "";
+    var target  = h1.getBoundingClientRect().width;
+    var natural = sub.getBoundingClientRect().width;
+    if(natural <= 0) return;
+    /* Scale the whole line up rather than spacing its letters out
+       to fill the gap — tried letter-spacing first and stretching
+       eight words across a ~1000px line put ugly gaps between them.
+       Growing the font keeps every letterform's own proportions
+       and just makes the line bigger, the way "make it the size
+       that reaches" actually reads. Only stretches, never shrinks —
+       a subline already as wide as the wordmark (narrow viewport, a
+       longer edit from the console) is left at its own base size. */
+    if(target > natural){
+      var base = parseFloat(getComputedStyle(sub).fontSize);
+      sub.style.fontSize = (base * (target / natural)) + "px";
+    }
+  }
+
+  /* ---------------- header ----------------------------------
+     Deliberately does NOT reappear on scroll up. The only ways
+     back are scrolling to the top or moving the cursor into the
+     top 78px of the window. */
+  var hdr, peeking = false;
+
+  function setHeader(y){
+    var collapsed = y > 90;
+    hdr.classList.toggle("collapsed", collapsed);
+    if(!collapsed) hdr.classList.remove("peek");
+  }
+
+  function bindHeader(){
+    hdr = $("#hdr");
+    /* A page can open part-way down when the URL carries a
+       fragment, so set the initial state rather than assuming 0. */
+    setHeader(window.scrollY);
+    window.addEventListener("scroll", function(){ setHeader(window.scrollY); }, {passive:true});
+
+    document.addEventListener("mousemove", function(e){
+      if(e.clientY < 78){
+        if(!peeking){ peeking = true; hdr.classList.add("peek"); }
+      }else if(peeking && e.clientY > 190 && !hdr.contains(e.target)){
+        peeking = false; hdr.classList.remove("peek");
+      }
+    });
+
+    hdr.addEventListener("mouseleave", function(){
+      if(window.scrollY > 90){ peeking = false; hdr.classList.remove("peek"); }
+    });
+    /* keyboard users get the bar back when they tab into it */
+    hdr.addEventListener("focusin",  function(){ hdr.classList.add("peek"); });
+    hdr.addEventListener("focusout", function(){ if(window.scrollY > 90) hdr.classList.remove("peek"); });
+  }
+
+  /* ---------------- one click handler -----------------------
+     Everything interactive is declared with a data- attribute
+     and handled here. Renderers never bind their own listeners,
+     so re-rendering can never leak or duplicate a handler.     */
+  function bindClicks(){
+    /* A fixture row with a published sheet is a link in all but
+       markup: click anywhere on it to open game.html?id=... A click
+       on a real control inside the row (the Sheet link itself, an
+       admin Edit button) is left to that control. */
+    document.addEventListener("click", function(e){
+      if(e.target.closest("a,button,input,[contenteditable]")) return;
+      var tr = e.target.closest("tr[data-sheet]");
+      if(tr) location.href = tr.dataset.sheet;
+    });
+
+    document.addEventListener("click", function(e){
+      var t = e.target.closest(
+        "[data-login],[data-act],[data-add],[data-edit],[data-del],[data-dup],"+
+        "[data-tab],[data-filt],[data-sfilt],[data-ssort],[data-sshow],[data-revert],[data-pgseason],[data-gteam],[data-piccat],[data-chapnav],"+
+        "[data-cal],"+
+        "[data-album],[data-upload],[data-delphoto],[data-photoslot],"+
+        "[data-photoreplace],[data-photoremove],#acctbtn,#scrim");
+
+      if(!t){
+        var menu = $("#acctmenu");
+        if(menu && !e.target.closest("#acctmenu")) menu.classList.remove("on");
+        if(!e.target.closest(".photomenu")) S.closePhotoMenu();
+        return;
+      }
+      /* the photo button sits inside a .ph that may itself be an
+         album tile — do not let the click open the album too */
+      if(t.dataset && (t.dataset.photoslot || t.dataset.delphoto || t.dataset.upload)) e.stopPropagation();
+
+      /* Some of these controls now sit inside a real <a href> - the
+         news tiles on the home page are links to the post, and they
+         carry the edit, delete and photo buttons on top of the
+         picture. Without this, replacing a photo would also follow
+         the link and navigate away mid-edit. No control listed in
+         the selector above wants a link followed, so this is safe
+         for all of them. */
+      if(t.closest("a[href]")) e.preventDefault();
+      var d = t.dataset || {};
+
+      if(t.id === "acctbtn"){ $("#acctmenu").classList.toggle("on"); return; }
+      if(t.id === "scrim"){ S.closeDrawer(); return; }
+
+      switch(d.act){
+        case "drawerclose": S.closeDrawer(); return;
+        case "drawersave":  e.preventDefault(); S.saveDrawer(); return;
+        case "drawerdel":
+          if(S.drawerContext()) S.delRecord(S.drawerContext().col, S.drawerContext().id);
+          return;
+        case "signout": S.signOut(); return;
+        case "console":  location.href = S.url("admin"); return;
+        case "reset":    S.reset(); S.renderAll(); S.toast("Demo content reset"); return;
+        case "export":   S.exportJSON(); return;
+        case "joinagain":
+          S.state.joinSent = null; S.renderJoin();
+          showJoin("#joinform");
+          return;
+        case "newrecord":
+          S.openDrawer(S.schema[S.state.adTab] ? S.state.adTab : "news", null);
+          return;
+        case "inlineedit":
+          /* setEditing stores the flag in the session, so it is
+             still on when the home page finishes loading. */
+          S.setEditing(true);
+          location.href = S.url("home");
+          return;
+        case "toggleedit":
+          S.setEditing(!S.state.editing);
+          $("#acctmenu").classList.remove("on");
+          S.toast(S.state.editing ? "Inline editing on" : "Inline editing off");
+          return;
+      }
+
+      if(d.login){ S.signIn(d.login); $("#acctmenu").classList.remove("on"); return; }
+
+      /* Coaches may add players; everything else is admin-only.
+         This mirrors the PERMS map in auth.js. */
+      if(d.add){
+        if(!S.isAdmin() && !(d.add === "players" && S.can("roster.edit"))){
+          S.toast("Admins only"); return;
+        }
+        S.openDrawer(d.add, null); return;
+      }
+      if(d.edit){ if(!S.isAdmin()) return; var a = d.edit.split(":"); S.openDrawer(a[0], a[1]); return; }
+      if(d.del) { if(!S.isAdmin()) return; var b = d.del.split(":");  S.delRecord(b[0], b[1]); return; }
+      if(d.dup) { if(!S.isAdmin()) return; var c = d.dup.split(":");  S.dupRecord(c[0], c[1]); return; }
+
+      /* home calendar — month prev/next, wraps both ways */
+      if(d.cal){
+        S.state.calMonth = (S.state.calMonth + (d.cal === "next" ? 1 : 11)) % 12;
+        S.renderHomeCalendar();
+        return;
+      }
+
+      /* history chapter nav — scroll to the chapter, open to all */
+      if(d.chapnav){
+        var chEl = document.getElementById("chap-"+d.chapnav);
+        if(chEl) chEl.scrollIntoView({behavior:"smooth", block:"start"});
+        return;
+      }
+
+      if(d.tab){ S.state.adTab = d.tab; S.renderAdminNav(); S.renderAdminBody(); return; }
+      if(d.filt){ S.state.plFilter = d.filt; S.renderPlayers(); S.applyPhotos(); return; }
+      if(d.sfilt){ S.state.statFilter = d.sfilt; S.renderScoring(); return; }
+      if(d.ssort){ S.state.statSort = d.ssort; S.renderScoring(); return; }
+      if(d.sshow){ S.state.statAll = !S.state.statAll; S.renderScoring(); return; }
+      if(d.pgseason){ S.state.pgSeason = d.pgseason; S.renderPastGames(); return; }
+      if(d.gteam){ S.state.gTeam = d.gteam; S.renderGames(); return; }
+      /* Filtering and opening an album stay on this page, so they
+         rewrite the query string instead of navigating. */
+      if(d.piccat){
+        S.state.picFilter = d.piccat;
+        S.state.openAlbum = null;
+        S.replaceUrl(S.picturesUrl(d.piccat, null));
+        S.renderAlbums(); S.applyPhotos();
+        return;
+      }
+
+      /* open / close an album */
+      if("album" in d){
+        S.state.openAlbum = d.album || null;
+        S.replaceUrl(S.picturesUrl(S.state.picFilter, S.state.openAlbum));
+        S.renderAlbums(); S.applyPhotos();
+        window.scrollTo(0,0);
+        return;
+      }
+
+      /* add photos to an album (members, coaches and the board) */
+      if(d.upload){
+        if(!S.can("album.upload")){ S.toast("Members only"); return; }
+        var albumId = d.upload;
+        S.pickImage({multiple:true, maxW:1400, onPick:function(urls){
+          var album = S.state.content.albums.filter(function(a){ return a.id === albumId; })[0];
+          if(!album) return;
+          album.photos = (album.photos || []).concat(urls);
+          if(!S.getImage("album:"+album.id)) S.setImage("album:"+album.id, urls[0]);
+          if(S.save()){
+            S.renderAlbums(); S.applyPhotos();
+            S.toast(urls.length + (urls.length===1?" photo added":" photos added"));
+          }
+        }});
+        return;
+      }
+
+      /* remove one photo from an album */
+      if(d.delphoto){
+        if(!S.can("album.upload")) return;
+        var parts = d.delphoto.split(":"), al = parts[0], idx = Number(parts[1]);
+        var alb = S.state.content.albums.filter(function(a){ return a.id === al; })[0];
+        if(!alb || !alb.photos) return;
+        var removed = alb.photos.splice(idx,1)[0];
+        S.save(); S.renderAlbums(); S.applyPhotos();
+        S.toast("Photo removed","Undo",function(){
+          alb.photos.splice(idx,0,removed);
+          S.save(); S.renderAlbums(); S.applyPhotos(); S.toast("Restored");
+        });
+        return;
+      }
+
+      /* set or clear the photo in any slot on the page */
+      if(d.photoslot){
+        if(!S.isAdmin()){ S.toast("Admins only"); return; }
+        var slot = d.photoslot;
+        if(S.getImage(slot)){
+          S.openPhotoMenu(t, slot);
+        }else{
+          S.pickImage({maxW:1600, onPick:function(urls){
+            if(S.setImage(slot, urls[0])){ S.applyPhotos(); S.toast("Photo set"); }
+          }});
+        }
+        return;
+      }
+      if(d.photoreplace){
+        S.pickImage({maxW:1600, onPick:function(urls){
+          if(S.setImage(d.photoreplace, urls[0])){ S.applyPhotos(); S.toast("Photo replaced"); }
+        }});
+        S.closePhotoMenu();
+        return;
+      }
+      if(d.photoremove){
+        var gone = S.getImage(d.photoremove), gslot = d.photoremove;
+        S.clearImage(gslot); S.applyPhotos(); S.closePhotoMenu();
+        S.toast("Photo removed","Undo",function(){
+          S.setImage(gslot,gone); S.applyPhotos(); S.toast("Restored");
+        });
+        return;
+      }
+      if(d.revert){
+        delete S.state.content.copy[d.revert];
+        S.save(); S.renderAll(); S.toast("Reverted to the original text");
+        return;
+      }
+    }, true);
+  }
+
+  /* ---------------- dead links -> 404 -----------------------
+     One listener for the whole document. It runs on the bubble,
+     after the delegated handler above, and only ever acts on a
+     plain <a href> that points at a document which is not on
+     disk — see Studs.isDeadLink in js/routes.js. Everything else
+     falls through untouched, so external links, mail links and
+     in-page fragments behave exactly as the browser intends. */
+  function bindLinkGuard(){
+    document.addEventListener("click", function(e){
+      var a = e.target.closest("a[href]");
+      if(!a || e.defaultPrevented) return;
+      if(a.target && a.target !== "_self") return;   /* opens elsewhere */
+      if(!S.isDeadLink(a.getAttribute("href"))) return;
+      e.preventDefault();
+      location.href = S.NOTFOUND;
+    });
+  }
+
+  /* ---------------- page-level forms ------------------------ */
+  function bindForms(){
+    var signin = $("#signinform");
+    if(signin) signin.addEventListener("submit", function(e){
+      e.preventDefault();
+      var email = $("#si-em").value.trim().toLowerCase();
+      var pw = $("#si-pw").value;
+      var acc = S.accounts.filter(function(a){ return a.email === email && a.pw === pw; })[0];
+      if(acc){ $("#si-msg").textContent = ""; S.signIn(acc.role); }
+      else $("#si-msg").textContent = "No account matches that e-mail and password.";
+    });
+
+    /* Membership application. In the demo it is filed straight
+       into the sign-ups collection, which is what the board sees
+       in the admin console. On a real site the form posts to the
+       back end and this handler goes away. */
+    var join = $("#joinformel");
+    if(join) join.addEventListener("submit", function(e){
+      e.preventDefault();
+      var rec = {
+        id: S.uid(),
+        name:       $("#j-name").value.trim(),
+        email:      $("#j-email").value.trim(),
+        study:      $("#j-study").value,
+        experience: $("#j-exp").value,
+        session:    $("#j-session").value,
+        note:       $("#j-note").value.trim(),
+        date: new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"}),
+        status: "new"
+      };
+      if(!rec.name || !rec.email){ S.toast("Name and e-mail are required"); return; }
+      S.state.content.signups.unshift(rec);
+      S.save();
+      S.state.joinSent = rec;
+      S.renderJoin();
+      S.renderAdminNav();
+      join.reset();
+      showJoin("#joindone");
+      S.toast("Sent to the board");
+    });
+
+    /* The contact form shows which board member will receive it
+       before you send. Order matches the <option> list. */
+    var subject = $("#sub");
+    if(subject) subject.addEventListener("change", function(){
+      var inbox = ["voorzitter","penningmeester","wedstrijdsecretaris",
+                   "voorzitter","webcom","secretaris"][this.selectedIndex] || "bestuur";
+      $("#routeline").textContent = "Routed to: " + inbox + "@slappingstuds.nl";
+    });
+
+    /* Nothing is sent yet, so the contact form must not navigate.
+       Delete this whole handler once its action posts somewhere. */
+    var contact = $("#contactform");
+    if(contact) contact.addEventListener("submit", function(e){
+      e.preventDefault();
+      if(!$("#em").value.trim() || !$("#ms").value.trim()){
+        S.toast("An e-mail address and a message are required");
+        return;
+      }
+      contact.reset();
+      $("#routeline").textContent = "Routed to: voorzitter@slappingstuds.nl";
+      S.toast("Not connected yet — the form has no back end in this prototype");
+    });
+  }
+
+  /* ---------------- boot ------------------------------------ */
+  function boot(){
+    S.state.session = S.loadSession();
+    if(!guard()) return;               // gated page: we are leaving
+
+    S.state.content = S.load();
+
+    /* Forward-compatibility: a browser holding an older store
+       still gets any collection added to data.js since. */
+    if(!S.state.content.copy) S.state.content.copy = {};
+    Object.keys(S.seed).forEach(function(k){
+      if(!S.state.content[k]) S.state.content[k] = S.clone(S.seed[k]);
+    });
+
+
+    readGalleryUrl();
+
+    S.captureDefaults();
+    S.bindInlineEditing();
+    bindHeader();
+    bindClicks();
+    bindLinkGuard();
+    bindForms();
+
+    S.renderAll();
+
+    /* The deck reads the panels out of the document and builds the
+       dot rail, so it runs after the renderers have filled them.
+       A page with no .panel sections is left alone. */
+    S.initDeck();
+
+    /* Inline edit mode is remembered in the session, so an admin
+       who turns it on keeps it while moving around the site. */
+    if(S.state.session && S.state.session.editing) S.setEditing(true);
+
+    syncWordmarkWidth();
+    window.addEventListener("resize", S.layoutTimeline);
+    window.addEventListener("resize", syncWordmarkWidth);
+    /* Late layout shifts (webfonts, images) change the strip's
+       width, which changes how much room the pin needs - and the
+       wordmark's own width, which the subline is pinned to. */
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){
+      S.layoutTimeline(); syncWordmarkWidth();
+    });
+    window.addEventListener("load", S.layoutTimeline);
+    window.addEventListener("load", syncWordmarkWidth);
+    /* Belt and braces for the subline specifically: opened straight
+       off disk (file://) rather than through a server, a webfont
+       can take a beat neither "load" nor fonts.ready seems to
+       cover on every browser/OS combination this runs on. A couple
+       of delayed re-checks cost nothing once the page is idle and
+       catch it if the earlier hooks somehow missed the resize. */
+    setTimeout(syncWordmarkWidth, 300);
+    setTimeout(syncWordmarkWidth, 1000);
+    /* Only the history page has a #tltrack — no point listening
+       to scroll everywhere else for it. */
+    if($("#tltrack")) window.addEventListener("scroll", S.updateTimelineScroll, {passive:true});
+    /* Same idea for the chapter nav's active marker. */
+    if($("#chapbody")) window.addEventListener("scroll", S.updateChapterSpy, {passive:true});
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+
+})(window.Studs);

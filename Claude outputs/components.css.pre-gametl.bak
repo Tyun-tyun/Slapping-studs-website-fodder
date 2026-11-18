@@ -1,0 +1,960 @@
+/* ============================================================
+   components.css — everything repeatable: achievement strip,
+   news posts, event rail, join cards, history timeline,
+   data tables, roster, gear, rules, albums, board, accounts.
+   ============================================================ */
+
+/* ---------------- achievements strip ----------------------- */
+.strip{background:var(--gold);color:#141210}
+.strip .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.stat{background:var(--gold);padding:26px 22px 24px;position:relative}
+.stat:first-child{border-left:0}
+.stat .k{font-family:var(--mono);font-size:13px;letter-spacing:0;color:rgba(20,18,16,.62)}
+.stat .v{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;text-transform:uppercase;font-size:clamp(28px,3.2vw,44px);line-height:1;margin-top:10px}
+.stat .n{font-family:var(--mono);font-size:13px;letter-spacing:0;margin-top:8px;color:rgba(20,18,16,.72)}
+
+/* The value leads and its label sits under it - a label above a
+   number reads as an eyebrow. */
+.stat{display:flex;flex-direction:column}
+.stat>*{order:4}
+.stat .v{order:1;margin-top:0}
+.stat .k{order:2;margin-top:8px;font-size:14px;color:rgba(20,18,16,.78)}
+.stat .n{order:3;margin-top:2px;font-size:14px;color:rgba(20,18,16,.78)}
+
+/* ---------------- news ticker (replaces the achievements strip
+   on the home hero) -------------------------------------------
+   --ticker overrides .strip's own gold background to black and
+   turns it into one clipped, clickable row instead of the stat
+   grid, with the headline text carrying the gold instead. The track
+   holds two identical copies of the same headline line laid out
+   with flex so they sit end to end — sliding the track left by
+   exactly 50% of its own width (one copy) is what makes the loop
+   repeat without a visible seam or a jump-cut reset. */
+@font-face{
+  font-family:var(--disp);
+  src:url("../fonts/Graduate-Regular.ttf") format("truetype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+/* Black instead of the gold the .strip base rule sets, and the
+   text is gold instead of ink - the ticker inverts the strip's
+   usual colour pairing rather than reusing it. */
+.strip--ticker{display:block;overflow:hidden;text-decoration:none;cursor:pointer;background:var(--ink)}
+.strip-track{display:flex;width:max-content;will-change:transform;animation:studs-ticker 34s linear infinite}
+.strip--ticker:hover .strip-track,
+.strip--ticker:focus-visible .strip-track{animation-play-state:paused}
+.strip--ticker:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+/* +25% on the row's vertical padding and on both text sizes -
+   scaling every number that sets the strip's height by the same
+   factor is what keeps it proportional instead of just taller. */
+.strip-segment{flex:0 0 auto;display:flex;align-items:center;padding:20px var(--pad) 19px calc(var(--pad) / 2)}
+.strip-item{font-family:var(--disp);font-size:17.5px;font-weight:400;letter-spacing:0;color:var(--gold);white-space:nowrap;padding-right:32px}
+.strip-dot{color:rgba(247,195,37,.5);font-size:7.5px;padding-right:32px;line-height:1}
+.strip-segment .strip-item:first-child,
+.strip-segment .strip-dot:first-of-type{padding-left:calc(var(--pad) / 2)}
+
+@keyframes studs-ticker{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+/* A visitor who asked the OS to cut down on motion gets a still,
+   scrollable row instead of the marquee. */
+@media (prefers-reduced-motion: reduce){
+  .strip-track{animation:none;overflow-x:auto;width:auto}
+  .strip-segment:last-child{display:none}
+}
+
+/* ---------------- hero wordmark (NY Rangers face) ----------
+   The club's own name in the hero gets its own face instead of
+   Archivo. The font ships from /fonts as .otf/.ttf only — no
+   woff, because it sets one short logotype string, not body
+   copy, so the extra weight of the desktop formats doesn't
+   matter. Swap the two src lines for .woff2 if that ever gets
+   generated; nothing else about the rule needs to change. */
+@font-face{
+  font-family:"NY Rangers";
+  src:url("../fonts/nhl-ny-rangers.otf") format("opentype"),
+      url("../fonts/nhl-ny-rangers.ttf") format("truetype");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+/* Flat line again — the arc read as messy, not a badge. Only
+   the size changed from the first pass: a little bigger. */
+.wordmark-hero{
+  font-family:"NY Rangers","Archivo",sans-serif;
+  font-weight:400;
+  text-transform:uppercase;
+  line-height:.82;
+  margin:0;
+  text-wrap:balance;
+  letter-spacing:.008em;
+  /* 12.5vw keeps "SLAPPING STUDS" on one line inside the page
+     margins down to a 320px phone; the old 70px floor pushed it
+     off the right edge below ~600px. */
+  font-size:clamp(38px,12.5vw,198px);
+}
+/* The plain-words line under the wordmark: what this is, where,
+   and that beginners are welcome. Sentence case, full ink. */
+.herolead{font-family:var(--disp);font-size:clamp(18px,1.6vw,22px);line-height:1.45;color:var(--bone);max-width:44ch;margin:22px 0 0}
+.hero .herocta{margin:28px 0 clamp(20px,4vh,44px)}
+/* The club's one-line claim under the wordmark - same face and
+   colour as the news ticker (Graduate, gold), so the two gold
+   accents in the hero read as one family instead of two
+   unrelated choices. */
+.wordmark-sub{
+  font-family:var(--disp);
+  font-weight:400;
+  color:var(--gold);
+  margin:10px 0 0;
+  font-size:clamp(13px,1.6vw,19px);
+  white-space:nowrap;
+  /* js/app.js's syncWordmarkWidth() sets font-size here at
+     runtime, scaled up so the line's own rendered width lands on
+     the wordmark's width above it - clamp() above is only the
+     floor it starts scaling from. Tried spacing the letters out
+     instead of growing them (both plain word-justify and an even
+     per-character spread); either way the line was still sized
+     for a short caption and just looked stretched. Growing the
+     whole line keeps Graduate's own letterforms intact. Until
+     that runs the line sits at its own natural width - never
+     wider than the wordmark, so there's no bad fallback state. */
+}
+
+/* ---------------- home calendar -----------------------------
+   Replaced the news-tiles + upcoming-rail layout: one dark card
+   dropped into the paper section, the same move the signed-in
+   member rail already made elsewhere (.rail.dark) - a calendar
+   reads as club furniture, not as another paper form, so it
+   keeps the site's dark surface even while it sits on bone.
+   Grid lines are the 1px gaps between cells, not borders on each
+   one - .calgrid paints its own background as the rule colour and
+   every cell sits on top of it, edge to edge. */
+/* Paper, not ink: the calendar used to be a dark card dropped
+   into this section (the same move the signed-in member rail
+   makes elsewhere); it now stays in the section's own light
+   register instead, one step down from the page (bone3 on bone),
+   the way every other card on paper in this codebase sits. */
+.cal{background:var(--bone3);border-radius:0;padding:20px}
+
+/* One step down from the section's own --bone, for any block of
+   content on a bone panel that needs to read as a distinct card
+   rather than bare text on the page - the same recipe .cal and
+   .annlist already use for the home calendar. Buttons and notes
+   stay outside it, on the flat panel tone, the way "+ Add event"
+   sits outside .cal today. Used by about.html #facts, news.html
+   #posts, archive.html #archivetable and past-games.html #archive
+   so their paper sections read at the same depth as index.html's. */
+.bonecard{background:var(--bone3);border-radius:0;padding:20px}
+.bonecard .tblwrap{border:0}
+/* The calendar row is centred like every other .wrap, but with a
+   deeper inset than the shared --pad: calendar and announcements
+   sit as one pair well clear of both page edges, not stretched
+   from one side to the other. */
+/* (The calendar row used to take its own deeper inset here; it
+   now shares the page's one pair of margins.) */
+/* Legend + "Full calendar" link share the right end of the phead,
+   the legend first so the link stays the last thing on the line
+   as it is on every other phead. Swatches are real .calcell
+   classes shrunk to a chip, so they can never drift from the
+   grid's own colours. */
+.calside{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.callegend{list-style:none;margin:0;padding:0;display:flex;gap:16px;font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ink-b)}
+.callegend li{display:flex;align-items:center;gap:7px}
+.calsw{width:14px;height:14px;border-radius:0;background:var(--bone4);flex:0 0 auto}
+.calhead{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.calmonth{font-family:var(--disp);font-stretch:72%;font-weight:800;text-transform:uppercase;font-size:18px;color:var(--ink-b)}
+.calnav{background:var(--bone4);border:0;color:var(--ink-b);width:26px;height:26px;border-radius:0;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.calnav:hover{background:var(--ink);color:var(--bone)}
+.calweekdays{display:grid;grid-template-columns:repeat(7,1fr);font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ink-l);padding:0 2px 8px}
+.calweekdays span{text-align:left}
+/* Cards, not spreadsheet ruling: each day is its own rounded tile
+   with a real gap around it (background shows through as the
+   "grid line"), the way the reference calendar reads - not a
+   thin-bordered table. */
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+/* Date pinned to the top corner, event copy pinned to the
+   bottom - on a square this size the middle is dead air either
+   way, so the two things a cell can say never fight for the
+   same line the way they did stacked flush-top. A soft border +
+   shadow lifts every real day off the card behind it; a pad cell
+   drops both along with most of its opacity, so the run of empty
+   squares at the start/end of the grid reads as background, not
+   as more days to look at. */
+.calcell{
+  background:var(--bone4);
+  border-radius:0;
+  aspect-ratio:1/1;
+  padding:10px 11px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:6px;
+  overflow:hidden;
+  transition:transform .12s ease;
+}
+.calcell:not(.calcell--pad):hover{transform:translateY(-2px)}
+.calcell--pad{background:transparent;opacity:.45}
+.caldate{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink-b)}
+/* Date left, kick-off time right, on one baseline. */
+.caltop{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+.caltime{font-family:var(--mono);font-size:15px;font-weight:600;color:#3F4A52;white-space:nowrap}
+.calcell--home .caltime{color:#141210}
+.calcell--away .caltime{color:var(--gold)}
+.calcell--pad .caldate{font-weight:400;color:var(--ink-l)}
+/* Two tiers: gold fill = home game, the same gold the ticker and
+   the hero wordmark use. Away flips to the site's dark ink tile
+   instead of another paper tone - on a light card two pale fills
+   would sit too close together to read as different states, so
+   away borrows the one dark surface the rest of the site already
+   has, the way a photo negative of the home tile would look.
+   A plain event (no kind) keeps the ordinary light tile - the
+   fill is what says "game", not a badge glued onto every event. */
+.calcell--home{background:var(--gold);border-color:transparent}
+.calcell--home .caldate,
+.calcell--home .calevt{color:#141210}
+.calcell--away{background:var(--ink);border-color:transparent}
+.calcell--away .caldate,
+.calcell--away .calevt{color:var(--bone)}
+.calev{position:relative}
+/* Title case, not the all-caps mono the rest of the site uses
+   for labels - at nine-odd pixels inside a small square, capitals
+   packed edge to edge just look cramped. Two lines, then an
+   ellipsis instead of a hard, uneven cut mid-word. */
+.calevt{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  font-family:var(--disp);
+  font-stretch:82%;
+  font-weight:700;
+  font-size:15px;
+  letter-spacing:0;
+  line-height:1.2;
+  color:var(--ink-b);
+}
+/* A phone-width cell is ~44px square: the fill says "game", the
+   words would only be cut off. */
+@media (max-width:620px){
+  .calevt,.caltime{display:none}
+  .calcell{padding:6px;justify-content:center;align-items:center}
+  .calgrid{gap:4px}
+  .cal{padding:14px}
+}
+
+/* ---------------- announcements (sits beside the calendar) --
+   Same shape as .feedgrid below (wide column + a narrower side
+   column) but its own class: the calendar isn't a news feed and
+   the two shouldn't drift together just because they share a
+   ratio today. A plain list, not another card grid - this is
+   the one thing on the page that reads like a noticeboard, and
+   a noticeboard is quiet lines, not more tiles. */
+.newsgrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(320px,1fr);
+  grid-template-areas:"calhead annhead" "calbody annbody";
+  column-gap:clamp(28px,4vw,64px);align-items:start}
+.nh-cal{grid-area:calhead} .nh-ann{grid-area:annhead}
+.nb-cal{grid-area:calbody} .nb-ann{grid-area:annbody}
+/* both headings sit on the floor of the row they share, so the two
+   cards below them start on one line whatever the legend wraps to */
+.nh-cal,.nh-ann{align-self:end;margin-bottom:clamp(14px,1.7vw,20px)}
+/* Announcements sits directly beside the calendar as the narrow
+   half of the pair - the calendar takes two thirds of the row,
+   announcements the remaining third. */
+/* Belt and braces on top of .newsgrid's own align-items:start:
+   this column must never stretch to the calendar column's height,
+   whatever the row's tallest month looks like. */
+
+/* The hidden spacer phead (see index.html) has to wrap exactly where
+   the real one wraps, so it gets the real one's width: the calendar
+   column is 2fr to this column's 1fr, so 200% of annside is the
+   calendar column to the pixel. Overflowing annside is fine - it's
+   invisible and only its height is used. */
+
+/* .annlabel retired: the two headings are both .disp.d3 now, so
+   they cannot drift apart in size, weight or colour. */
+/* Its own card, same recipe as .cal, so the two blocks read as
+   equal citizens of the row instead of one being furniture and
+   the other being loose text on the page background. */
+.annlist{display:flex;flex-direction:column;background:var(--bone3);border-radius:0;padding:20px}
+.ann{position:relative;padding:16px 0}
+.ann:first-child{border-top:none;padding-top:0}
+.annhead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.annwhen{font-family:var(--mono);font-size:14px;letter-spacing:0;color:#4F5B65}   /* 4.5:1 on the bone3 card */
+.ann .tag.note,.ann .tag{padding:0;border:0;background:none;font-weight:700;font-size:14px;color:#6B5200}
+.anntext{margin:0;font-family:var(--disp);font-weight:500;font-size:16px;line-height:1.45;color:var(--ink)}
+@media (max-width:860px){
+  .newsgrid{grid-template-columns:1fr;
+    grid-template-areas:"calhead" "calbody" "annhead" "annbody"}
+  .nh-ann{margin-top:40px}
+}
+
+/* ---------------- news feed + events rail ------------------ */
+.feedgrid{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(280px,.9fr);gap:clamp(28px,4vw,62px);align-items:start}
+@media (max-width:980px){.feedgrid{grid-template-columns:minmax(0,1fr)}}
+.post{display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;padding:24px 0;text-decoration:none;color:inherit;position:relative}
+.post .ph{aspect-ratio:4/3}
+.pmeta{font-size:15px;line-height:1.4;color:var(--ink-m)}
+.pmeta b{color:var(--ink-b);font-weight:600}
+.ptitle{font-family:var(--disp);font-stretch:72%;font-weight:800;text-transform:uppercase;font-size:clamp(20px,2.2vw,29px);line-height:1;margin:9px 0;transition:color .15s}
+.post:hover .ptitle{color:#4A3A00}
+.pex{font-size:17px;line-height:1.55;color:rgba(12,13,14,.68);max-width:56ch;margin:0}
+.draftpill{font-family:var(--mono);font-size:13px;letter-spacing:0;padding:2px 6px;color:var(--edit);margin-left:8px}
+
+.rail{background:rgba(12,13,14,.03);position:sticky;top:96px}
+.rail.dark{border-color:var(--line-d);background:var(--ink2)}
+.railhead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--ink);color:var(--bone)}
+.ev{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;padding:15px 16px;text-decoration:none;color:inherit;position:relative}
+.ev:hover{background:rgba(247,195,37,.16)}
+.evd{text-align:center;padding:7px 0;height:fit-content}
+.evd .dd{font-family:var(--disp);font-stretch:72%;font-weight:800;font-size:22px;line-height:1}
+.evd .mm{font-family:var(--mono);font-size:13px;letter-spacing:0;color:#6C7A84}
+.evt{font-family:var(--disp);font-stretch:80%;font-weight:700;text-transform:uppercase;font-size:14.5px;line-height:1.15}
+.evs{font-family:var(--mono);font-size:13px;letter-spacing:0;color:#6C7A84;margin-top:5px}
+/* the dark member rail sits inside a paper band, so it has to
+   re-assert its own text colours or it inherits ink on ink */
+.rail.dark .ev{border-top-color:var(--line-d);color:var(--bone)}
+.rail.dark .railhead .mono{color:var(--bone)}
+.rail.dark .evd{border-color:var(--line-d)}
+.rail.dark .ev:hover{background:rgba(247,195,37,.08)}
+.rail.dark .evs,.rail.dark .evd .mm{color:var(--ice)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:13px;letter-spacing:0;padding:3px 7px}
+.tag.home{color:#8A6A00} .tag.away{color:#5D6C76}
+.rail.dark .tag.home{color:var(--gold)} .rail.dark .tag.away{color:var(--ice)}
+.tag.note{color:var(--gold-d)}
+
+/* ---------------- join cards ------------------------------- */
+
+/* ================ HISTORY PAGE ============================= */
+
+/* ---------------- history: timeline -----------------------
+   An actual vertical timeline: a spine down the left with one
+   node per moment, the year set large at the head of each
+   entry and the copy (plus an optional photo) hung to the
+   right of the line. renderTimeline() in js/views.js writes it
+   as <ol class="tline">. This replaced a pinned, horizontally
+   panning strip (.tltrack / .tlpin / .tlghost / .tl / .tlmoment
+   and its media query), all now removed.                       */
+.tline{position:relative;list-style:none;margin:clamp(24px,3.6vw,44px) 0 0;padding:0}
+.tline::before{content:"";position:absolute;left:8px;top:10px;bottom:10px;
+  width:2px;background:var(--line-d)}
+.tlrow{position:relative;
+  padding:0 0 clamp(30px,4.6vw,58px) clamp(34px,4.4vw,58px)}
+.tlrow:last-child{padding-bottom:0}
+.tlnode{position:absolute;left:0;top:6px;width:18px;height:18px;box-sizing:border-box;
+  border-radius:50%;background:var(--ink);border:2px solid var(--bone)}
+.tlrow:last-child .tlnode{background:var(--gold);border-color:var(--gold)}
+.tline .tlyr{display:block;font-family:var(--disp);font-stretch:64%;font-weight:800;
+  text-transform:uppercase;line-height:.86;color:var(--bone);
+  font-size:clamp(30px,3.6vw,52px);margin-bottom:12px}
+.tline .tllb{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold)}
+.tline .tlbody{margin:9px 0 0;font-size:14.5px;line-height:1.6;
+  color:rgba(237,234,225,.62);max-width:54ch}
+.tline .tlcap{margin-top:11px;font-family:var(--mono);font-size:13px;letter-spacing:0;color:rgba(147,169,184,.7)}
+.tline .tlshot{position:relative;margin-top:16px;max-width:320px;aspect-ratio:4/3}
+.tline .tlshot .ph{position:absolute;inset:0}
+.tline .itools{top:6px;right:auto;left:0}
+@media (max-width:560px){ .tline .tlyr{font-size:clamp(28px,10vw,40px)} }
+
+/* ---------------- history: chapters ----------------------
+   Paper. A sticky numbered list on the left, the story on the
+   right. renderChapters() builds both from the `chapters`
+   collection; `media` picks one of three photo layouts,
+   `shots` is how many slots (0–3).                            */
+.histchapters{border-top:3px solid var(--ink)}
+.histchapters>.wrap>.eyebrow{color:#5D6C76}
+.chapgrid{display:grid;grid-template-columns:210px minmax(0,1fr);gap:clamp(28px,6vw,84px);align-items:start;margin-top:34px}
+
+.chapnav{position:sticky;top:100px;display:flex;flex-direction:column}
+.chapnav a{display:flex;gap:11px;align-items:baseline;font-family:var(--mono);font-size:13px;letter-spacing:0;text-decoration:none;color:rgba(12,13,14,.42);padding:11px 0 11px 16px;cursor:pointer;transition:color .15s,border-color .15s}
+.chapnav a .ci{color:rgba(12,13,14,.3)}
+.chapnav a:hover{color:var(--ink)}
+.chapnav a.cur{color:var(--ink);border-left-color:var(--ink)}
+.chapnav a.cur .ci{color:#8A6A00}
+
+.chapter{position:relative;padding-block:clamp(40px,6vw,80px);scroll-margin-top:104px}
+.chapter:first-child{border-top:0;padding-top:4px}
+.chapmark{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:13px;letter-spacing:0;color:#5D6C76}
+.chapmark::before{content:"";flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--ink)}
+.chh{font-family:var(--disp);font-stretch:78%;font-weight:800;text-transform:uppercase;line-height:.92;font-size:clamp(30px,4.4vw,62px);margin:16px 0 0;color:var(--ink);text-wrap:balance}
+.chlead{font-family:var(--disp);font-stretch:100%;font-weight:400;font-size:clamp(18px,1.9vw,24px);line-height:1.42;color:rgba(12,13,14,.82);margin:22px 0 0;max-width:46ch}
+.chapter .body{margin-top:18px;max-width:60ch}
+.chapter .body+.body{margin-top:15px}
+.chquote{font-family:var(--disp);font-stretch:92%;font-weight:400;font-size:clamp(20px,2.4vw,30px);line-height:1.22;color:var(--ink);border-left:2px solid #8A6A00;padding-left:22px;margin:30px 0 0;max-width:30ch}
+
+.chapmedia{display:grid;gap:14px;margin-top:30px}
+.chapmedia .ph{background-color:var(--bone4)}
+.chapmedia .ph::after{color:rgba(12,13,14,.42)}
+.chapmedia .ph::before{display:none}
+.chapmedia.row{grid-template-columns:repeat(3,1fr)}
+.chapmedia.row .ph{aspect-ratio:4/3}
+.chapmedia.wide{grid-template-columns:1fr}
+.chapmedia.wide .ph{aspect-ratio:16/7}
+.chapsplit{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:clamp(22px,4vw,52px);align-items:start;margin-top:12px}
+.chapsplit .chapmedia{grid-template-columns:1fr;margin-top:0}
+.chapsplit .chapmedia .ph{aspect-ratio:3/4}
+.chapcap{margin-top:10px;font-family:var(--mono);font-size:13px;letter-spacing:0;color:#5D6C76}
+
+@media (max-width:980px){
+  .chapnav{position:static;flex-direction:row;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .chapnav a{border-left:0;border-bottom:2px solid transparent;white-space:nowrap;padding:10px 18px 10px 0}
+  .chapnav a.cur{border-left-color:transparent;border-bottom-color:var(--ink)}
+}
+@media (max-width:640px){
+  .chapmedia.row{grid-template-columns:1fr 1fr}
+  .chapsplit{grid-template-columns:1fr}
+}
+
+/* ---------------- data tables -------------------------------
+   tabular-nums keeps score columns aligned. Never remove it.  */
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:620px;font-variant-numeric:tabular-nums}
+th{font-family:var(--mono);font-size:13px;letter-spacing:0;text-align:left;padding:13px 16px;color:var(--ice);background:var(--ink2);font-weight:500;white-space:nowrap}
+td{padding:13px 16px;border-top:1px solid var(--line-d);font-size:14px;white-space:nowrap}
+td.name{font-family:var(--disp);font-stretch:80%;font-weight:700;text-transform:uppercase;white-space:normal}
+td.num{font-family:var(--mono);font-size:13px;color:var(--ice)}
+.on-bone td.num{color:#5D6C76}
+/* the one number a scoring table exists to produce. The club
+   gold is too light to read on paper, so on bone it takes the
+   dark gold - the same swap .on-bone .tlink already makes. */
+td.num.pts{color:var(--gold)}
+.on-bone td.num.pts{color:var(--gold-d)}
+tr:hover td{background:rgba(237,234,225,.03)}
+.res{font-family:var(--mono);font-weight:600;font-size:13px}
+.res.w{color:var(--gold)} .res.l{color:#8C7A6A}
+/* Same swap as td.num.pts above: club gold is too light to read
+   on paper, so a win badge on a bone section takes the dark gold;
+   the loss badge drops to the same muted paper-text tone as
+   on-bone td.num. First used by past-games.html's archive table. */
+.on-bone .res.w{color:var(--gold-d)} .on-bone .res.l{color:var(--ink-m)}
+
+/* ---------------- roster ----------------------------------- */
+/* Dividers live on the cards, not on the container: a group with
+   four players in a seven-column grid must not paint three grey
+   blocks where the empty cells are. */
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:0}
+/* A dark card wherever it lands, same reasoning as .gatemsg
+   above: the roster now also drops onto bone (players.html
+   staff section), and color:inherit would hand it the
+   panel's ink-on-paper text colour, unreadable on this
+   card's own always-dark background. */
+.pl{background:var(--ink);text-decoration:none;color:var(--bone);display:block;position:relative}
+.pl .ph{aspect-ratio:3/4}
+.pl .no{position:absolute;top:10px;right:12px;font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;font-size:34px;line-height:1;color:rgba(237,234,225,.22)}
+.pl:hover .no{color:var(--gold)}
+.plb{padding:13px 14px 16px}
+.plb .pn{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:16px;line-height:1.05}
+.plb .pp{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice);margin-top:7px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.filt{font-family:var(--mono);font-size:13px;letter-spacing:0;padding:8px 14px;background:transparent;color:rgba(237,234,225,.66);cursor:pointer}
+.filt.on{background:var(--gold);border-color:var(--gold);color:#141210;font-weight:600}
+/* stats.html's squad filter sits on a bone panel — the
+   off state's dark-panel border/text need the same paper
+   swap every other hairline + label on bone already gets. */
+.on-bone .filt{border-color:var(--line-l);color:var(--ink-m)}
+
+/* ---------------- gear, rules, steps ----------------------- */
+/* ---- gear ---------------------------------------------------
+   A numbered vertical list: index, name and description on the
+   left, a photograph of the piece on the right. The slots ship
+   empty on purpose — they are hatched placeholders until someone
+   photographs the real kit and uploads it. */
+.gearlist{}
+.gear{
+  display:grid;
+  grid-template-columns:52px 1fr minmax(180px,260px);
+  gap:clamp(18px,3vw,40px);
+  align-items:start;
+  padding:26px 0;
+  position:relative;
+}
+.gnum{font-family:var(--mono);font-size:13px;letter-spacing:0;color:rgba(147,169,184,.55);padding-top:4px}
+.gear .g2{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:clamp(20px,2.2vw,27px);line-height:1;margin:0}
+.gear .g1{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold);margin-top:9px}
+.gear p{margin:12px 0 0;font-size:14px;color:rgba(237,234,225,.62);line-height:1.6;max-width:52ch}
+.gear .ph{aspect-ratio:4/3}
+.rules{}
+.rule-i{display:grid;grid-template-columns:64px minmax(0,1fr);gap:22px;padding:22px 0;align-items:start;position:relative}
+.rule-i .rn{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold);padding-top:5px}
+.rule-i h4{margin:0 0 7px;font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:19px}
+.rule-i p{margin:0;font-size:14.5px;color:rgba(237,234,225,.68);max-width:62ch;line-height:1.55}
+
+/* The rules list is written for ink and used on bone. Flip the
+   tones, change nothing else: the club gold is too light to read
+   on paper, so the numbers take the dark gold from tokens.css. */
+.on-bone .rules{border-top-color:var(--line-l)}
+.on-bone .rule-i{border-bottom-color:var(--line-l)}
+.on-bone .rule-i p{color:rgba(12,13,14,.68)}
+.on-bone .rule-i .rn{color:var(--gold-d)}
+
+/* ---------------- gallery ---------------------------------- */
+.lockbox{padding:clamp(28px,5vw,54px);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:34px;align-items:center;background:var(--ink2)}
+.albums{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:34px}
+.album{position:relative;text-decoration:none;color:inherit}
+.album .ph{aspect-ratio:4/3}
+.album.locked .ph{filter:blur(3px) saturate(.4)}
+.album .an{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:15px;margin-top:11px}
+.album .am{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice);margin-top:6px}
+.padlock{position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold);padding:3px 7px;background:rgba(12,13,14,.7)}
+
+/* ---------------- board ------------------------------------ */
+.boardgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px;background:transparent}
+.bm{background:var(--ink);padding:0 0 22px;position:relative}
+.bm .ph{aspect-ratio:1/1}
+.bm .bmb{padding:18px 20px 0}
+.bm .bn{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:18px;line-height:1.05}
+.bm .br{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold);margin-top:9px}
+.bm .be{font-family:var(--mono);font-size:13px;color:var(--ice);margin-top:11px;word-break:break-all;text-decoration:none;display:block}
+.bm .be:hover{color:var(--bone)}
+
+/* ---------------- account chip & menu ---------------------- */
+.acct{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;background:rgba(237,234,225,.03);color:var(--bone);cursor:pointer} /* a <button> does not inherit colour - without this the name renders black on ink */
+.acct:hover{border-color:var(--bone)}
+.av{width:28px;height:28px;display:grid;place-items:center;font-family:var(--mono);font-size:13px;background:var(--ink3);color:var(--bone)}
+.acct .an2{display:flex;flex-direction:column;gap:2px;font-family:var(--hdr-ui);font-weight:600;font-size:13px;letter-spacing:0;text-align:left;line-height:1.2}
+.acct .ar{display:block;font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice)}
+.acctmenu{position:absolute;top:calc(100% - 6px);right:var(--pad);width:290px;background:var(--ink2);border:1px solid var(--line-d);box-shadow:0 26px 60px rgba(0,0,0,.6);display:none;z-index:80}
+.acctmenu.on{display:block}
+.amh{padding:16px;display:flex;gap:12px;align-items:center}
+.amh .av{width:38px;height:38px;font-size:12px}
+.amn{font-family:var(--disp);font-stretch:76%;font-weight:800;text-transform:uppercase;font-size:16px;line-height:1.1}
+.amr{font-family:var(--mono);font-size:13px;letter-spacing:0;margin-top:5px;display:flex;align-items:center;gap:6px;color:var(--ice)}
+.amlist{padding:7px}
+.amlist button,.amlist a{display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;background:none;border:0;text-align:left;padding:10px 11px;font-family:var(--mono);font-size:13px;letter-spacing:0;color:rgba(237,234,225,.75);cursor:pointer;text-decoration:none}
+.amlist button:hover,.amlist a:hover{background:var(--ink3);color:var(--gold)}
+.amperm{padding:12px 16px 16px;font-family:var(--mono);font-size:13px;line-height:1.8;color:var(--ice);letter-spacing:0}
+.amperm span{color:var(--ok)}
+
+/* ---------------- sign-in cards ---------------------------- */
+.signin{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:6px;background:transparent;margin-top:44px}
+/* The three demo accounts, side by side on the sign-in page. */
+.acards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:2px;align-content:start}
+.acard{background:var(--ink2);padding:26px 24px 24px;display:flex;flex-direction:column;gap:12px;text-align:left;border:0;cursor:pointer;color:var(--bone);font-family:inherit;transition:background .16s}
+.acard:hover{background:var(--ink3)}
+.acard .arole{font-family:var(--mono);font-size:13px;letter-spacing:0;display:flex;align-items:center;gap:8px}
+.acard .aname{font-family:var(--disp);font-stretch:70%;font-weight:800;text-transform:uppercase;font-size:30px;line-height:.95}
+.acard .acred{font-family:var(--mono);font-size:13px;color:var(--ice);line-height:1.8}
+.acard ul{margin:6px 0 0;padding-left:16px;font-size:13.5px;color:rgba(237,234,225,.66);line-height:1.6}
+.acard .go{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold);margin-top:auto;padding-top:12px}
+
+/* ---------------- gated block notice ----------------------- */
+.gatemsg{background:var(--ink2);padding:26px;display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.gatemsg p{margin:0;font-size:14.5px;color:rgba(237,234,225,.68);max-width:52ch}
+
+/* .gatemsg is a dark card wherever it lands, so on a bone section
+   the .on-bone button flip would paint its button ink on ink. */
+.on-bone .gatemsg .btn{border-color:var(--bone);color:var(--bone)}
+.on-bone .gatemsg .btn:hover{background:var(--bone);color:var(--ink)}
+
+/* ============================================================
+   Added in revision 2 — roster grouping, gallery uploads,
+   past-games archive, the join flow and the location map.
+   ============================================================ */
+
+/* ---------------- homepage sidebar --------------------------
+   The two rails used to be sticky individually, so the second
+   slid under the first on scroll. They stick as one column. */
+.homeaside{position:sticky;top:96px;display:flex;flex-direction:column;gap:16px}
+.homeaside .rail{position:static}
+
+/* signed-out conversion rail — the visitor is a potential member,
+   not someone looking for a login box */
+.joinrail{border-color:rgba(247,195,37,.45);background:rgba(247,195,37,.06)}
+.joinrail .railhead{background:var(--gold);color:#141210}
+.joinrail .railhead .mono{color:#141210}
+.joinbody{padding:18px 16px 20px}
+.joinlead{margin:0 0 14px;font-size:14.5px;line-height:1.55;color:rgba(237,234,225,.78)}
+.joinlist{margin:0 0 18px;padding-left:16px;font-family:var(--mono);font-size:13px;letter-spacing:0;line-height:2;color:var(--ice)}
+/* The join rail used to live on a paper band and was written for
+   ink text. It sits on a dark panel now, so the dark tones are
+   the default and the paper ones are the override — otherwise it
+   renders near-invisible, dark on dark. */
+.on-bone .joinlead{color:rgba(12,13,14,.78)}
+.on-bone .joinlist{color:#5D6C76}
+/* secondary action under the sign-up button: it needs to be a
+   block to drop onto its own line at all — the button is
+   inline-flex, so an inline-block sibling just sits next to it on
+   the same line no matter what margin-top says. width:fit-content
+   keeps it sized to its text instead of stretching full-width,
+   so the underline still hugs "How it works" rather than the rail. */
+.joinbody .joinmore{display:block;width:fit-content;margin-top:22px}
+
+/* ---------------- roster by position ------------------------ */
+.posgroup{margin-bottom:44px}
+.poshead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  border-bottom:2px solid var(--bone);padding-bottom:10px;margin-bottom:18px}
+.poshead h3{margin:0;font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;
+  text-transform:uppercase;font-size:clamp(20px,2.4vw,30px);line-height:1}
+.poscount{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice)}
+.pl .no{pointer-events:none}
+.pl.staff .no{display:none}
+.filt i{font-style:normal;margin-left:8px;opacity:.7;font-size:13px}
+
+/* ---------------- past games -------------------------------- */
+.tallies{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;
+  background:transparent}
+.tally{background:var(--ink);padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+.tally .tv{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;font-size:38px;line-height:1}
+.tally .tk{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice)}
+
+/* ---------------- gallery: albums and photos ---------------- */
+.albumhead{margin-top:44px}
+.uploadbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px;background:rgba(247,195,37,.05);padding:14px 16px}
+.uploadbar .mono{text-transform:none;letter-spacing:0}
+.photogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:24px}
+.shot{position:relative;margin:0;aspect-ratio:4/3;overflow:hidden;background:var(--ink2)}
+.shot img{width:100%;height:100%;object-fit:cover;display:block}
+.shotdel{position:absolute;top:8px;right:8px;width:26px;height:26px;
+  background:rgba(12,13,14,.72);color:var(--bone);cursor:pointer;font-family:var(--mono);font-size:13px;
+  opacity:0;transition:opacity .15s}
+.shot:hover .shotdel{opacity:1}
+.shotdel:hover{background:var(--danger);border-color:var(--danger);color:var(--ink)}
+.shotcount{position:absolute;bottom:10px;right:10px;font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold);padding:3px 7px;background:rgba(12,13,14,.72)}
+.emptyalbum{padding:44px;text-align:center;margin-top:24px}
+.emptyalbum .body{margin:0 auto 18px;max-width:38ch}
+.album[data-album]{cursor:pointer}
+.album[data-album]:hover .an{color:var(--gold)}
+/* The gallery grid sits on paper on pictures.html - same dark-card
+   -on-bone logic as .gatemsg: the .ph slot and badges stay ink,
+   only the type around them swaps to paper colours. */
+.on-bone .albums{margin-top:0}
+.on-bone .album .am{color:var(--ink-m)}
+.on-bone .album[data-album]:hover .an{color:var(--gold-d)}
+.uploadnote{color:var(--ice)}
+.on-bone .uploadnote{color:var(--ink-m)}
+.on-bone .uploadbar{margin-top:0;margin-bottom:24px;border-color:rgba(138,106,0,.45);background:rgba(138,106,0,.06)}
+.on-bone .photogrid{margin-top:0}
+.on-bone .emptyalbum{margin-top:0;border-color:var(--line-l)}
+.on-bone .shot{border-color:var(--line-l)}
+
+/* ---------------- sign-up ------------------------------------
+   Shared by join.html and the "Getting in" band on the home page. */
+.joingrid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.85fr);
+  gap:clamp(28px,4vw,62px);align-items:start;margin-top:48px}
+
+/* Home page: the aside is a single window rather than a stack of
+   them, and it is held level with the form beside it. "stretch"
+   gives the card the row's full height and .visitcard's map takes
+   up whatever the text below it leaves. join.html keeps the
+   default "start" so its sidebar can stay sticky. */
+.joingrid2.even{align-items:stretch}
+.visitcard{display:flex;flex-direction:column;background:var(--ink2)}
+.visitcard .ph{position:relative;border:0;flex:1 1 auto;min-height:150px}
+.visitbody{padding:22px 24px 24px}
+.visitbody .addr{margin:12px 0 10px;font-family:var(--disp);font-size:16px;line-height:1.5}
+.visitmail{margin:20px 0 0;
+  font-family:var(--mono);font-size:15px;letter-spacing:0;line-height:1.6;color:rgba(237,234,225,.82)}
+.visitmail a{color:var(--gold);text-decoration:none}
+.visitmail a:hover{text-decoration:underline}
+
+/* base.css caps a form at 560px, which is right for a form in a
+   column and too narrow for one that is the point of the section */
+.bigform{max-width:none;gap:18px}
+.fpair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bigform button[type="submit"]{justify-self:start;padding:15px 30px}
+.formnote{color:rgba(237,234,225,.72);font-size:14px;letter-spacing:0;text-transform:none;margin:0}
+
+/* --ice and --edit are chosen to read on ink. On a bone section
+   they wash out, and the .todo line is the one line on a
+   placeholder page that a reader most needs to see. */
+.on-bone .formnote{color:var(--ink-b)}
+.todo{color:var(--edit)}
+.on-bone .todo{color:var(--edit-d)}
+@media (max-width:560px){ .fpair{grid-template-columns:1fr} }
+.joinside{display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
+.steps3{padding:6px 0}
+.s3{display:grid;grid-template-columns:34px minmax(0,1fr);gap:14px;padding:15px 16px;align-items:start}
+.s3:first-child{border-top:0}
+.s3n{width:26px;height:26px;display:grid;place-items:center;color:var(--gold);
+  font-family:var(--mono);font-size:13px}
+.s3 strong{display:block;font-family:var(--disp);font-stretch:80%;font-weight:700;text-transform:uppercase;
+  font-size:14px;letter-spacing:.01em}
+.s3 span{display:block;font-size:13px;line-height:1.5;color:rgba(237,234,225,.62);margin-top:5px}
+.costbox{background:var(--ink2);padding:22px}
+.costbig{font-family:var(--disp);font-stretch:var(--disp-width);font-weight:800;text-transform:uppercase;
+  font-size:52px;line-height:1;margin:10px 0 0;color:var(--gold)}
+#joinform,#joindone{scroll-margin-top:104px}
+.donebox{background:rgba(143,209,176,.06);padding:clamp(24px,4vw,40px)}
+.summary{margin:26px 0 0;display:grid;gap:6px;background:transparent}
+.summary>div{background:var(--ink2);display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;padding:13px 16px}
+.summary dt{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice);margin:0}
+.summary dd{margin:0;font-size:14px}
+.ctarow{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+
+/* ---------------- contact map ------------------------------- */
+.mapgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);
+  gap:clamp(20px,3vw,40px);align-items:start}
+.mapfig{margin:0;background:#111417}
+.mapfig svg{display:block;width:100%;height:auto}
+.mapfig figcaption{padding:11px 14px;color:var(--ice);
+  text-transform:none;letter-spacing:.04em}
+.places{display:flex;flex-direction:column;gap:6px;background:transparent}
+.place{background:var(--ink);padding:24px}
+.place.muted{background:var(--ink2)}
+.place.muted .addr,.place.muted .disp{color:rgba(237,234,225,.55)}
+.addr{font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--bone);margin:14px 0 12px}
+/* .addr has only ever sat on permanently-dark cards (.visitcard,
+   .place) so it was written bone-on-ink. First bare use on a
+   paper section is about.html's #facts - flip it dark there. */
+.on-bone .addr{color:var(--ink-b)}
+
+@media (max-width:980px){
+  .joingrid2,.mapgrid{grid-template-columns:1fr}
+  .homeaside,.joinside{position:static}
+  .visitcard .ph{min-height:240px}
+}
+@media (max-width:640px){
+  .gear{grid-template-columns:34px 1fr;gap:16px}
+  .gear .ph{grid-column:2;margin-top:16px}
+}
+
+/* ---------------- roster: avatar cards ----------------------
+   The card's picture is still a .ph photo slot, so a member's
+   own uploaded picture covers it the usual way (.has-photo). Until
+   then the slot holds the illustrated character from js/avatar.js
+   on a faint squad-tinted ground rather than the hatched
+   "Portrait" placeholder - a roster of forty hatched boxes was
+   the one thing this page could not be. */
+.pl--av .ph--avatar{
+  aspect-ratio:1/1;
+  background:var(--ink2);
+  border:0;
+}
+.pl--av .ph--avatar::before,.pl--av .ph--avatar::after{display:none}
+.pl--av .av{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  transition:transform .25s ease;
+}
+.pl--av:hover .av{transform:translateY(-3px) scale(1.03)}
+.pl--av .ph--avatar.has-photo .av{display:none}
+/* a member's own set traits: a gold hairline at the foot of the
+   picture says "this one is theirs" without a badge */
+.pl--av .ph--own,
+.pl--av .ph--avatar.has-photo{border-bottom-color:var(--gold)}
+.pl--av{transition:background .18s}
+.pl--av:hover{background:var(--ink2)}
+.pl--av .no{color:rgba(237,234,225,.3);z-index:1}
+.pl--av .plb{padding:14px 14px 17px}
+.pl--av .plb .pp{display:flex;align-items:center;gap:7px}
+.pl--av .plb .pp i{font-style:normal;opacity:.5}
+/* squad swatch: same colours as the jersey in the drawing */
+/* 11px, not the 7 it used to be: the striped squad needs room for
+   its stripes to read as stripes rather than as a smudge. */
+.sq{display:inline-block;width:11px;height:11px;border-radius:50%;flex:0 0 auto;box-sizing:border-box;
+  border:1px solid transparent}   /* the squad rules below set only border-color, so the style has to live here */
+/* THE FOUR SQUAD MARKS. The club dresses in three colours and one
+   stripe, and the squads are exactly those four marks: Studs 1
+   solid gold, Studs 2 the same gold under ink stripes, the
+   Stallions black, the Cadets white. Each carries the border that
+   makes it read on the OTHER ground, so one rule serves the dark
+   pages and the paper ones alike - no .on-bone copies.
+   js/avatar.js paints the drawn jerseys from the same four; change
+   them together. */
+.sq-studs1{background:var(--gold);border-color:var(--gold)}
+/* The site has exactly one stripe and it names a squad, so it is
+   data rather than decoration: hard stops, no blend. taste-skill-ignore */
+.sq-studs2{background:repeating-linear-gradient(135deg,var(--gold) 0 3px,var(--ink) 3px 5px);border-color:var(--gold)}
+.sq-stallions{background:var(--ink);border-color:var(--bone)}
+.sq-cadets{background:var(--bone);border-color:var(--ink)}
+
+/* the roster head: filters on the left, a legend of the four
+   squad colours on the right so the swatches mean something */
+.rosterbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.rosterbar .filters{margin-bottom:0}
+.sqlegend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:13px;
+  letter-spacing:0;color:var(--ice)}
+.sqlegend span{display:flex;align-items:center;gap:7px}
+
+/* staff on paper: the card stays dark, but the ground under the
+   drawing takes the paper's raised tone so it reads as one row */
+.on-bone .pl--av .ph--avatar{background:var(--ink2)}
+/* phones: two cards a row, never one - a roster is a grid, not a
+   feed, and a single 350px-wide character is a poster */
+@media (max-width:560px){
+  .roster{grid-template-columns:repeat(2,1fr)}
+  .pl--av .no{font-size:26px;top:8px;right:10px}
+  .pl--av .plb{padding:11px 11px 14px}
+  .pl--av .plb .pn{font-size:14px}
+}
+
+/* ---------------- game sheet (game.html) ---------------------
+   From the "Game sheet" screen of the UI mockups, worked into the
+   site's two-tone rhythm: the fixture and the final on ink (the
+   .pagehead), the sheet itself on paper. Mono for every time,
+   code and stat; display weight for names. Gold marks a Studs
+   side; on paper it is the dark gold, as everywhere else.       */
+.gs-hero{margin-top:26px;position:relative}
+.gs-comp{margin:0}
+.gs-final{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:22px;margin-top:22px}
+.gs-side--home{text-align:right}
+.gs-team{margin:0;font-family:var(--disp);font-stretch:72%;font-weight:800;line-height:.98;letter-spacing:-.5px;
+  font-size:clamp(24px,3vw,40px);text-transform:uppercase;color:var(--bone)}
+.gs-team.us{color:var(--gold)}
+.gs-rec{margin:8px 0 0;font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice)}
+.gs-score{display:flex;align-items:center;gap:12px;padding:8px 18px;background:var(--ink2)}
+.gs-score b{font-family:var(--disp);font-stretch:70%;font-weight:900;line-height:1;font-size:clamp(32px,3.8vw,50px);
+  color:var(--bone);font-variant-numeric:tabular-nums}
+.gs-score span{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ice)}
+/* score by period: a small table under the box, home row first */
+.gs-periods{width:auto;min-width:0;margin:26px auto 0;border:0;font-variant-numeric:tabular-nums}
+.gs-periods th,.gs-periods td{padding:6px 12px;border:0;background:transparent;white-space:nowrap}
+.gs-periods thead th{font-family:var(--disp);font-size:14px;letter-spacing:0;color:var(--ice);text-align:center;font-weight:600}
+.gs-periods tbody th{font-family:var(--disp);font-size:14px;letter-spacing:0;color:var(--ice);text-align:right;font-weight:600}
+.gs-periods td{font-family:var(--disp);font-size:16px;text-align:center;color:rgba(237,234,225,.78);border-top:1px solid var(--line-d)}
+.gs-periods thead th:first-child{border:0}
+.gs-periods td.t{font-weight:600;color:var(--bone)}
+.gs-periods tbody tr:first-child td{border-top:1px solid var(--line-d)}
+
+/* the paper side: the section keeps the site's normal padding,
+   the sheet sits in it as a card grid separated by hairlines */
+.gs-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:transparent}
+.gs-meta > div{display:flex;flex-direction:column;gap:9px;background:var(--bone3);padding:20px 26px}
+.gs-k{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--gold-d)}
+.gs-v{font-family:var(--disp);font-stretch:74%;font-weight:800;font-size:23px;line-height:1;letter-spacing:-.3px;text-transform:uppercase;color:var(--ink)}
+
+.gs-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,2.1fr);gap:6px;background:transparent;border-top:0}
+.gs-lineup,.gs-main{background:var(--bone);min-width:0}
+.gs-lineup{padding:26px}
+.gs-main{display:flex;flex-direction:column}
+.gs-block{padding:26px}
+.gs-block:first-child{border-top:0}
+.gs-block--raised{background:var(--bone3)}
+.gs-h{margin:0 0 18px;font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:0;color:var(--ink-m)}
+
+/* lineup: G / A / PIM per skater, saves for a goalie */
+.gs-lineup__head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:6px}
+.gs-lineup__head .gs-h{margin:0}
+.gs-legend{font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:0;color:var(--ink-m)}
+.gs-lineup__team{margin-top:14px;padding:22px 22px 4px;background:var(--bone3)}
+.gs-lineup__name{margin:0 0 14px;font-family:var(--disp);font-stretch:66%;font-weight:800;font-size:18px;line-height:1;
+  letter-spacing:-.2px;text-transform:uppercase;color:var(--ink)}
+.gs-pos{margin-bottom:22px}
+.gs-pos__h{margin:0 0 4px;padding-bottom:8px;font-family:var(--disp);font-stretch:80%;
+  font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-d)}
+.gs-row{position:relative;display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:baseline;padding:9px 0}
+.gs-no{font-family:"NY Rangers","Archivo",sans-serif;font-size:15px;font-weight:400;color:var(--ink-m)}
+.gs-name{font-family:var(--disp);font-stretch:100%;font-weight:600;font-size:16px;color:var(--ink)}
+.gs-stat{font-family:var(--disp);font-size:16px;font-weight:400;color:var(--ink-b);font-variant-numeric:tabular-nums}
+
+/* scoring summary: the shared table rules, re-toned for paper */
+.gs-tblwrap{border:0}
+.gs-goals{min-width:640px}
+.gs-goals th{background:transparent;color:var(--ink-m);font-size:14px;font-weight:600;padding:0 14px 10px 0;border-bottom:1px solid var(--rule-l3)}
+.gs-goals th.r{text-align:right;padding-right:0}
+.gs-goals td{padding:13px 14px 13px 0;border-top:0;border-bottom:1px solid var(--rule-l1);font-size:16px;color:var(--ink-m)}
+.gs-goals td.num{font-size:16px;color:var(--ink-m);font-variant-numeric:tabular-nums}
+.gs-goals td.tm{color:var(--ink)}
+.gs-goals td.code{font-family:var(--disp);font-size:14px;font-weight:600;letter-spacing:0;color:var(--gold-d)}
+.gs-goals td.name{font-size:16px;font-weight:600;font-stretch:100%;color:var(--ink);text-transform:none;white-space:nowrap}
+.gs-goals td.asst{white-space:normal;min-width:160px}
+.gs-goals td.sc{position:relative;text-align:right;padding-right:0;font-family:var(--disp);font-size:16px;font-weight:600;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.gs-goals tr:last-child td{border-bottom:0}
+.gs-goals .itools{top:auto;bottom:-4px;right:0}
+
+/* penalties: time · who · minutes, one hairline row each */
+.gs-pens{display:flex;flex-direction:column}
+.gs-pen{position:relative;display:grid;grid-template-columns:54px 1fr auto;gap:14px;align-items:baseline;padding:12px 0}
+.gs-pen:last-child{border-bottom:0}
+.gs-pen__t{font-family:var(--disp);font-size:16px;color:var(--ink-m);font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:2px}
+.gs-pen__t i{font-style:normal;font-size:13px;color:var(--ink-l)}
+.gs-pen__who{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gs-pen__who b{font-family:var(--disp);font-stretch:100%;font-weight:600;font-size:16px;color:var(--ink)}
+.gs-pen__who span{font-family:var(--disp);font-size:14px;letter-spacing:0;color:var(--ink-m)}
+.gs-pen__min{font-family:var(--disp);font-size:16px;font-weight:600;color:var(--gold-d);font-variant-numeric:tabular-nums}
+.gs-empty{margin:0;font-family:var(--disp);font-size:16px;color:var(--ink-m)}
+
+/* three stars: the rank as a big display numeral */
+.gs-stars{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:6px;background:transparent}
+.gs-star{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;background:var(--bone)}
+.gs-star__n{font-family:var(--disp);font-stretch:70%;font-weight:900;font-size:34px;line-height:1;color:var(--gold-d)}
+.gs-star__who{display:flex;flex-direction:column;gap:6px;min-width:0}
+.gs-star__who b{font-family:var(--disp);font-stretch:80%;font-weight:700;font-size:16px;line-height:1.05;text-transform:uppercase;color:var(--ink)}
+.gs-star__who span{font-family:var(--mono);font-size:13px;letter-spacing:0;color:var(--ink-l)}
+
+/* the game ticket: the top of a game page as one paper ticket - teams and
+   the final on the main part, the three stars along its foot, date / time /
+   place / referees on the tear-off stub. The notches are cut out in the
+   colour of the page behind (--bone). */
+.gtk{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 200px;margin-top:22px;background:var(--bone3);border-radius:8px;color:var(--ink)}
+.gtk-main{min-width:0;padding:24px 28px 0}
+.gtk-comp{margin:0 0 20px;font-size:16px;color:var(--ink-l)}
+.gtk-comp b{color:var(--gold-d);font-weight:600}
+.gtk-final{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:24px}
+/* the star and the period table sit on the same three columns, so they end and start exactly at the score's edges */
+.gtk-side--home{text-align:right}
+.gtk-team{margin:0;font-family:var(--disp);font-stretch:66%;font-weight:800;line-height:.98;letter-spacing:-.01em;font-size:clamp(26px,3vw,44px);text-transform:uppercase;color:var(--ink);text-wrap:balance}
+.gtk-team.us{color:var(--ink)}
+.gtk-rec{margin:8px 0 0;font-size:16px;color:var(--ink-l)}
+.gtk-score{text-align:center}
+.gtk-nums{margin:0;display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--disp);font-stretch:66%;font-weight:800;line-height:.9;letter-spacing:-.01em;font-size:clamp(52px,6.4vw,92px);font-variant-numeric:tabular-nums;color:var(--ink)}
+.gtk-nums b{font-weight:800}
+.gtk-nums b.win{color:var(--gold-d)}
+.gtk-nums i{font-style:normal;font-weight:400;color:var(--rule-l3)}
+.gtk-status{margin:6px 0 0;font-size:16px;color:var(--ink-l)}
+.gtk-final{row-gap:20px}
+.gtk-per{justify-self:start}
+.gtk .gs-periods{margin:0}
+.gtk-stars{min-width:0;justify-self:end;text-align:right}
+.gtk-foot{height:24px}
+.gtk-star{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gtk-k{font-size:14px;color:var(--ink-l)}
+.gtk-star b{font-family:var(--disp);font-stretch:78%;font-weight:800;font-size:20px;line-height:1.1;color:var(--ink)}
+.gtk-line{font-size:14px;color:var(--ink-l)}
+.gtk-stub{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:24px 18px;text-align:center;border-left:1.5px dashed rgba(17,20,23,.35)}
+.gtk-stub::before,.gtk-stub::after{content:"";position:absolute;left:-9px;width:16px;height:16px;border-radius:50%;background:var(--bone)}
+.gtk-stub::before{top:-8px}
+.gtk-stub::after{bottom:-8px}
+.gtk-stub p{margin:0}
+.gtk-day{font-family:var(--disp);font-stretch:66%;font-weight:800;font-size:68px;line-height:.9;letter-spacing:-.01em}
+.gtk-mo{font-size:16px;font-weight:600}
+.gtk-time{margin-top:10px!important;font-family:var(--disp);font-stretch:66%;font-size:28px;font-weight:800;color:var(--gold-d);font-variant-numeric:tabular-nums}
+.gtk-place{margin-top:10px!important;font-size:16px;font-weight:600}
+.gtk-refs{margin-top:4px!important;font-size:14px;color:var(--ink-l)}
+
+/* fixture rows that open a sheet (games.html, past-games.html) */
+tr[data-sheet]{cursor:pointer}
+tr[data-sheet]:hover td{background:rgba(237,234,225,.04)}
+.on-bone tr[data-sheet]:hover td{background:rgba(12,13,14,.045)}
+tr[data-sheet]:hover td.name{color:var(--gold)}
+.on-bone tr[data-sheet]:hover td.name{color:var(--gold-d)}
+
+.gs-report{max-width:62ch}
+.gs-report p{margin:0 0 1em;font-size:16px;line-height:1.62;color:var(--ink-b)}
+.gs-report p:last-child{margin-bottom:0}
+
+@media (max-width:760px){
+  .gtk{grid-template-columns:minmax(0,1fr)}
+  .gtk-main{padding:20px 18px 0}
+  .gtk-final{grid-template-columns:minmax(0,1fr);gap:12px}
+  .gtk-side--home{text-align:left}
+  .gtk-score{text-align:left}
+  .gtk-nums{justify-content:flex-start}
+  .gtk-team{font-size:30px}
+  .gtk-final > span{display:none}
+  .gtk-stars{justify-self:start;text-align:left}
+  .gtk-stub{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;align-items:baseline;gap:4px 14px;padding:20px 18px;text-align:left;border-left:0;border-top:1.5px dashed rgba(17,20,23,.35)}
+  .gtk-stub::before,.gtk-stub::after{top:-8px;bottom:auto}
+  .gtk-stub::before{left:-8px}
+  .gtk-stub::after{left:auto;right:-8px}
+  .gtk-day{font-size:44px}
+  .gtk-time,.gtk-place,.gtk-refs{margin-top:0!important}
+  .gtk-refs{flex-basis:100%}
+}
+@media (max-width:900px){
+  .gs-grid{grid-template-columns:1fr}
+  .gs-lineup{}
+  .gs-meta{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .gs-final{grid-template-columns:1fr;gap:14px;text-align:left}
+  .gs-side--home{text-align:left}
+  .gs-score{justify-content:flex-start;padding:6px 16px}
+  .gs-team{font-size:30px}
+  .gs-score b{font-size:38px}
+  .gs-periods{margin-left:0}
+  .gs-meta > div{padding:14px 16px}
+  .gs-v{font-size:17px}
+  .gs-lineup,.gs-block{padding:20px 16px}
+}

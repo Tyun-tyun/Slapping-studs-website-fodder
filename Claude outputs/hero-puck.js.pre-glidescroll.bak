@@ -1,0 +1,64 @@
+/* hero-puck.js - fits the fixed 1440x900 hero scene to the hero box,
+   writes the current year on the puck, and scrubs the animation with
+   scroll: the hero is pinned in #hpTrack, progress = how far through
+   the track you are. Scroll back up and it plays in reverse. */
+(function(){
+"use strict";
+var hp=document.getElementById('hp'); if(!hp) return;
+var hero=hp.parentNode, track=document.getElementById('hpTrack');
+var yr=document.getElementById('hpYear'); if(yr) yr.textContent=String(new Date().getFullYear());
+function fit(){
+  var s=Math.max(hero.clientWidth/1440,hero.clientHeight/900).toFixed(4);
+  hp.style.setProperty('--hp-s',s);
+  document.documentElement.style.setProperty('--hp-s',s);
+}
+fit();
+if(window.ResizeObserver) new ResizeObserver(fit).observe(hero); else window.addEventListener('resize',fit);
+
+/* the centre line carries over into the chapter stage: attached to the
+   page (scrolls up with it) and fading out downwards via a CSS mask */
+var spine=document.getElementById('hiSpine'), hitrack=document.getElementById('hitrack');
+function spineUpdate(){
+  /* the centre line now dissolves below the puck inside the hero, so the
+     carried-over spine in the chapter stage is switched off */
+  if(spine){ spine.style.display='none'; return; }
+  if(!spine||!hitrack) return;
+  var vh=window.innerHeight, t=-hitrack.getBoundingClientRect().top/vh;
+  var s=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hp-s')||1);
+  spine.style.transform='translate('+(6.25*s)+'px,'+(-Math.max(0,t)*vh)+'px) scaleX('+((54.965*s)/100)+')';
+  spine.style.opacity=(t>1.05?0:1);
+}
+window.addEventListener('scroll',spineUpdate,{passive:true});
+window.addEventListener('resize',spineUpdate);
+spineUpdate();
+
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduce||!track||!hp.getAnimations) return;
+var cue=hero.querySelector('.cue');
+var ANIM_END=7900;            /* ms of the timeline: 6.4 s animation + puck glide up (6.6 s delay + 1.3 s) */
+var DONE=.85;                 /* animation completes at 85% of the track; the rest is a hold */
+var anims=[];
+function grab(){ anims=hp.getAnimations({subtree:true}); anims.forEach(function(a){a.pause();}); }
+grab();
+var target=0,cur=0,raf=0;
+function progress(){
+  var r=track.getBoundingClientRect(), span=track.offsetHeight-hero.offsetHeight;
+  if(span<=0) return 1;
+  return Math.min(1,Math.max(0,-r.top/span));
+}
+function paint(){
+  var t=Math.min(cur/DONE,1)*ANIM_END;
+  for(var i=0;i<anims.length;i++) anims[i].currentTime=t;
+  if(cue) cue.style.opacity=cur>.03?0:1;
+}
+function tick(){
+  cur+=(target-cur)*.14;
+  if(Math.abs(target-cur)<.0004) cur=target;
+  paint();
+  raf=(cur!==target)?requestAnimationFrame(tick):0;
+}
+function onScroll(){ target=progress(); if(!raf) raf=requestAnimationFrame(tick); }
+window.addEventListener('scroll',onScroll,{passive:true});
+window.addEventListener('resize',onScroll);
+target=cur=progress(); paint();
+})();

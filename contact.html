@@ -28,55 +28,79 @@
 <!-- ===== /SHARED HEAD ===== -->
 
 <!-- ===== PAGE-LOCAL STYLES - contact only =====
-     The page is recomposed so the things a visitor comes for -
-     where the rink is, the inbox, the form - sit together on one
-     paper section at the top, and the board with its portraits
-     follows underneath. Spends tokens only; classes prefixed ct-. -->
+     Same system as stats and training: ink head with the gold strip,
+     then paper sections that separate by a tone step (bone, bone3
+     cards), the display face for headings, ink and gold for the
+     actions. Classes prefixed ct-. Spends tokens only. -->
 <style>
-/* the two halves: place + inbox on the left, the form on the right */
-.ct-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(28px,4vw,64px);align-items:start}
-/* the rink: a real photograph in the map frame, caption under it.
-   paper.css draws .pmap as a hatched, outlined placeholder; on this
-   page the frame is just the picture. */
-body[data-page="contact"] .ct-rink{margin:0}
-body[data-page="contact"] .ct-rink .pmap{min-height:0;aspect-ratio:4/3;border:0;background:var(--bone4);padding:0}
-body[data-page="contact"] .ct-rink .pmap > .ph{background-color:var(--bone4);background-size:cover;background-position:center}
-body[data-page="contact"] .ct-rink .pmap > .ph:not(.has-photo){background-image:url("assets/ijsbaan-twente.jpg")}
-body[data-page="contact"] .ct-rink .pmap > .ph::after{display:none}
-body[data-page="contact"] .ct-rink figcaption{margin-top:12px;font-size:15px;line-height:1.5;color:var(--ink)}
-/* the form column: a filled paper surface, no outline */
-.ct-form{background:var(--bone3);padding:clamp(20px,2.6vw,32px)}
-.ct-form h2{margin:0 0 20px}
-.ct-form .bigform{gap:16px}
-.ct-form textarea{min-height:150px}
-.ct-form .formnote{margin-top:-4px}
-/* base.css draws labels light for ink pages; this form sits on paper */
-.ct-form label{color:var(--ink)}
-/* #find follows the board directly (panel--cont drops its top
-   padding); give the rink heading room from the last board card */
-body[data-page="contact"] #find > .panel__in{padding-top:clamp(40px,6vw,72px)}
-/* the board: a flexible card row that reads well from two members
-   to six, two across on a phone. Separated by space, not by rules. */
-.ct-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:clamp(16px,2vw,28px)}
-@media (min-width:700px){.ct-board{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}}
-.ct-board .bm{background:var(--bone)}
+/* ---- the board: four paper cards, one portrait each ---- */
+.ct-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:clamp(14px,1.6vw,22px)}
+@media (min-width:700px){.ct-board{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}}
+.ct-board .bm{background:var(--bone3);padding:0 0 24px;position:relative;transition:background .2s,transform .25s cubic-bezier(.2,.7,.2,1)}
 .ct-board .bm .ph{aspect-ratio:4/3}
-.ct-board .bm .br{color:var(--gold-d)}
-.ct-board .bm .be{color:var(--ink-m);overflow-wrap:anywhere}
-.ct-board .bm .be:hover{color:var(--gold-d)}
-/* no portraits yet: a flat paper tone, not a hatch or a glow */
+.ct-board .bm .bmb{padding:20px 22px 0}
+.ct-board .bm .bn{font-size:clamp(20px,1.7vw,24px);line-height:1;font-stretch:66%}
+.ct-board .bm .br{font-size:15px;color:var(--ink-b);margin-top:10px}
+.ct-board .bm .be{font-size:14px;color:var(--ink);margin-top:14px;font-weight:600;overflow-wrap:anywhere;text-decoration:underline;text-decoration-color:var(--gold);text-decoration-thickness:2px;text-underline-offset:4px}
+.ct-board .bm .be:hover{color:var(--ink);text-decoration-color:var(--ink)}
+.ct-board .bm:hover{transform:translateY(-3px)}
+/* no portraits yet: a flat paper tone */
 .ct-board .ph:not(.has-photo){background-color:var(--bone4);background-image:none;border-color:transparent}
 .ct-board .ph::before{display:none}
-.ct-board .ph::after{color:rgba(12,13,14,.55)}
-.ct-lead{max-width:56ch;margin:0 0 clamp(20px,3vw,32px)}
-/* page head: the h1 leads; the contact tiles read value first */
-body[data-page="contact"] .phead h1{margin:0}
-body[data-page="contact"] .strip .stat .v{margin-top:0}
-body[data-page="contact"] .strip .stat .n{font-size:14px;margin-top:8px}
+.ct-board .ph::after{color:rgba(12,13,14,.5)}
+/* the card the message is going to: a gold tab and a gold bar */
+.ct-board .bm::after{content:"Gets your message";position:absolute;left:0;top:0;padding:7px 12px;background:var(--gold);color:#141210;font-size:13px;font-weight:700;opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;pointer-events:none}
+.ct-board .bm.is-routed{background:var(--bone2)}
+.ct-board .bm.is-routed::after{opacity:1;transform:none}
+.ct-board .bm.is-routed .bmb{box-shadow:inset 0 4px 0 var(--gold)}
+
+.ct-board .bm .bw{display:inline-block;margin-top:16px;padding:10px 14px;background:var(--ink);color:var(--bone);font-size:14px;font-weight:700;text-decoration:none;transition:background .15s,color .15s}
+.ct-board .bm .bw:hover{background:var(--gold);color:#141210}
+.ct-board .bm.is-routed .bw{background:var(--gold);color:#141210}
+
+/* ---- the message: one paper card, the route on the left, the form on the right ---- */
+.ct-msg{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);background:var(--bone3)}
+.ct-msg__side{background:var(--ink);color:var(--bone);padding:clamp(24px,3vw,44px);display:flex;flex-direction:column;justify-content:space-between;gap:36px}
+.ct-msg__side h2{margin:0;font-size:clamp(34px,3.8vw,56px);line-height:.92}
+.ct-msg__side p{margin:14px 0 0;font-size:16px;line-height:1.5;color:rgba(237,234,225,.78);max-width:34ch}
+.ct-route small{display:block;font-size:14px;color:rgba(237,234,225,.66)}
+.ct-route b{display:block;margin-top:8px;font-family:var(--disp);font-stretch:66%;font-weight:800;text-transform:uppercase;font-size:clamp(28px,2.8vw,40px);line-height:1;color:var(--gold)}
+.ct-route span{display:block;margin-top:8px;font-size:15px;color:var(--bone);overflow-wrap:anywhere}
+.ct-msg__side .ct-alt{font-size:15px;color:rgba(237,234,225,.78);margin:0}
+.ct-msg__side .ct-alt a{color:var(--gold);font-weight:600}
+.ct-form{padding:clamp(22px,3vw,44px)}
+.ct-form form{max-width:none;gap:22px}
+.ct-form label,.ct-form .ct-q{font-family:var(--disp);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:9px;display:block}
+.ct-form input[type=text],.ct-form input[type=email],.ct-form textarea{background:var(--bone);color:var(--ink);border:0;padding:15px 16px;box-shadow:inset 0 -3px 0 var(--bone4);transition:box-shadow .15s}
+.ct-form input:focus,.ct-form textarea:focus{box-shadow:inset 0 -3px 0 var(--gold)}
+.ct-form textarea{min-height:160px}
+/* the subject: chips, the same ones the stats filters use */
+.ct-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ct-chips input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.ct-chips label{margin:0;padding:10px 16px;background:var(--bone);color:var(--ink);font-size:15px;font-weight:500;cursor:pointer;transition:background .15s}
+.ct-chips label:hover{background:var(--bone4)}
+.ct-chips input:checked + label{background:var(--gold);color:#141210;font-weight:700}
+.ct-chips input:focus-visible + label{outline:2px solid var(--ink);outline-offset:2px}
+.ct-form .btn{justify-self:start;padding:16px 34px;border:0;cursor:pointer}
+
+/* live line in the address card */
+.ct-next{margin:0 0 18px;padding:14px 16px;background:var(--ink2);font-size:15px;line-height:1.45;color:var(--bone)}
+.ct-next b{display:block;font-family:var(--disp);font-stretch:66%;font-weight:800;text-transform:uppercase;font-size:22px;line-height:1.05;color:var(--gold);margin-bottom:4px}
+.ct-next.is-now b::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--gold);margin-right:10px;vertical-align:1px;animation:ctp 1.6s ease-in-out infinite}
+@keyframes ctp{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.ct-next.is-now b::before{animation:none}}
+.ct-find .trmap{margin:0 0 20px}
+
+/* ---- where: photo and ink card, the training.html pair ---- */
+.ct-find{margin-top:0}
+.ct-find .trwhere__photo{min-height:460px}
+
 @media (max-width:980px){
-  .ct-grid{grid-template-columns:1fr}
+  .ct-msg{grid-template-columns:1fr}
 }
-body[data-page="contact"] .pagelead{font-size:19px;line-height:1.5}
+@media (max-width:560px){
+  .ct-chips label{padding:10px 13px}
+}
 </style>
 </head>
 <!-- data-page  = which document this is; js/routes.js maps it to a URL
@@ -128,22 +152,20 @@ body[data-page="contact"] .pagelead{font-size:19px;line-height:1.5}
      ================================================================ -->
 <main>
 
-<!-- The page head: one line on what the page is for. Everything a
-     visitor came for is on the paper section right under it. -->
+<!-- The page head, as on stats.html: ink head, gold strip. The strip
+     is the four ways to reach the club; every tile is a link. -->
 <section class="panel panel--strip" id="top" data-label="Contact">
   <div class="panel__in">
     <div class="wrap">
       <div class="phead">
         <div>
-          <h1 class="disp d2" data-ed="contact.h1">Contact</h1>
+          <h1 class="disp pgtitle" data-ed="contact.h1">Contact</h1>
           <p class="body pagelead" data-ed="contact.lead">Board e-mail, postal address and where to find the rink. Questions about joining, games, sponsorship or this website all go to the board.</p>
         </div>
+        <a class="btn btn-gold" href="#message">Send a message</a>
       </div>
     </div>
   </div>
-  <!-- the gold strip (stats.html design): the four ways to reach the
-       club, each tile a link. Replaces the address list that sat
-       under the map. -->
   <div class="strip"><div class="wrap">
     <a class="stat" href="#find"><div class="v vw">IJsbaan Twente</div><div class="n">Our home ice: Colosseum 90, 7521 PT Enschede</div></a>
     <a class="stat" href="mailto:bestuur@slappingstuds.nl"><div class="v vw">E-mail the board</div><div class="n">bestuur@slappingstuds.nl</div></a>
@@ -152,87 +174,180 @@ body[data-page="contact"] .pagelead{font-size:19px;line-height:1.5}
   </div></div>
 </section>
 
-<!-- The board, up top: two across / two down, one portrait each,
-     rendered by renderBoard() in js/views.js from the board
-     collection. This is the first thing after the page head - who
-     to write to, before where to find us or how to send a message. -->
+<!-- The board: rendered by renderBoard() in js/views.js from the
+     board collection. The card the message form is routed to lights
+     up (script at the bottom of this page). -->
 <section class="panel bone on-bone" id="board" data-label="The board">
   <div class="panel__in">
     <div class="wrap">
       <div class="phead">
         <div>
           <h2 class="disp d3" data-ed="contact.board.h2">The board</h2>
+          <p class="body pagesub" data-ed="contact.board.lead">Write to the board member whose job your question belongs to.</p>
         </div>
       </div>
-      <p class="body ct-lead" data-ed="contact.board.lead">Write to the board member whose job your question belongs to.</p>
       <div class="ct-board" id="boardgrid"></div>
       <button class="addtile" data-add="board">+ Add board member</button>
     </div>
   </div>
 </section>
 
-<!-- Where and how: the map with the three addresses on the left,
-     the message form on the right, underneath the board. #find is
-     the deep link the footer and the join page use; #message is the
-     form. bindForms() in js/app.js watches #sub to show which board
-     inbox the message would reach, and blocks the submit -
-     the form has no back end yet. -->
-<section class="panel bone on-bone panel--cont" id="find" data-label="Find us">
+<!-- The message. Pick what it is about and the route on the left
+     shows who gets it; the same board card lights up above.
+     The form has no back end yet: bindForms() in js/app.js blocks
+     the submit. -->
+<section class="panel bone on-bone panel--cont" id="message" data-label="Message">
   <div class="panel__in">
     <div class="wrap">
-      <div class="ct-grid">
-
-        <div>
-          <div class="phead">
-            <div>
-              <h2 class="disp d3" data-ed="contact.find.h2">IJsbaan Twente</h2>
-            </div>
-            <a class="tlink" href="https://www.openstreetmap.org/search?query=Colosseum%2090%2C%207521%20PT%20Enschede" target="_blank" rel="noopener">Open in a map</a>
+      <div class="ct-msg">
+        <div class="ct-msg__side">
+          <div>
+            <h2 class="disp" data-ed="contact.message.h2">Send the board a message</h2>
+            <p data-ed="contact.message.lead">Say what it is about and it goes straight to the board member who deals with it.</p>
           </div>
-          <!-- The rink itself, because "where" is the first question.
-               Still an ordinary photo slot: the board can replace the
-               picture from the website; data-img is the shipped file. -->
-          <figure class="ct-rink">
-            <div class="pmap">
-              <div class="ph" data-slot="contact-map" data-img="assets/ijsbaan-twente.jpg" data-ph="IJsbaan Twente, Colosseum 90" role="img" aria-label="The IJsbaan Twente rink building, Colosseum 90, Enschede"></div>
-              <span class="phcredit">Photo: Tubantia, <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a></span>
-            </div>
-            <figcaption>IJsbaan Twente, Colosseum 90 &mdash; our home ice</figcaption>
-          </figure>
-          <p class="mono formnote" style="margin-top:14px">About 15 minutes by bike from the campus. Practice times are on the <a class="tlink" href="training.html">training page</a>.</p>
+          <div class="ct-route" id="routeline" aria-live="polite"></div>
+          <p class="ct-alt">Want to skate with us instead? <a href="join.html">Sign up for a practice</a></p>
         </div>
-
-        <div class="ct-form" id="message">
-          <h2 class="disp d3" data-ed="contact.message.h2">Send the board a message</h2>
-          <form id="contactform" class="bigform" method="post" action="#">
+        <div class="ct-form">
+          <form id="contactform" method="post" action="#">
             <div class="fpair">
               <div><label for="nm">Your name</label><input id="nm" name="name" type="text" autocomplete="name"></div>
               <div><label for="em">E-mail</label><input id="em" name="email" type="email" autocomplete="email" required></div>
             </div>
-            <div><label for="sub">What is it about</label>
-              <select id="sub" name="subject">
-                <option>Joining the club</option>
-                <option>Membership and payment</option>
-                <option>A game or a fixture</option>
-                <option>Sponsorship</option>
-                <option>The website</option>
-                <option>Something else</option>
-              </select></div>
+            <div role="radiogroup" aria-labelledby="ctq">
+              <span class="ct-q" id="ctq">What is it about</span>
+              <div class="ct-chips" id="sub">
+                <input type="radio" name="subject" id="s0" value="0" checked><label for="s0">Joining the club</label>
+                <input type="radio" name="subject" id="s1" value="1"><label for="s1">Membership and payment</label>
+                <input type="radio" name="subject" id="s2" value="2"><label for="s2">A game or a fixture</label>
+                <input type="radio" name="subject" id="s3" value="3"><label for="s3">Sponsorship</label>
+                <input type="radio" name="subject" id="s4" value="4"><label for="s4">The website</label>
+                <input type="radio" name="subject" id="s5" value="5"><label for="s5">Something else</label>
+              </div>
+            </div>
             <div><label for="ms">Message</label><textarea id="ms" name="message" required></textarea></div>
             <button class="btn btn-gold" type="submit">Send</button>
-            <p class="mono formnote" id="routeline">Routed to: voorzitter@slappingstuds.nl</p>
           </form>
-          <p class="mono formnote" style="margin-top:14px">Want to skate with us instead? <a class="tlink" href="join.html">Sign up for a practice</a></p>
         </div>
-
       </div>
     </div>
   </div>
 </section>
 
-
+<!-- Where: the training.html pair, a photo slot (the board can swap
+     the picture from the website; data-img is the shipped file) and
+     the ink address card. #find is the deep link the footer and the
+     join page use. -->
+<section class="panel bone on-bone panel--cont" id="find" data-label="Find us">
+  <div class="panel__in">
+    <div class="wrap">
+      <div class="trwhere ct-find">
+        <div class="ph trwhere__photo" data-slot="contact-map" data-img="assets/ijsbaan-twente.jpg" data-ph="IJsbaan Twente, Colosseum 90" role="img" aria-label="The IJsbaan Twente rink building, Colosseum 90, Enschede">
+          <span class="phcap">IJsbaan Twente, Colosseum 90 &mdash; our home ice</span>
+          <span class="phcredit">Photo: Tubantia, <a href="https://creativecommons.org/licenses/by-sa/3.0" target="_blank" rel="noopener">CC BY-SA 3.0</a></span>
+        </div>
+        <div class="trwhere__card">
+          <div>
+            <h2 class="disp trwhere__h" data-ed="contact.find.h2">IJsbaan Twente</h2>
+          </div>
+          <div>
+            <p class="trwhere__addr" data-ed="contact.find.addr">Colosseum 90<br>7521 PT Enschede</p>
+            <p class="trwhere__bike" data-ed="contact.find.bike">About 15 minutes by bike from the campus. Practice times are on the <a class="tlink" href="training.html">training page</a>.</p>
+            <div class="ct-next" id="ctnext" hidden></div>
+            <figure class="trmap">
+              <svg viewBox="0 0 344 196" role="img" aria-label="Sketch map: the rink lies between the University of Twente campus and the centre of Enschede, about four kilometres from the campus by bike.">
+                <g fill="none" stroke="rgba(237,234,225,.16)" stroke-width="7" stroke-linecap="round">
+                  <path d="M-10 128 L120 120 L250 138 L354 128"/>
+                  <path d="M214 -8 L228 70 L246 196"/>
+                </g>
+                <path d="M62 62 C120 58 150 84 196 92" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="7 6" stroke-linecap="round"/>
+                <circle cx="62" cy="62" r="7" fill="none" stroke="var(--bone)" stroke-width="2.5"/>
+                <text x="62" y="40" text-anchor="middle" fill="rgba(237,234,225,.82)" font-size="13" font-family="Archivo, sans-serif">Campus UT</text>
+                <text x="128" y="62" text-anchor="middle" fill="var(--gold)" font-size="13" font-family="Archivo, sans-serif">≈ 4 km by bike</text>
+                <circle cx="206" cy="94" r="9" fill="var(--gold)"/>
+                <text x="206" y="124" text-anchor="middle" fill="var(--bone)" font-size="14" font-weight="700" font-family="Archivo, sans-serif">IJsbaan Twente</text>
+                <circle cx="268" cy="164" r="5" fill="rgba(237,234,225,.5)"/>
+                <text x="268" y="186" text-anchor="middle" fill="rgba(237,234,225,.62)" font-size="13" font-family="Archivo, sans-serif">Enschede centre</text>
+              </svg>
+              <figcaption>Sketch, not to scale.</figcaption>
+            </figure>
+            <a class="btn btn-gold" href="https://www.openstreetmap.org/search?query=Colosseum%2090%2C%207521%20PT%20Enschede" target="_blank" rel="noopener">Open in maps &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 </main>
+
+<!-- Routing preview: which board inbox a subject reaches, in the
+     order of the chips (same order as the old option list). -->
+<script>
+(function(){
+  var INBOX = ["voorzitter","penningmeester","wedstrijdsecretaris","voorzitter","webcom","secretaris"];
+  function update(){
+    var f = document.getElementById("contactform"), box = document.getElementById("routeline");
+    if(!f || !box) return;
+    var i = +(f.querySelector('input[name="subject"]:checked') || {value:0}).value;
+    var addr = INBOX[i] + "@slappingstuds.nl";
+    var card = null;
+    [].forEach.call(document.querySelectorAll("#boardgrid .bm"), function(c){
+      var on = !!c.querySelector('a.be[href="mailto:' + addr + '"]');
+      c.classList.toggle("is-routed", on);
+      if(on) card = c;
+    });
+    var name = card ? card.querySelector(".bn").textContent : "";
+    var role = card ? card.querySelector(".br").textContent : "";
+    box.innerHTML = '<small>Your message goes to</small>' +
+      '<b>' + (name || "The board") + '</b>' +
+      '<span>' + (role ? role + ' &middot; ' : '') + addr + '</span>';
+  }
+  /* "Write to X": pick the first subject that reaches this person, then
+     the #message link scrolls to the form */
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest("a.bw"); if(!a) return;
+    var i = INBOX.indexOf(a.getAttribute("data-inbox"));
+    var r = document.getElementById("s" + (i < 0 ? 5 : i));
+    if(r){ r.checked = true; update(); }
+  });
+  /* the next practice, from the sessions the training page uses */
+  function nextPractice(){
+    var el = document.getElementById("ctnext"), S = window.Studs;
+    var sess = S && S.state && S.state.content && S.state.content.sessions; if(!el || !sess || !sess.length) return;
+    var WD = {sunday:0,monday:1,tuesday:2,wednesday:3,thursday:4,friday:5,saturday:6};
+    var T = /(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})/, now = new Date(), best = null;
+    sess.forEach(function(t){
+      var wd = WD[String(t.day||"").toLowerCase()]; if(wd === undefined) return;
+      var ok = String(t.rule||"").split(",").map(function(x){return parseInt(x,10)}).filter(Boolean);
+      [[t.g1,t.t1],[t.g2,t.t2]].forEach(function(s){
+        var m = T.exec(String(s[1]||"")); if(!m) return;
+        for(var k=0;k<60;k++){
+          var d = new Date(now.getFullYear(), now.getMonth(), now.getDate()+k);
+          if(d.getDay()!==wd || (ok.length && ok.indexOf(Math.ceil(d.getDate()/7))<0)) continue;
+          var st = new Date(d); st.setHours(+m[1],+m[2],0,0);
+          var en = new Date(d); en.setHours(+m[3],+m[4],0,0);
+          if(en <= now) continue;
+          if(!best || st < best.st) best = {st:st,en:en,g:s[0],t:m[1]+":"+m[2]+" – "+m[3]+":"+m[4]};
+          break;
+        }
+      });
+    });
+    if(!best) return;
+    var live = best.st <= now, day = best.st.toLocaleDateString("en-GB",{weekday:"long"});
+    var when = live ? "On the ice now" : (best.st.toDateString()===now.toDateString() ? "Today" : day + " " + best.st.toLocaleDateString("en-GB",{day:"numeric",month:"short"}));
+    el.className = "ct-next" + (live ? " is-now" : "");
+    el.innerHTML = "<b>" + when + "</b>Next practice: " + best.t + (best.g ? " · " + best.g : "");
+    el.hidden = false;
+  }
+  document.addEventListener("change", function(e){
+    if(e.target && e.target.name === "subject") update();
+  });
+  document.getElementById("contactform").addEventListener("reset", function(){ setTimeout(update, 0); });
+  document.addEventListener("DOMContentLoaded", function(){ setTimeout(function(){ update(); nextPractice(); }, 0); });
+  window.addEventListener("load", function(){ update(); nextPractice(); setTimeout(update, 300); });
+})();
+</script>
 
 
 <!-- ===== SHARED FOOTER - identical on every page =====

@@ -101,7 +101,25 @@
 
 </section>
 
-<!-- ---------- 2. Calendar -----------------------------------
+<!-- ---------- 2. News ---------------------------------------
+     The front page of the club paper, straight under the hero.
+     renderNews() in views.js fills #frontfeed: the newest post
+     leads, the next three follow in a row. Replaces the
+     announcements column that used to sit beside the calendar. -->
+<section class="panel bone on-bone" id="front" data-label="News">
+  <div class="panel__in">
+    <div class="wrap">
+      <div class="phead">
+        <h2 class="disp d3" data-ed="home.newsh">News</h2>
+        <a class="tlink" href="news.html">All news</a>
+      </div>
+      <div class="frontfeed" id="frontfeed"></div>
+      <button class="addtile" data-add="news">+ Add news post</button>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- 3. Calendar -----------------------------------
      Replaced the news-tiles + upcoming-rail + join-box layout
      that used to live here: one dark calendar card instead, a
      month at a time, built from the same "events" collection the
@@ -110,14 +128,11 @@
      console exactly as before. renderHomeCalendar() in views.js
      owns #calgrid; the prev/next arrows just move
      Studs.state.calMonth and re-render. -->
-<section class="panel bone on-bone" id="news" data-label="Calendar">
+<section class="panel bone on-bone" id="calendar" data-label="Calendar">
   <div class="panel__in">
     <div class="wrap">
-      <!-- Four children, placed by name into a 2x2 grid (see
-           .newsgrid in components.css): the two headings share a
-           row and sit on its floor, so the calendar and the
-           announcements open on exactly the same line. On a phone
-           the areas restack to calendar, then announcements. -->
+      <!-- The calendar now takes the full width (announcements are gone
+           from the home page; the news sits above, in #front). -->
       <div class="newsgrid">
         <div class="phead nh-cal">
           <h2 class="disp d3" data-ed="home.calh">Club calendar</h2>
@@ -148,23 +163,12 @@
           </div>
           <button class="addtile" data-add="events">+ Add event</button>
         </div>
-        <!-- Announcements: housekeeping that never earns a news post
-             (gear, votes, carpools). renderAnnouncements() in
-             views.js owns #annlist; reads the "announcements"
-             collection, same board tools as everything else. -->
-        <div class="phead nh-ann">
-          <h2 class="disp d3" data-ed="home.annh">Announcements</h2>
-        </div>
-        <div class="nb-ann">
-          <div class="annlist" id="annlist"></div>
-          <button class="addtile" data-add="announcements">+ Add announcement</button>
-        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ---------- 3. Join --------------------------------------
+<!-- ---------- 4. Join --------------------------------------
      The sign-up itself, not an explanation of it. The form
      carries the same ids as the one on join.html, so bindForms()
      in js/app.js and renderJoin() in js/views.js pick it up here

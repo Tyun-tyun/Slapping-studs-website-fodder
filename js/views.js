@@ -120,7 +120,25 @@
   /* The home page shows the four most recent posts as tiles, the
      news page shows all of them as rows. Neither container is on
      both, so one function can own the pair. */
+  /* Home front page: the newest story leads, the next three stand
+     under it as a row, BBC-style: picture, headline, a line of
+     text, then when and what kind. Drafts stay admin-only. */
+  function storyHTML(n){
+    return '<article class="fs" data-item>'+
+      ph("news:"+n.id, "", n.title)+
+      '<h3 class="fs__h"><a href="'+esc(S.postUrl(n.id))+'">'+esc(n.title)+'</a></h3>'+
+      '<p class="fs__ex">'+esc(n.excerpt)+'</p>'+
+      '<div class="fs__meta">'+esc(n.date)+' <i></i> '+esc(n.tag)+
+        (n.status==="draft"?'<span class="draftpill">Draft</span>':'')+'</div>'+
+      tools("news",n.id)+'</article>';
+  }
   S.renderNews = function(){
+    if($("#frontfeed")){
+      var list = C().news.filter(function(n){
+        return n.status !== "draft" || S.can("console.use");
+      }).slice(0,4);
+      $("#frontfeed").innerHTML = list.map(storyHTML).join("");
+    }
     if($("#homefeed")) $("#homefeed").innerHTML = C().news.slice(0,4).map(tileHTML).join("");
     if($("#newsfeed")) $("#newsfeed").innerHTML = C().news.map(postHTML).join("");
   };
@@ -1080,6 +1098,16 @@
   /* The table is on the archive page, the rail beside the news
      feed. Same data, two pages. */
   S.renderArchive = function(){
+    /* archive.html lists each season as a row: the season large, the
+       main story as its headline, the post count and tags under it. */
+    if($("#archivelist")) $("#archivelist").innerHTML = C().archive.map(function(a){
+      return '<div class="arow" data-item>'+
+        '<div class="arseason">'+esc(a.season)+'</div>'+
+        '<div class="arbody">'+
+          '<h3 class="arhl">'+esc(a.highlight)+'</h3>'+
+          '<p class="armeta"><b>'+esc(a.posts)+' posts</b>'+(a.tags ? ' &middot; '+esc(a.tags) : '')+'</p>'+
+        '</div>'+tools("archive",a.id)+'</div>';
+    }).join("");
     if($("#archivebody")) $("#archivebody").innerHTML = C().archive.map(function(a){
       return '<tr><td class="num">'+esc(a.season)+'</td><td class="num">'+esc(a.posts)+'</td>'+
         '<td class="name">'+esc(a.highlight)+'</td><td class="num">'+esc(a.tags)+
@@ -1326,7 +1354,8 @@
       return '<div class="bm" data-item>'+ph("board:"+b.id,"","Portrait")+
         '<div class="bmb"><div class="bn">'+esc(b.name)+'</div>'+
         '<div class="br">'+esc(b.role)+'</div>'+
-        '<a class="be" href="mailto:'+esc(b.email)+'">'+esc(b.email)+'</a></div>'+tools("board",b.id)+'</div>';
+        '<a class="be" href="mailto:'+esc(b.email)+'">'+esc(b.email)+'</a>'+
+        '<a class="bw" href="#message" data-inbox="'+esc(String(b.email).split("@")[0])+'">Write to '+esc(String(b.name).split(" ")[0])+' &rarr;</a></div>'+tools("board",b.id)+'</div>';
     }).join("");
   };
 
@@ -1653,7 +1682,6 @@
     S.renderGameSheet();
     S.renderEvents();
     S.renderHomeCalendar();
-    S.renderAnnouncements();
     S.renderPlayers();
     S.renderScoring();
     S.renderGames();

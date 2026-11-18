@@ -30,39 +30,67 @@
 /* ============================================================
    news.html, page-scoped.
 
-   The page is laid out as the front page of a paper, inside the
-   site's own rules: no lines, no second typeface, nothing under
-   13px. What makes it read as a paper is the arrangement - the
-   newest post leads across the full width in the biggest
-   headline, the rest stand below it as columns, and a quiet row
-   of links closes the sheet where a paper would put its index.
-   Blocks are separated by a tone step and by space, never a rule.
+   Built the way training.html and games.html are built: the page
+   title at display size with its lead and one quiet picture on
+   the right, then a section with a heading on the left and a link
+   on the right, then the content on one grid with the same outer
+   edges as everything else. The posts are laid out as the front
+   page of a paper: the newest leads in a row with the club
+   photograph, the others stand under it as three blocks one tone
+   step off the sheet. No lines anywhere.
 
    The feed is still written by renderNews() in js/views.js; the
-   only change there is that a headline is now a link to its post.
+   only change there is that a headline is a link to its post.
    Everything below sizes and arranges what it writes.
    ============================================================ */
 
-body[data-page="news"] .phead h1{margin:0}
-body[data-page="news"] .pagelead{font-size:19px;line-height:1.55;max-width:58ch}
-
-/* --- the photograph on the floor of the head ---------------- */
-body[data-page="news"] .nwband{margin:0;position:relative;overflow:clip}
-body[data-page="news"] .nwband .ph{height:clamp(150px,17vw,240px);background-position:center 30%}
-body[data-page="news"] .nwband figcaption{
-  margin:0;padding-top:12px;
-  font-size:14px;line-height:1.5;color:var(--ink-m);
+/* --- the head: title and lead ---------------------------------
+   Both sections are see-through and <main> carries the paper tone,
+   so the horse can sit behind the whole page rather than inside
+   one section. */
+body[data-page="news"] main{position:relative;background:var(--bone)}
+body[data-page="news"] #top,
+body[data-page="news"] #posts{position:relative;z-index:1;background:transparent}
+/* the head hands over to the next section with the same short
+   bottom as training.html, whose head is a .panel--strip */
+body[data-page="news"] #top > .panel__in{padding-bottom:clamp(22px,3vw,36px)}
+body[data-page="news"] #top .phead{align-items:flex-end;flex-wrap:nowrap;margin-bottom:0}
+body[data-page="news"] #top .phead > div{min-width:0}
+/* One line drawing (assets/news-horse.png: ink on a transparent
+   ground, cut from the supplied drawing; the original is
+   assets/news-horse-2-src.png). It is a backdrop, not a figure:
+   large, tilted, pale, running off the right edge and sitting
+   behind the title - placed by eye, not aligned to any block.
+   Decoration only: no alt text, no clicks. */
+body[data-page="news"] .nwhorse{
+  position:absolute;z-index:0;pointer-events:none;
+  top:calc(var(--hdr) + clamp(10px,2vw,34px));right:-3vw;
+  width:clamp(240px,22vw,320px);height:auto;
+  transform:rotate(-8deg);opacity:.32;
 }
-body[data-page="news"] #posts .panel__in{padding-top:clamp(34px,4.4vw,64px)}
 
-/* --- the sheet ----------------------------------------------- */
-body[data-page="news"] #newsfeed{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:clamp(18px,2vw,28px);align-items:stretch;
+/* --- the sheet: one 12-column grid for photo, lead and blocks -- */
+body[data-page="news"] .nwsheet{
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:clamp(28px,3.4vw,48px) clamp(18px,2vw,28px);
+  align-items:start;
+}
+/* the feed's own wrapper steps aside so every post is a grid item */
+body[data-page="news"] #newsfeed{display:contents}
+
+/* the club photograph, in the row with the lead */
+body[data-page="news"] .nwband{
+  grid-column:1 / 8;grid-row:1;align-self:stretch;
+  margin:0;display:flex;flex-direction:column;
+}
+body[data-page="news"] .nwband .ph{flex:1;min-height:200px}
+body[data-page="news"] .nwband figcaption{
+  margin:0;padding-top:12px;font-size:14px;line-height:1.5;color:var(--ink-m);
 }
 
 /* a story: a block one tone step off the sheet */
 body[data-page="news"] #newsfeed .post{
+  grid-column:span 4;position:relative;
   display:flex;flex-direction:column;
   padding:clamp(20px,2.2vw,30px);background:var(--bone3);
   transition:background .15s;
@@ -77,8 +105,7 @@ body[data-page="news"] #newsfeed .pheadline{
   font-size:clamp(19px,2vw,28px);line-height:.95;text-wrap:balance;
 }
 body[data-page="news"] #newsfeed .pheadline a{color:inherit;text-decoration:none}
-/* the whole story is the link, so the block works as one target;
-   the admin's edit buttons sit above it (z-index 12) */
+/* the whole story is the link; the admin's edit buttons sit above it */
 body[data-page="news"] #newsfeed .pheadline a::after{content:"";position:absolute;inset:0}
 body[data-page="news"] #newsfeed .pheadline a:focus-visible{outline:none}
 body[data-page="news"] #newsfeed .pheadline a:focus-visible::after{outline:2px solid var(--gold-d);outline-offset:-4px}
@@ -90,52 +117,53 @@ body[data-page="news"] #newsfeed .pex{
   order:3;margin:14px 0 0;font-size:17px;line-height:1.6;color:var(--ink-b);max-width:none;
 }
 
-/* a photograph, when the board has uploaded one. A story with
-   none shows no empty slot; the admin still sees it, to fill it. */
+/* a story's own photograph. A story with none shows no empty
+   slot; the admin still sees it, to fill it. */
 body[data-page="news"] #newsfeed .post .ph{order:0;aspect-ratio:3/2;margin-bottom:18px}
 body[data-page="news"] #newsfeed .post .ph:not(.has-photo){display:none}
 body.editing[data-page="news"] #newsfeed .post .ph:not(.has-photo){display:block;aspect-ratio:3/1;margin-bottom:14px}
 
-/* --- the lead: the newest post, the full width --------------- */
+/* --- the lead: the newest post, beside the club photograph ----- */
 body[data-page="news"] #newsfeed .post:first-child{
-  grid-column:1 / -1;background:none;
-  padding:0 0 clamp(14px,2.2vw,30px);
+  grid-column:8 / 13;grid-row:1;align-self:stretch;justify-content:center;
+  background:none;padding:0;
 }
 body[data-page="news"] #newsfeed .post:first-child:hover{background:none}
+body[data-page="news"] #newsfeed .post:first-child > div:not(.ph){flex:none}
 body[data-page="news"] #newsfeed .post:first-child .pheadline{
-  font-size:clamp(26px,3.4vw,50px);line-height:.9;max-width:22ch;
+  font-size:clamp(26px,3.4vw,50px);line-height:.9;
 }
 body[data-page="news"] #newsfeed .post:first-child .pmeta{margin-top:16px;font-size:16px}
-body[data-page="news"] #newsfeed .post:first-child .pex{
-  margin-top:20px;font-size:20px;line-height:1.55;max-width:62ch;
-}
+body[data-page="news"] #newsfeed .post:first-child .pex{margin-top:18px;font-size:19px;line-height:1.55}
 body[data-page="news"] #newsfeed .post:first-child .itools{top:0;right:0}
+
+/* when the lead has a photograph of its own, that one is used
+   and the club photograph steps out */
 @supports selector(:has(*)){
+  body[data-page="news"] .nwsheet:has(#newsfeed .post:first-child .has-photo) .nwband{display:none}
   body[data-page="news"] #newsfeed .post:first-child:has(.has-photo){
-    display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
-    column-gap:clamp(24px,3.4vw,52px);align-items:start;
+    grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+    column-gap:clamp(18px,2vw,28px);align-items:center;
   }
-  body[data-page="news"] #newsfeed .post:first-child:has(.has-photo) .ph{grid-column:2;grid-row:1;margin:0;aspect-ratio:4/3}
-  body[data-page="news"] #newsfeed .post:first-child:has(.has-photo) > div:not(.ph){grid-column:1;grid-row:1}
+  body[data-page="news"] #newsfeed .post:first-child:has(.has-photo) .ph{grid-column:1;grid-row:1;margin:0;aspect-ratio:16/9}
+  body[data-page="news"] #newsfeed .post:first-child:has(.has-photo) > div:not(.ph){grid-column:2;grid-row:1}
 }
 
-body[data-page="news"] #newsfeed .addtile{grid-column:1 / -1;margin-top:0}
-body[data-page="news"] #posts .addtile{margin-top:clamp(18px,2vw,28px)}
+body[data-page="news"] .nwsheet > .addtile{grid-column:1 / -1;margin-top:0}
 
-/* --- where a paper puts its index ---------------------------- */
-body[data-page="news"] .nwlinks{
-  display:flex;flex-wrap:wrap;gap:12px clamp(22px,3vw,40px);
-  margin-top:clamp(34px,4.4vw,60px);
-}
-body[data-page="news"] .nwlinks .tlink{font-size:16px}
-
-/* two columns on a tablet, one on a phone */
+/* --- tablet: the photo over the lead, blocks two across -------- */
 @media (max-width:980px){
-  body[data-page="news"] #newsfeed{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body[data-page="news"] .nwhorse{width:185px;right:-4vw}
+  body[data-page="news"] .nwband{grid-column:1 / -1;grid-row:1}
+  body[data-page="news"] .nwband .ph{flex:none;min-height:0;aspect-ratio:16/7}
+  body[data-page="news"] #newsfeed .post:first-child{grid-column:1 / -1;grid-row:2}
+  body[data-page="news"] #newsfeed .post{grid-column:span 6}
 }
+/* --- phone: one column; the horse goes ------------------------- */
 @media (max-width:720px){
-  body[data-page="news"] #newsfeed{grid-template-columns:minmax(0,1fr)}
-  body[data-page="news"] .nwband .ph{height:180px}
+  body[data-page="news"] .nwhorse{display:none}
+  body[data-page="news"] .nwband .ph{aspect-ratio:4/3}
+  body[data-page="news"] #newsfeed .post{grid-column:1 / -1}
   body[data-page="news"] #newsfeed .post:first-child .pex{font-size:18px}
   @supports selector(:has(*)){
     body[data-page="news"] #newsfeed .post:first-child:has(.has-photo){display:flex}
@@ -148,19 +176,12 @@ body[data-page="news"] .nwlinks .tlink{font-size:16px}
    without scroll timelines the page simply arrives finished, with
    nothing hidden. */
 @keyframes nw-rise{from{transform:translateY(20px)}to{transform:none}}
-@keyframes nw-pan{from{transform:scale(1.07) translateY(-1.4%)}to{transform:scale(1.07) translateY(1.4%)}}
 @media (prefers-reduced-motion:no-preference){
   @supports (animation-timeline:view()){
-    body[data-page="news"] #newsfeed .post,
-    body[data-page="news"] .nwlinks{
+    body[data-page="news"] #newsfeed .post{
       animation:nw-rise linear both;
       animation-timeline:view();
       animation-range:entry 2% entry 42%;
-    }
-    body[data-page="news"] .nwband .ph{
-      animation:nw-pan linear both;
-      animation-timeline:view();
-      animation-range:cover 0% cover 100%;
     }
   }
 }
@@ -215,46 +236,49 @@ body[data-page="news"] .nwlinks .tlink{font-size:16px}
      ================================================================ -->
 <main>
 
-<section class="panel pagehead bone on-bone" id="feed" data-label="All posts">
+<!-- The head is the one training.html opens with: the title at display
+     size, its lead, and one quiet picture on the right. -->
+<section class="panel bone on-bone" id="top" data-label="News">
   <div class="panel__in">
     <div class="wrap">
       <div class="phead">
         <div>
-          <h1 class="disp d2" data-ed="news.feed.h2">News</h1>
+          <h1 class="disp pgtitle" data-ed="news.feed.h2">News</h1>
           <p class="body pagelead" data-ed="news.feed.lead">Match reports, results and club notices, newest first, written by the board and the committees. Older seasons move to the archive.</p>
         </div>
-        <a class="tlink" href="archive.html">Season archive</a>
       </div>
     </div>
   </div>
-  <!-- The same photograph band the about page opens with, so the
-       news page belongs to the site rather than starting on a
-       half-empty screen of its own. -->
-  <figure class="nwband">
-    <div class="ph" data-slot="news-band" data-img="assets/photos/hero-squad-2026.jpg" data-ph="The club, season 2025&ndash;26" role="img" aria-label="The Slapping Studs squads together on the ice, season 2025-26"></div>
-    <div class="wrap"><figcaption data-ed="news.band.cap">The club at IJsbaan Twente, season 2025&ndash;26. Our own photograph.</figcaption></div>
-  </figure>
 </section>
 
-<!-- Paper half of the rhythm - the sheet. The newest post leads
-     across the full width, the others stand below it as columns,
-     and the links a rail used to hold close the page as one row.
-     The feed's markup and ids are untouched: it is still
-     #newsfeed, filled by renderNews(). -->
-<section class="panel bone on-bone" id="posts" data-label="Posts">
+<!-- The posts. The feed's markup and ids are untouched: it is still
+     #newsfeed, filled by renderNews(). The club photograph sits in
+     the row with the newest post (see the grid in the style block). -->
+<section class="panel bone on-bone" id="posts" data-label="Latest posts">
   <div class="panel__in">
     <div class="wrap">
-      <div id="newsfeed"></div>
-      <button class="addtile" data-add="news">+ Add news post</button>
-      <nav class="nwlinks" aria-label="More from the club">
+      <div class="phead">
+        <div>
+          <h2 class="disp d3" data-ed="news.list.h2">Latest</h2>
+        </div>
         <a class="tlink" href="archive.html">Season archive</a>
-        <a class="tlink" href="games.html">This season&rsquo;s games</a>
-        <a class="tlink" href="pictures.html">Pictures</a>
-        <a class="tlink" href="contact.html">Write to the board</a>
-      </nav>
+      </div>
+      <div class="nwsheet">
+        <figure class="nwband">
+          <div class="ph" data-slot="news-band" data-img="assets/photos/hero-squad-2026.jpg" data-ph="The club, season 2025&ndash;26" role="img" aria-label="The Slapping Studs squads together on the ice, season 2025-26"></div>
+          <figcaption data-ed="news.band.cap">The club at IJsbaan Twente, season 2025&ndash;26. Our own photograph.</figcaption>
+        </figure>
+        <div id="newsfeed"></div>
+        <button class="addtile" data-add="news">+ Add news post</button>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- The backdrop. Last in <main> so #top stays its first child (the
+     head-clearing padding in css/deck.css depends on that); it is
+     positioned and layered by the style block, not by its place here. -->
+<img class="nwhorse" src="assets/news-horse.png" width="414" height="503" alt="" decoding="async">
 
 </main>
 

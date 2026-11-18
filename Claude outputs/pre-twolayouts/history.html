@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- ===== SHARED HEAD - identical on every page except the four
+     values below. When this becomes templated, these are the
+     variables: title, description, robots, body[data-page|data-nav]. -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>History &mdash; The Slapping Studs</title>
+<meta name="description" content="The story of SIJHV The Slapping Studs, student ice hockey at the University of Twente since 1982 - era by era.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
+<!-- Load order matters: tokens define the variables everything
+     else uses, and every file after it only spends those values.
+     paper.css follows components.css because it is a second set of
+     components - the same system worked on paper - and not an
+     override of the first. deck.css is last of the layout files
+     because it is the one that decides how a section is sized. -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/paper.css">
+<link rel="stylesheet" href="css/deck.css">
+<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/hero-puck.css">
+<!-- ===== /SHARED HEAD ===== -->
+
+<!-- ===== PAGE-LOCAL STYLES - History only =====
+     Two parts: the opening scene (the rink's centre circle turns into
+     the puck that lands on 1982, css/hero-puck.css) and the chapters,
+     which flow as ordinary sections, one under the other.
+     One family (Archivo), five sizes:
+       --hi-d1  display  the chapter years
+       --hi-d2  heading  chapter headings, landing line, closing quote
+       --hi-lead 20px    lead lines and the page's own quiet h1
+       17px              body (.body)
+       14px              captions and credits
+     Classes are prefixed hi- so they never collide with the shared
+     sheets. -->
+<style>
+body[data-page="history"]{
+  --hi-d1:clamp(56px,7.4vw,112px);
+  --hi-d2:clamp(30px,3.3vw,48px);
+  --hi-lead:20px;
+  --hi-small:14px;
+  --hi-ground:var(--bone);   /* the rink's own tone at the end of the scene: paper */
+}
+body[data-page="history"] .disp{font-family:"Archivo","Arial Narrow",sans-serif}
+
+/* ---------- opening scene ---------- */
+.hi-hero{display:block;overflow:hidden;isolation:isolate}
+.hp-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* the h1: the page's name, quiet, on the line under the header, so
+   the rink and the puck read as the opening and not as a title card.
+   It keeps the lead size rather than adding a display size of its own. */
+.hi-title{position:absolute;left:0;right:0;top:calc(var(--hdr,74px) + 20px);z-index:2}
+.hi-h1{font-size:var(--hi-lead);line-height:1.2;font-weight:700;color:var(--ink);margin:0}
+.hi-title p{font-size:var(--hi-lead);line-height:1.4;color:var(--ink-b);margin:6px 0 0;max-width:46ch}
+/* what the puck lands on: shown under it once it has glided up.
+   js/hero-puck.js parks it just below the puck's resting edge. */
+.hi-land{position:absolute;left:0;right:0;bottom:calc(100% + 56px);z-index:2;text-align:center;padding-inline:var(--pad)}
+@media (prefers-reduced-motion:reduce){.hi-land{position:static;margin-bottom:56px}}
+.hi-land .disp{font-size:var(--hi-d2);color:var(--gold-d)}
+.hi-land p:not(.disp){font-size:var(--hi-lead);line-height:1.5;color:var(--ink-b);margin:18px auto 0;max-width:46ch}
+
+/* ---------- chapters ----------
+   The chapters rise over the empty lower half of the pinned scene
+   (negative margin, same ground tone), so the founding line under the
+   puck leads straight into the first chapter with no empty screen. */
+#hitrack{position:relative;z-index:1;background:var(--hi-ground);padding-block:clamp(40px,5vw,72px) clamp(64px,9vw,128px)}
+@media (prefers-reduced-motion:no-preference){
+  #hitrack{margin-top:calc(-1px * var(--hi-pull,330))}
+}
+#hitrack [hidden]{display:none!important}
+#hieras{display:flex;flex-direction:column;gap:clamp(88px,10vw,150px)}
+
+/* one chapter: the year and heading across the top, then the
+   picture and the text side by side (alternating), or the picture
+   full width (media "wide"), or text only */
+.hi-era{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:clamp(32px,4vw,64px);row-gap:clamp(28px,3vw,40px);
+  grid-template-areas:"head head" "fig copy";align-items:start;scroll-margin-top:calc(var(--hp-bot,215px) + 28px)}
+.hi-era.flip{grid-template-areas:"head head" "copy fig"}
+.hi-era.wide{grid-template-areas:"fig fig" "head copy"}
+.hi-era.textonly{grid-template-columns:minmax(0,7fr) minmax(0,5fr);grid-template-areas:"head copy"}
+.hi-head{grid-area:head}
+.hi-fig{grid-area:fig;margin:0}
+.hi-copy{grid-area:copy}
+.hi-year{font-size:var(--hi-d1);color:var(--ink)}
+.hi-era.gold .hi-year{color:var(--gold-d)}
+.hi-h{font-size:var(--hi-d2);color:var(--ink);margin-top:16px}
+.hi-lead{font-size:var(--hi-lead);line-height:1.5;color:var(--ink);margin:0 0 18px;max-width:46ch}
+.hi-copy .body{margin:0 0 16px}
+.hi-copy>:last-child{margin-bottom:0}
+.hi-quote{margin:26px 0 0;padding:0;font-size:var(--hi-lead);line-height:1.45;font-weight:600;color:var(--gold-d);max-width:40ch}
+.hi-fig .ph{width:100%;aspect-ratio:3/2}
+.hi-era.wide .hi-fig .ph{aspect-ratio:21/9}
+.hi-fig figcaption{font-size:var(--hi-small);line-height:1.5;color:var(--ink-m);margin-top:12px;max-width:62ch}
+body[data-page="history"] .phcredit{font-size:var(--hi-small);color:#fff;background:rgba(12,13,14,.62);text-shadow:none;padding:3px 8px;right:0;bottom:0;text-decoration:none}
+
+@media (max-width:820px){
+  .hi-era,.hi-era.flip,.hi-era.wide,.hi-era.textonly{grid-template-columns:minmax(0,1fr);row-gap:24px;
+    grid-template-areas:"head" "fig" "copy"}
+  .hi-era.textonly{grid-template-areas:"head" "copy"}
+  .hi-era.wide .hi-fig .ph{aspect-ratio:3/2}
+}
+
+/* ---------- closing ----------
+   The send-off stays on paper like the chapters, one tone step
+   down (bone3 against the chapters' bone) so the page lands. */
+body[data-page="history"] .hi-close.bone{background:var(--bone3)}
+.hi-close .hi-fig{margin:0}
+.hi-close .hi-fig .ph{aspect-ratio:16/8}
+.hi-close .hi-fig figcaption{font-size:var(--hi-small);line-height:1.5;color:var(--ink-m);margin-top:12px;max-width:62ch}
+.hi-close-row{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:clamp(32px,4vw,64px);align-items:start;margin-top:clamp(40px,5vw,64px)}
+.hi-close .quote{font-size:var(--hi-d2);color:var(--ink);margin:0}
+.hi-close .quote em{font-style:normal;color:var(--gold-d)}
+.hi-close .body{margin:0 0 26px}
+.hi-close .formnote{font-family:"Archivo",sans-serif;font-size:var(--hi-small);margin-top:40px}
+body[data-page="history"] .btn{font-size:17px}
+@media (max-width:820px){.hi-close-row{grid-template-columns:minmax(0,1fr);row-gap:24px}.hi-close .hi-fig .ph{aspect-ratio:3/2}}
+
+/* ---------- paper: the scene, on the same bone ground as Games and Stats ----------
+   The puck keeps its dark faces and its lettering (css/hero-puck.css is
+   not touched). Only what it sits on flips: the rink floor to paper,
+   the light markings to ink, the gold to the dark gold the scoring
+   pages use. */
+.hi-hero{background:transparent}
+body[data-page="history"] .hp{background:transparent}
+body[data-page="history"] .hp .hp-lf{background:none}
+/* ---------- the pinned puck ----------
+   The page is one tall track: the hero (the scene and the puck) is sticky in
+   it from top to bottom, the intro is scrubbed over the runway, and the
+   chapters pass under the puck. The hero sits above them but lets every
+   click through; the rink dissolves once the puck has landed (--hp-rink,
+   written by js/hero-puck.js) and the puck keeps a soft shadow of its own. */
+#hpTrack{height:auto;background:var(--bone)}
+.hp-run{height:150svh}
+@media (prefers-reduced-motion:reduce){.hp-run{display:none}}
+body[data-page="history"] .hp-track .hi-hero{z-index:5;pointer-events:none}
+body[data-page="history"] .hp .hp-bw{opacity:var(--hp-rink,1)}
+@media (max-width:700px){
+  /* a phone has little height to give: once it has landed the pinned puck is smaller */
+  body[data-page="history"] .hp .hp-pz{transform:scale(var(--hp-shrink,1));transform-origin:720px 450px}
+}
+body[data-page="history"] .hp .hp-pg{filter:drop-shadow(0 12px 14px rgba(17,20,23,calc((1 - var(--hp-rink,1)) * .34)))}
+/* turning the puck over when the chapter changes: a wrapper round the puck so
+   its own scrubbed rotation is left alone (history.html script, "puck follows
+   the chapters") */
+.hp-flip{position:absolute;left:0;top:0;width:316px;height:316px;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.35,.05,.2,1)}
+body[data-page="history"] .hp svg [fill^="rgba(237"]{fill:rgba(17,20,23,.03)}
+body[data-page="history"] .hp-bw svg [stroke^="rgba(237"]{stroke:rgba(17,20,23,.34)}
+body[data-page="history"] .hp-rpl svg [stroke^="rgba(237"]{stroke:rgba(17,20,23,.9)}
+body[data-page="history"] .hp svg [stroke="#93A9B8"]{stroke:var(--ink-m)}
+body[data-page="history"] .hp svg [stroke="#F7C325"]{stroke:var(--gold-d)}
+body[data-page="history"] .hp svg [stroke^="rgba(247"]{stroke:rgba(138,106,0,.6)}
+body[data-page="history"] .hp .hp-shk{border-color:var(--gold-d)}
+/* The opening: a paper-coloured disc the size of the centre circle with
+   black lettering, which is just the rink floor with words on it. When the
+   scroll starts, the disc darkens into the puck (hpF in hero-puck.css, its
+   face fades in from nothing) and the lettering turns light with it (hiInk,
+   same beats as hpF), and the puck settles from the circle's size to its
+   working size (hiFin) while it falls. */
+@keyframes hiInk{0%{fill:rgb(17,20,23);stroke:rgb(17,20,23)}0.8332%{fill:rgb(19,22,25);stroke:rgb(19,22,25)}1.6666%{fill:rgb(32,35,37);stroke:rgb(32,35,37)}2.5%{fill:rgb(59,61,61);stroke:rgb(59,61,61)}3.3333%{fill:rgb(97,98,97);stroke:rgb(97,98,97)}5%{fill:rgb(182,180,174);stroke:rgb(182,180,174)}5.8333%{fill:rgb(213,211,203);stroke:rgb(213,211,203)}6.6667%{fill:rgb(232,229,220);stroke:rgb(232,229,220)}7.4999%{fill:rgb(237,234,225);stroke:rgb(237,234,225)}8.3333%{fill:rgb(237,234,225);stroke:rgb(237,234,225)}10%{fill:rgb(237,234,225);stroke:rgb(237,234,225)}}
+body[data-page="history"] .hp .hp-face text:not(#hpYear){animation:hiInk 6.4s linear both}
+@keyframes hiFin{0%,1%{transform:scale(min(1,calc(var(--hp-f,.75) * 1.34)))}5%,100%{transform:scale(var(--hp-f,.75))}}
+body[data-page="history"] .hp .hp-fin{animation:hiFin 6.4s linear both}
+/* the puck's 2026 face sat 50px behind the rim of its wall (translateZ(-50px)
+   in front of the rotation), a gap nobody saw on the dark ground. Flush with the wall now. */
+body[data-page="history"] .hp .hp-back{transform:rotateX(180deg) translateZ(50px)}
+</style>
+</head>
+<!-- data-page  = which document this is; js/routes.js maps it to a URL
+     data-nav   = which top-level nav item lights up -->
+<body data-page="history" data-nav="about">
+<!-- ===== SHARED HEADER - identical on every page ===== -->
+<!-- hairline column grid, purely decorative -->
+<div class="gridlines" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<!-- invisible strip that brings the collapsed header back -->
+<div id="hotzone" aria-hidden="true"></div>
+<header id="hdr">
+  <div class="bar">
+    <a class="badge" href="index.html">
+      <span class="mark">
+        <!-- Placeholder mark. Replace with the real club badge:
+             assets/logo.svg, kept as SVG so it stays sharp. -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#EDEAE1" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 4c1.6 1.2 2.4 2.9 2.6 4.6.9-.6 2-.7 3-.3l2.6 1.1"/>
+          <path d="M6.6 8.6c-.6 1.9-.4 3.9.6 5.6l1.6 2.7"/>
+          <path d="M12.2 9.4l5.4 2.3c1.3.6 2 2 1.7 3.4l-.7 3.3"/>
+          <path d="M8.8 16.9l-1.3 3.2M19.4 18.4l1.1 2"/>
+        </svg>
+      </span>
+      <span class="wordmark"><span class="n">Slapping Studs</span><span class="s">EST. 1982 &middot; ENSCHEDE</span></span>
+    </a>
+    <!-- nav and account chip are rendered by js/views.js because
+         their contents depend on who is signed in -->
+    <nav id="nav"></nav>
+    <div class="hactions" id="hactions"></div>
+  </div>
+  <div class="acctmenu" id="acctmenu"></div>
+</header>
+<div class="peekhint" aria-hidden="true"></div>
+<!-- ===== /SHARED HEADER ===== -->
+<!-- ===== THE PAGE =====
+     The opening scene (the centre circle turns into the puck that
+     lands on 1982), the chapters - built from the `chapters`
+     collection in js/data.js by the script at the foot of the page -
+     and a paper send-off.
+     ================================================================ -->
+<main>
+<div class="hp-track" id="hpTrack">
+<section class="panel hi-hero" id="top" data-label="1982">
+  <div class="hp" id="hp" aria-hidden="false">
+    <div class="hp-scene">
+<div class="hp-bw"><div class="hp-cam">
+<svg aria-hidden="true" viewBox="0 0 1440 900" style="position: absolute; left: -71px; top: -188px; width: 1583px; height: 1276px" fill="none">
+<rect x="80" y="178" width="1280" height="544" rx="179" fill="rgba(237,234,225,.025)" stroke="rgba(237,234,225,.3)" stroke-width="3"></rect>
+<line x1="720" y1="178" x2="720" y2="722" stroke="#93A9B8" stroke-opacity=".3" stroke-width="4"></line>
+<line x1="560" y1="178" x2="560" y2="722" stroke="#F7C325" stroke-opacity=".3" stroke-width="8"></line>
+<line x1="880" y1="178" x2="880" y2="722" stroke="#F7C325" stroke-opacity=".3" stroke-width="8"></line>
+<path d="M150 215 V685 M1290 215 V685" stroke="#93A9B8" stroke-opacity=".25" stroke-width="2"></path>
+<circle cx="278" cy="309" r="96" stroke="#93A9B8" stroke-opacity=".22" stroke-width="2.5"></circle>
+<circle cx="278" cy="591" r="96" stroke="#93A9B8" stroke-opacity=".22" stroke-width="2.5"></circle>
+<circle cx="1162" cy="309" r="96" stroke="#93A9B8" stroke-opacity=".22" stroke-width="2.5"></circle>
+<circle cx="1162" cy="591" r="96" stroke="#93A9B8" stroke-opacity=".22" stroke-width="2.5"></circle>
+</svg>
+
+
+<svg aria-hidden="true" viewBox="0 0 560 560" style="position:absolute;left:562px;top:292px;width:316px;height:316px" fill="none"><circle cx="280" cy="280" r="269" stroke="rgba(247,195,37,.5)" stroke-width="2"></circle></svg>
+<div class="hp-pgs"><div class="hp-pzs"><div class="hp-fin"><div class="hp-sh"></div></div></div></div>
+<div class="hp-rpl"><svg aria-hidden="true" viewBox="0 0 1440 900" style="position: absolute; left: -71px; top: -188px; width: 1583px; height: 1276px" fill="none">
+<rect x="80" y="178" width="1280" height="544" rx="179" fill="rgba(237,234,225,.025)" stroke="rgba(237,234,225,.95)" stroke-width="3"></rect>
+<line x1="720" y1="178" x2="720" y2="722" stroke="#93A9B8" stroke-opacity=".95" stroke-width="4"></line>
+<line x1="560" y1="178" x2="560" y2="722" stroke="#F7C325" stroke-opacity=".95" stroke-width="8"></line>
+<line x1="880" y1="178" x2="880" y2="722" stroke="#F7C325" stroke-opacity=".95" stroke-width="8"></line>
+<path d="M150 215 V685 M1290 215 V685" stroke="#93A9B8" stroke-opacity=".9" stroke-width="2"></path>
+<circle cx="278" cy="309" r="96" stroke="#93A9B8" stroke-opacity=".9" stroke-width="2.5"></circle>
+<circle cx="278" cy="591" r="96" stroke="#93A9B8" stroke-opacity=".9" stroke-width="2.5"></circle>
+<circle cx="1162" cy="309" r="96" stroke="#93A9B8" stroke-opacity=".9" stroke-width="2.5"></circle>
+<circle cx="1162" cy="591" r="96" stroke="#93A9B8" stroke-opacity=".9" stroke-width="2.5"></circle>
+</svg>
+
+</div><div class="hp-shk"></div>
+</div></div>
+<div class="hp-lf"></div><div class="hp-pg"><div class="hp-pz" style="left: 0px; top: 0px; position: absolute"><div class="hp-fin"><div class="hp-stage" style="left: 562px; top: 292px; position: absolute"><div class="hp-dropper"><div class="hp-flip"><div class="hp-puck">
+<i class="hp-pn" style="transform:rotateZ(0.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(6.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(12.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(18.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(24.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(30.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(36.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(42.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(48.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(54.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(60.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(66.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(72.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(78.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(84.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(90.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(96.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(102.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(108.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(114.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(120.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(126.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(132.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(138.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(144.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(150.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(156.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(162.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(168.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(174.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(180.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(186.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(192.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(198.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(204.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(210.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(216.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(222.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(228.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(234.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(240.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(246.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(252.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(258.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(264.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(270.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(276.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(282.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(288.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(294.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(300.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(306.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(312.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(318.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(324.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(330.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(336.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(342.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(348.0deg) translateY(-158px) rotateX(90deg)"></i>
+<i class="hp-pn" style="transform:rotateZ(354.0deg) translateY(-158px) rotateX(90deg)"></i>
+<div class="hp-face hp-front">
+<svg aria-label="The foundation 1982" role="img" viewBox="0 0 560 560" style="position:absolute;left:0;top:0;width:316px;height:316px" fill="none">
+<defs><path id="arcTopF" d="M 62 280 A 218 218 0 0 1 498 280"></path><path id="arcBottomF" d="M 25 280 A 255 255 0 0 0 535 280"></path></defs>
+<circle class="hp-rg" cx="280" cy="280" r="269" stroke="rgba(247,195,37,.5)" stroke-width="2"></circle>
+<text font-family="Archivo, sans-serif" font-weight="800" font-size="44" letter-spacing="7" fill="#EDEAE1" stroke="#EDEAE1" stroke-width="1.6" stroke-linejoin="round" text-anchor="middle"><textPath href="#arcTopF" startOffset="50%">THE FOUNDATION</textPath></text>
+<text font-family="Archivo, sans-serif" font-weight="800" font-size="50" letter-spacing="8" fill="#EDEAE1" stroke="#EDEAE1" stroke-width="1.6" stroke-linejoin="round" text-anchor="middle"><textPath href="#arcBottomF" startOffset="50%">SLAPPING STUDS</textPath></text>
+</svg>
+<svg aria-label="1982" role="img" viewBox="0 0 262.2 79.8" style="position:absolute;left:26.9px;top:118.6px;width:262.2px;height:79.8px" fill="none"><defs><filter id="lg" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.6" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter></defs><circle cx="5.7" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="17.1" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="28.5" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="39.9" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="51.3" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="5.7" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="17.1" cy="17.1" r="4.33" fill="#F7C325"></circle><circle cx="28.5" cy="17.1" r="4.33" fill="#F7C325"></circle><circle cx="39.9" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="51.3" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="5.7" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="17.1" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="28.5" cy="28.5" r="4.33" fill="#F7C325"></circle><circle cx="39.9" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="51.3" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="5.7" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="17.1" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="28.5" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="39.9" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="51.3" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="5.7" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="17.1" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="28.5" cy="51.3" r="4.33" fill="#F7C325"></circle><circle cx="39.9" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="51.3" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="5.7" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="17.1" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="28.5" cy="62.7" r="4.33" fill="#F7C325"></circle><circle cx="39.9" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="51.3" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="5.7" cy="74.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="17.1" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="28.5" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="39.9" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="51.3" cy="74.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="74.1" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="85.5" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="96.9" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="108.3" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="119.7" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="74.1" cy="17.1" r="4.33" fill="#F7C325"></circle><circle cx="85.5" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="96.9" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="108.3" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="119.7" cy="17.1" r="4.33" fill="#F7C325"></circle><circle cx="74.1" cy="28.5" r="4.33" fill="#F7C325"></circle><circle cx="85.5" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="96.9" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="108.3" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="119.7" cy="28.5" r="4.33" fill="#F7C325"></circle><circle cx="74.1" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="85.5" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="96.9" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="108.3" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="119.7" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="74.1" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="85.5" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="96.9" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="108.3" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="119.7" cy="51.3" r="4.33" fill="#F7C325"></circle><circle cx="74.1" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="85.5" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="96.9" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="108.3" cy="62.7" r="4.33" fill="#F7C325"></circle><circle cx="119.7" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="74.1" cy="74.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="85.5" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="96.9" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="108.3" cy="74.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="119.7" cy="74.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="142.5" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="153.9" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="165.3" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="176.7" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="188.1" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="142.5" cy="17.1" r="4.33" fill="#F7C325"></circle><circle cx="153.9" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="165.3" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="176.7" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="188.1" cy="17.1" r="4.33" fill="#F7C325"></circle><circle cx="142.5" cy="28.5" r="4.33" fill="#F7C325"></circle><circle cx="153.9" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="165.3" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="176.7" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="188.1" cy="28.5" r="4.33" fill="#F7C325"></circle><circle cx="142.5" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="153.9" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="165.3" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="176.7" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="188.1" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="142.5" cy="51.3" r="4.33" fill="#F7C325"></circle><circle cx="153.9" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="165.3" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="176.7" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="188.1" cy="51.3" r="4.33" fill="#F7C325"></circle><circle cx="142.5" cy="62.7" r="4.33" fill="#F7C325"></circle><circle cx="153.9" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="165.3" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="176.7" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="188.1" cy="62.7" r="4.33" fill="#F7C325"></circle><circle cx="142.5" cy="74.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="153.9" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="165.3" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="176.7" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="188.1" cy="74.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="210.9" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="222.3" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="233.7" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="245.1" cy="5.7" r="4.33" fill="#F7C325"></circle><circle cx="256.5" cy="5.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="210.9" cy="17.1" r="4.33" fill="#F7C325"></circle><circle cx="222.3" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="233.7" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="245.1" cy="17.1" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="256.5" cy="17.1" r="4.33" fill="#F7C325"></circle><circle cx="210.9" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="222.3" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="233.7" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="245.1" cy="28.5" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="256.5" cy="28.5" r="4.33" fill="#F7C325"></circle><circle cx="210.9" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="222.3" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="233.7" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="245.1" cy="39.9" r="4.33" fill="#F7C325"></circle><circle cx="256.5" cy="39.9" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="210.9" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="222.3" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="233.7" cy="51.3" r="4.33" fill="#F7C325"></circle><circle cx="245.1" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="256.5" cy="51.3" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="210.9" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="222.3" cy="62.7" r="4.33" fill="#F7C325"></circle><circle cx="233.7" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="245.1" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="256.5" cy="62.7" r="1.1" fill="rgba(247,195,37,.16)"></circle><circle cx="210.9" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="222.3" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="233.7" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="245.1" cy="74.1" r="4.33" fill="#F7C325"></circle><circle cx="256.5" cy="74.1" r="4.33" fill="#F7C325"></circle></svg>
+</div>
+<div class="hp-face hp-back">
+<svg aria-label="Our history current year" role="img" viewBox="0 0 560 560" style="position:absolute;left:0;top:0;width:316px;height:316px" fill="none">
+<defs><path id="arcTopK" d="M 62 280 A 218 218 0 0 1 498 280"></path><path id="arcBottomK" d="M 25 280 A 255 255 0 0 0 535 280"></path></defs>
+<circle class="hp-rg" cx="280" cy="280" r="269" stroke="rgba(247,195,37,.5)" stroke-width="2"></circle>
+<text font-family="Archivo, sans-serif" font-weight="800" font-size="50" letter-spacing="8" fill="#EDEAE1" stroke="#EDEAE1" stroke-width="1.6" stroke-linejoin="round" text-anchor="middle"><textPath href="#arcTopK" startOffset="50%">OUR HISTORY</textPath></text>
+<text font-family="Archivo, sans-serif" font-weight="800" font-size="50" letter-spacing="8" fill="#EDEAE1" stroke="#EDEAE1" stroke-width="1.6" stroke-linejoin="round" text-anchor="middle"><textPath href="#arcBottomK" startOffset="50%">SLAPPING STUDS</textPath></text>
+</svg>
+<svg aria-hidden="true" viewBox="0 0 314 99" style="position:absolute;left:1px;top:109px;width:314px;height:99px;overflow:visible"><text id="hpYear" x="157" y="95" text-anchor="middle" fill="#F7C325" style="font-family:Archivo,sans-serif;font-weight:900;font-stretch:80%;font-size:130px">2026</text></svg>
+</div>
+</div></div></div></div></div></div></div>
+    </div>
+  </div>
+  <!-- the page name stays for screen readers and search; nothing is printed in the corner -->
+  <h1 class="hp-sr" data-ed="hi.h1">Our history</h1>
+</section>
+<!-- the runway the intro is scrubbed over; the hero above stays pinned for the whole page -->
+<div class="hp-run" id="hpRun" aria-hidden="true"></div>
+<div id="hitrack" class="on-bone">
+  <!-- scrolls with the page (it used to be pinned in the hero): sits just under
+       where the landed puck rests, and the first chapter follows it -->
+  <div class="hi-land" id="hiLand">
+    <p class="disp" data-ed="hi.land">Founded in February 1982</p>
+    <p data-ed="hi.landsub">A handful of students at the University of Twente wanted something faster than what the campus offered. They found a rink, and started showing up.</p>
+  </div>
+
+  <!-- Hooks kept from the old pinned stage; unused by the flowing
+       chapters, hidden. -->
+  <div class="hi-spine" id="hiSpine" aria-hidden="true" hidden></div>
+  <div id="hibgs" hidden></div>
+  <div id="himotifs" hidden></div>
+  <div class="wrap">
+    <!-- filled from the `chapters` collection in js/data.js (editable
+         in the admin console) by the script at the foot of the page.
+         The chapters are read by scrolling; each keeps its #chap-<id>
+         so other pages and the admin can link straight to it. -->
+    <div id="hieras"></div>
+  </div>
+</div>
+<!-- The send-off: the squad as it is now, on the same dark ground the
+     chapters run on, one tone step down so the page ends instead of
+     opening a second, white page. -->
+<section class="panel bone on-bone hi-close" id="today" data-label="Today">
+  <div class="panel__in">
+    <div class="wrap">
+      <figure class="hi-fig">
+        <div class="ph" data-slot="history:today" data-img="assets/photos/hero-squad-2026.jpg" data-ph="The squad, season 2025–26"></div>
+        <figcaption>The Slapping Studs, season 2025–26. Our own team photo.</figcaption>
+      </figure>
+      <div class="hi-close-row">
+        <p class="disp quote" data-ed="hi.quote">Same rink, same jersey, <em>a new team every September.</em></p>
+        <div>
+          <p class="body" data-ed="hi.close">Forty-four seasons on, new members still arrive the same way: no tryout, no experience asked for, an introduction practice and a borrowed set of gear.</p>
+          <a class="btn" href="players.html">See the current roster</a>
+        </div>
+      </div>
+      <p class="formnote todo">Proposal note: the 1990s, 2000s and "Every April" chapters are plausible structure only and must be checked against the club archive. The 1982, 1985 and 1964 photographs are archive pictures of Dutch hockey and of the campus, not of the club.</p>
+    </div>
+  </div>
+</section>
+</div>
+</main>
+
+<!-- ===== SHARED FOOTER - identical on every page =====
+     A page-level element after </main>, not a panel of its own:
+     it takes exactly the height its four columns need plus its
+     own breathing room, and never a screen more. -->
+  <footer class="sitefoot">
+    <div class="wrap">
+      <div class="fgrid">
+        <div class="fcol">
+          <div class="wordmark"><span class="n">Slapping Studs</span><span class="s">SIJHV &middot; EST. 1982 &middot; ENSCHEDE</span></div>
+          <p class="body" data-ed="ft.b">The oldest student ice hockey association in the Netherlands, affiliated with the University of Twente.</p>
+        </div>
+        <div class="fcol"><h5>Club</h5><a href="about.html">About us</a><a href="history.html">History</a><a href="training.html">Training</a><a href="players.html">Players</a></div>
+        <div class="fcol"><h5>Play</h5><a href="games.html">This season</a><a href="past-games.html">Past seasons</a><a href="hockey.html#what">New to hockey</a><a href="hockey.html#gear">Gear</a></div>
+        <div class="fcol"><h5>Join &amp; members</h5><a href="join.html">Sign up for a practice</a><a href="pictures.html">Pictures</a><a href="sign-in.html">Sign in</a><a href="contact.html#find">Where to find us</a></div>
+      </div>
+      <div class="fbot">
+        <span>Design proposal &middot; 2026 &middot; not the live site</span>
+        <span data-ed="ft.meta">Postbus 217, 7500 AE Enschede &middot; bestuur@slappingstuds.nl</span>
+      </div>
+    </div>
+  </footer>
+<!-- ===== /SHARED FOOTER ===== -->
+
+<!-- admin layer: bar, drawer scrim, drawer, toast -->
+<div class="adminbar" id="adminbar"></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<div class="toast" id="toast"></div>
+<!-- Load order: content, roles and the URL map, then the engine.
+     Plain scripts, not modules, so a page can be opened straight
+     from disk without a local server. -->
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/routes.js"></script>
+<script src="js/core.js"></script>
+<script src="js/avatar.js"></script>
+<script src="js/deck.js"></script>
+<script src="js/views.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/app.js"></script>
+<script src="js/hero-puck.js"></script>
+<script>
+/* History page behaviour: builds the chapters from the `chapters`
+   collection (js/data.js, editable in the admin console). They are
+   plain sections, read by scrolling; each keeps its #chap-<id>.
+   S.renderChapters is wrapped so every renderAll() - an admin edit,
+   a reset - rebuilds the chapters before photos are applied. The
+   shared renderer only acts on a #chapbody, which this page does
+   not have, so the wrap is the whole of it. */
+(function(S){
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = S.esc || (v => String(v == null ? "" : v).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])));
+const brk = s => esc(s || "").replace(/\n/g, "<br>");
+
+function rows(){
+  const list = (S.state && S.state.content && S.state.content.chapters) || [];
+  const seed = (S.seed && S.seed.chapters) || [];
+  /* saved content from an older version may lack the picture fields */
+  return list.map(c => {
+    const d = seed.find(x => x.id === c.id) || {};
+    return Object.assign({}, c, {
+      img: c.img || d.img || "", credit: c.credit || d.credit || "",
+      creditUrl: c.creditUrl || d.creditUrl || "", gold: c.gold || d.gold
+    });
+  });
+}
+/* the year set large; old saved rows held an index ("01") in yr */
+function yearOf(c){
+  const y = String(c.yr || "").trim();
+  if (y && !/^\d{1,2}$/.test(y)) return y;
+  const k = String(c.kicker || "").split("·").pop().trim();
+  return /\d/.test(k) ? k : y;
+}
+function paras(s){
+  return esc(s || "").split(/\n{2,}/).filter(Boolean)
+    .map(p => '<p class="body">' + p.replace(/\n/g, "<br>") + "</p>").join("");
+}
+function tools(id){
+  return '<span class="itools"><button data-edit="chapters:' + esc(id) + '" title="Edit">&#9998;</button>' +
+         '<button data-del="chapters:' + esc(id) + '" title="Delete">&#10005;</button></span>';
+}
+
+let list = [];
+function build(){
+  list = rows();
+  let side = 0;
+  $("hieras").innerHTML = list.map(c => {
+    const shots = parseInt(c.shots, 10) || 0;
+    const wide = c.media === "wide";
+    const credit = c.credit
+      ? (c.creditUrl
+          ? '<a class="phcredit" href="' + esc(c.creditUrl) + '" target="_blank" rel="noopener">' + esc(c.credit) + "</a>"
+          : '<span class="phcredit">' + esc(c.credit) + "</span>")
+      : "";
+    const fig = shots
+      ? '<figure class="hi-fig"><div class="ph" data-slot="chapter:' + esc(c.id) + ':0"' +
+          (c.img ? ' data-img="' + esc(c.img) + '"' : "") +
+          ' data-ph="' + esc(c.cap || ("Photo, " + yearOf(c))) + '">' + credit + "</div>" +
+          (c.cap ? "<figcaption>" + esc(c.cap) + "</figcaption>" : "") + "</figure>"
+      : "";
+    const head = '<div class="hi-head"><p class="disp hi-year">' + esc(yearOf(c)) + "</p>" +
+                 '<h2 class="disp hi-h">' + brk(c.h || c.nav) + "</h2></div>";
+    const copy = '<div class="hi-copy">' +
+                 (c.lead ? '<p class="hi-lead">' + esc(c.lead) + "</p>" : "") +
+                 paras(c.body) +
+                 (c.quote ? '<blockquote class="hi-quote">' + esc(c.quote) + "</blockquote>" : "") + "</div>";
+    let cls = "hi-era" + (c.gold ? " gold" : "");
+    if (!fig) cls += " textonly";
+    else if (wide) cls += " wide";
+    else if (side++ % 2) cls += " flip";
+    return '<article class="' + cls + '" id="chap-' + esc(c.id) + '" data-item data-chap="' + esc(c.id) + '">' +
+           head + fig + copy + tools(c.id) + "</article>";
+  }).join("");
+}
+
+/* ---------- the puck follows the chapters ----------
+   The puck is pinned at the top of the page (see "the pinned puck" in the
+   styles). Whichever five-year chapter is under it, the puck wears: the
+   chapter's name on the top rim, its year in dots in the middle. When the
+   next chapter reaches it the puck turns over (the .hp-flip wrapper) and
+   the other face already shows the new text. Chapter 0 is the face the
+   intro lands on; above that, scrolling back into the intro leaves the
+   puck alone. */
+const hp = document.getElementById("hp");
+const flip = hp && hp.querySelector(".hp-flip");
+const faceF = hp && hp.querySelector(".hp-front");
+const faceB = hp && hp.querySelector(".hp-back");
+const calm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const GLYPH = {
+  "0":[".###.","#...#","#..##","#.#.#","##..#","#...#",".###."],
+  "1":["..#..",".##..","..#..","..#..","..#..","..#..",".###."],
+  "2":[".###.","#...#","....#","...#.","..#..",".#...","#####"],
+  "3":[".###.","#...#","....#","..##.","....#","#...#",".###."],
+  "4":["...#.","..##.",".#.#.","#..#.","#####","...#.","...#."],
+  "5":["#####","#....","####.","....#","....#","#...#",".###."],
+  "6":["..##.",".#...","#....","####.","#...#","#...#",".###."],
+  "7":["#####","....#","...#.","..#..",".#...",".#...",".#..."],
+  "8":[".###.","#...#","#...#",".###.","#...#","#...#",".###."],
+  "9":[".###.","#...#","#...#",".####","....#","...#.",".##.."],
+  "T":["#####","..#..","..#..","..#..","..#..","..#..","..#.."],
+  "O":[".###.","#...#","#...#","#...#","#...#","#...#",".###."],
+  "D":["####.","#...#","#...#","#...#","#...#","#...#","####."],
+  "A":[".###.","#...#","#...#","#####","#...#","#...#","#...#"],
+  "Y":["#...#","#...#",".#.#.","..#..","..#..","..#..","..#.."]
+};
+/* the same lit-dot lettering the 1982 puck was drawn in: 5 x 7 dots a letter */
+function dots(str){
+  const P = 11.4, n = str.length, W = n * 68.4 - 11.4, H = 79.8, w = 262.2, h = H * w / W;
+  let out = "";
+  for (let i = 0; i < n; i++){
+    const g = GLYPH[str[i]] || GLYPH["0"];
+    for (let r = 0; r < 7; r++) for (let c = 0; c < 5; c++){
+      const on = g[r][c] === "#";
+      out += '<circle cx="' + (5.7 + P * c + 68.4 * i).toFixed(1) + '" cy="' + (5.7 + P * r).toFixed(1) +
+             '" r="' + (on ? 4.33 : 1.1) + '" fill="' + (on ? "#F7C325" : "rgba(247,195,37,.16)") + '"/>';
+    }
+  }
+  return '<svg aria-label="' + esc(str) + '" role="img" viewBox="0 0 ' + W.toFixed(1) + ' ' + H +
+         '" style="position:absolute;left:' + ((316 - w) / 2).toFixed(1) + 'px;top:' + (158.5 - h / 2).toFixed(1) +
+         'px;width:' + w + 'px;height:' + h.toFixed(1) + 'px" fill="none">' + out + "</svg>";
+}
+const puckYear = c => /^\d{4}$/.test(String(c.yr || "").trim()) ? String(c.yr).trim() : "TODAY";
+const puckName = c => String(c.nav || c.h || "").replace(/\n/g, " ").trim().toUpperCase();
+function paintFace(face, c){
+  if (!face || !c) return;
+  const svgs = face.querySelectorAll(":scope > svg");
+  const arcs = svgs[0], mid = svgs[svgs.length - 1];
+  const top = arcs && arcs.querySelector("text");
+  if (top){
+    top.querySelector("textPath").textContent = puckName(c);
+    top.setAttribute("font-size", "44");
+    /* a long name is set smaller instead of running off the rim */
+    const len = top.getComputedTextLength ? top.getComputedTextLength() : 0;
+    if (len > 600) top.setAttribute("font-size", Math.max(22, 44 * 600 / len).toFixed(1));
+  }
+  if (mid) mid.outerHTML = dots(puckYear(c));
+}
+/* the intro's own words on the back face. Its elements are never replaced, only
+   their text and the centre drawing: the scrubbed animations (js/hero-puck.js)
+   are tied to those very elements and would run loose on fresh copies. */
+const introTop = faceB && faceB.querySelector("svg text");
+const introTopText = introTop ? introTop.textContent : "", introTopSize = introTop ? introTop.getAttribute("font-size") : "50";
+const introMid = faceB ? faceB.querySelector(":scope > svg:last-of-type") : null;
+const introMidHTML = introMid ? introMid.outerHTML : "";
+function restoreBack(){
+  if (!faceB || !introTop) return;
+  introTop.querySelector("textPath").textContent = introTopText;
+  introTop.setAttribute("font-size", introTopSize);
+  const mid = faceB.querySelector(":scope > svg:last-of-type");
+  if (mid) mid.outerHTML = introMidHTML;
+}
+let atK = 0, angle = 0, backDirty = false, settle = 0;
+function faceFor(k){ return k % 2 ? faceB : faceF; }
+function turnTo(k){
+  if (!flip || k === atK) return;
+  const dir = k > atK ? 1 : -1, sameSide = (k % 2) === (atK % 2);
+  const c = list[k];
+  paintFace(faceFor(k), c);
+  if (faceFor(k) === faceB) backDirty = true;
+  angle += dir * (sameSide ? 360 : 180);
+  atK = k;
+  hp.dataset.flip = "2";
+  if (window.hpFaces) window.hpFaces();
+  flip.style.transform = "rotateX(" + angle + "deg)";
+  clearTimeout(settle);
+  settle = setTimeout(function(){
+    hp.dataset.flip = k % 2 ? "1" : "";
+    if (window.hpFaces) window.hpFaces();
+    /* back at the first chapter: the back face goes back to the intro's words */
+    if (k === 0 && backDirty){ restoreBack(); backDirty = false; }
+  }, 950);
+}
+function chapterUnderPuck(){
+  const arts = document.querySelectorAll(".hi-era");
+  const bot = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hp-bot")) || 215;
+  const ref = bot + 60;
+  let k = 0;
+  arts.forEach(function(a, i){ if (a.getBoundingClientRect().top <= ref) k = i; });
+  return Math.min(k, Math.max(0, list.length - 1));
+}
+let queued = 0;
+function puckSync(repaint){
+  if (calm || !flip || !list.length) return;
+  if (repaint){
+    /* the chapters were rebuilt (an edit in the console): redraw the face that is up */
+    atK = Math.min(atK, list.length - 1);
+    paintFace(faceFor(atK), list[atK]);
+    if (faceFor(atK) === faceB) backDirty = true;
+  }
+  turnTo(chapterUnderPuck());
+}
+function puckTick(){ queued = 0; puckSync(false); }
+window.addEventListener("scroll", function(){ if (!queued) queued = requestAnimationFrame(puckTick); }, { passive: true });
+window.addEventListener("resize", function(){ if (!queued) queued = requestAnimationFrame(puckTick); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ puckSync(true); });
+
+const orig = S.renderChapters;
+S.renderChapters = function(){ if (orig) orig.apply(this, arguments); build(); puckSync(true); };
+/* if the app has already rendered (script order), build now */
+if (S.state && S.state.content) { build(); if (S.applyPhotos) S.applyPhotos(); puckSync(true); }
+})(window.Studs);
+</script>
+</body>
+</html>

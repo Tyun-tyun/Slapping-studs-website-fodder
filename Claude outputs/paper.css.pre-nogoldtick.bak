@@ -1,0 +1,730 @@
+/* ============================================================
+   paper.css - the components from the UI mockups.
+
+   The mockups work in a different register from the rest of the
+   site: paper rather than ink, and everything divided by
+   hairlines instead of by space. Four ideas carry all of it.
+
+     1. THE HAIRLINE GRID. A group of cards is a grid with a 1px
+        gap over a hairline-coloured background, so the gaps
+        themselves draw the rules. No card owns a border, which
+        is why the joins stay perfectly single-weight however the
+        grid reflows.
+     2. MONO LABELS. Every label, count, time and column head is
+        IBM Plex Mono, 9-11px, uppercase, tracked wide. If it is
+        data or it names data, it is mono.
+     3. CONDENSED DATA. Names, teams and numbers that matter are
+        Archivo at 70-84% width. The table never uses the display
+        face for anything that is not a name.
+     4. GOLD MEANS US. The club gold marks the club's own row and
+        nothing else, so a reader can find the Studs in a table
+        without reading it.
+
+   Every colour here is a token from tokens.css. Nothing in this
+   file introduces a hue.
+   ============================================================ */
+
+/* ============================================================
+   1. THE HAIRLINE GRID
+   ============================================================ */
+
+/* The gap IS the rule: the grid's own background shows through a
+   1px gap between cells. Padding on the group would break the
+   illusion at the edges, so the group is flush and the cells
+   carry the padding. */
+.pgrid{
+  display:grid;
+  gap:1px;
+  background:var(--rule-l2);
+  border-block:1px solid var(--rule-l2);
+}
+.pgrid--2{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.pgrid--3{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.pgrid--4{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+
+.pcard{
+  background:var(--bone);
+  padding:clamp(18px,2.4vw,26px);
+  display:flex;flex-direction:column;gap:14px;
+}
+.pcard--raised{background:var(--bone3)}
+
+/* ============================================================
+   2. LABELS AND HEADS
+   ============================================================ */
+
+.plabel{
+  margin:0;
+  font-family:var(--mono);font-size:9.5px;font-weight:500;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-l);
+}
+.plabel--gold{color:var(--gold-d)}
+
+/* A section head on paper: mono kicker over a condensed title,
+   with an optional meta note pushed to the right. */
+.phead-p{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin-bottom:20px;
+}
+.pheadline{
+  margin:0;text-transform:none;
+  font-family:var(--disp);font-stretch:76%;font-weight:800;
+  font-size:clamp(20px,2.4vw,26px);line-height:1;color:var(--ink);
+}
+
+/* ============================================================
+   3. DATA TABLES
+
+   The site's ink tables live in components.css. These are their
+   paper counterparts: no container border, a single strong rule
+   under the head, and a light rule under every row.
+   ============================================================ */
+
+.ptable-wrap{overflow-x:auto}
+.ptable{width:100%;border-collapse:collapse;min-width:560px;
+  font-variant-numeric:tabular-nums}
+/* components.css gives every th an ink2 fill, which is right for
+   the dark tables and wrong here: on paper the head is a rule, not
+   a bar. */
+.ptable th{
+  background:none;
+  padding:0 12px 10px 0;text-align:left;white-space:nowrap;
+  font-family:var(--mono);font-size:9.5px;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-l);
+  border-bottom:1px solid var(--rule-l3);
+}
+.ptable td{
+  padding:13px 12px 13px 0;
+  border-bottom:1px solid var(--rule-l1);
+  font-family:var(--mono);font-size:12px;color:var(--ink-m);
+  white-space:nowrap;
+}
+.ptable tr:hover td{background:var(--bone3)}
+/* the one column that is a name, not a number */
+.ptable td.pname{
+  font-family:var(--disp);font-stretch:82%;font-weight:700;
+  font-size:15px;color:var(--ink);white-space:normal;
+}
+.ptable td.pnum{text-align:center}
+.ptable th.pnum{text-align:center}
+/* the number the table exists to produce */
+.ptable td.ppts,.ptable th.ppts{text-align:right;padding-right:0}
+.ptable td.ppts{
+  font-family:var(--disp);font-stretch:76%;font-weight:800;
+  font-size:17px;color:var(--gold-d);
+}
+
+/* Gold means us. A dot rather than a highlighted row: the row
+   still has to be read as one of many, it just has to be
+   findable without reading. */
+.pus{
+  display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--gold);margin-right:9px;vertical-align:middle;
+}
+
+/* Under a table: what its columns mean. */
+.pkeys{
+  display:flex;gap:8px 30px;flex-wrap:wrap;
+  padding:clamp(16px,2vw,22px) 0 0;
+}
+.pkey{display:flex;flex-direction:column;gap:4px}
+.pkey b{
+  font-family:var(--mono);font-size:9.5px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+}
+.pkey span{font-size:12.5px;color:var(--ink-m)}
+
+/* ============================================================
+   4. SESSION ROWS  (training)
+
+   One row per week-night. Four columns that each answer one
+   question - when, what ice, who for, and what actually happens
+   - so nobody has to read a paragraph to find Tuesday.
+   ============================================================ */
+
+.psession{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));
+  gap:18px;align-items:baseline;
+  background:var(--bone);
+  padding:clamp(18px,2.2vw,22px);
+}
+.psession .pday{
+  font-family:var(--disp);font-stretch:72%;font-weight:800;
+  font-size:clamp(22px,2.4vw,26px);line-height:1;color:var(--ink);
+}
+.psession .ptime{
+  display:block;margin-top:6px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+  color:var(--gold-d);
+}
+.psession .pfield{display:flex;flex-direction:column;gap:5px}
+.psession .pfield b{
+  font-family:var(--disp);font-stretch:84%;font-weight:600;
+  font-size:14px;color:var(--ink);
+}
+.psession .pnote{font-size:13.5px;line-height:1.55;color:var(--ink-m)}
+
+/* A two-column list: a thing on the left, its answer on the
+   right. Used for what the club lends. */
+.plist{display:flex;flex-direction:column}
+.plist > div{
+  display:flex;justify-content:space-between;gap:16px;
+  padding:12px 0;border-bottom:1px solid var(--rule-l1);
+}
+.plist b{
+  font-family:var(--disp);font-stretch:84%;font-weight:600;
+  font-size:14.5px;color:var(--ink);
+}
+.plist span{
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  color:var(--ink-m);text-align:right;
+}
+
+/* ============================================================
+   5. CONTACT CARDS AND THE MAP
+   ============================================================ */
+
+.pcontact svg{width:22px;height:22px;flex:0 0 22px}
+.pcontact .pwhat{
+  font-family:var(--mono);font-size:9.5px;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--ink);
+}
+.pcontact .plines{display:flex;flex-direction:column;gap:5px}
+.pcontact .plines a,.pcontact .plines span{
+  font-size:14.5px;line-height:1.5;color:var(--ink-b);text-decoration:none;
+}
+.pcontact .plines a:hover{color:var(--gold-d)}
+
+/* The map is the biggest single thing on the contact page,
+   because "where" is the question that page exists to answer.
+   The address rides on it in an ink block rather than sitting
+   under it, so the two are read as one object. */
+.pmap{
+  position:relative;
+  min-height:clamp(240px,44vh,420px);
+  border:1px solid var(--rule-l3);
+  background:repeating-linear-gradient(135deg,
+    var(--bone3) 0 9px, #DFDACD 9px 18px);
+  display:grid;place-items:center;padding:20px;
+}
+/* The picture inside the frame is an ordinary photo slot, so the
+   board can drop a real map in from the website itself. It fills
+   the frame; the hatching above is only what shows through while
+   the slot is still empty. */
+.pmap > .ph{position:absolute;inset:0;border:0;z-index:0}
+/* An empty slot is drawn dark everywhere else on the site, which
+   would put a black rectangle in the middle of a bone page. The
+   same hatch in paper tones says "picture missing" just as
+   clearly - components.css does this for .chapmedia too. */
+.panel.bone .pmap > .ph{
+  background:repeating-linear-gradient(135deg,
+    var(--bone3) 0 9px, #DFDACD 9px 18px);
+}
+.panel.bone .pmap > .ph::after{color:rgba(12,13,14,.42)}
+/* The gold edge is not decoration: the card is ink, and it has to
+   stay legible over a dark photograph and over an empty slot
+   alike. The edge is what separates it from either. */
+.pmap .pmapcard{
+  position:absolute;top:0;left:0;max-width:240px;z-index:2;
+  background:var(--ink);padding:14px 17px;
+  border-left:3px solid var(--gold);
+}
+.pmap .pmapcard b{
+  display:block;font-family:var(--disp);font-stretch:82%;font-weight:700;
+  font-size:14px;color:var(--bone);
+}
+.pmap .pmapcard span{
+  display:block;margin-top:6px;
+  font-family:var(--mono);font-size:10px;line-height:1.6;color:var(--ice);
+}
+.pmap .pmaphint{
+  margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
+  color:var(--ink-l);text-align:center;line-height:1.8;
+}
+
+/* ============================================================
+   6. THE SIGN-IN CARD
+
+   One column, narrow, centred. Nothing else on the screen: it
+   is a door, not a page.
+   ============================================================ */
+
+.psignin{width:100%;max-width:400px;margin-inline:auto}
+.psignin .pfields{display:flex;flex-direction:column;gap:16px}
+.psignin label{display:flex;flex-direction:column;gap:8px}
+.psignin label > span{
+  font-family:var(--mono);font-size:9.5px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-l);
+}
+.psignin input{
+  font-family:var(--mono);font-size:13px;padding:14px;
+  background:var(--bone3);border:1px solid var(--rule-l2);
+  color:var(--ink);min-height:44px;
+}
+.psignin input:focus{border-color:var(--gold-d);outline:none}
+.psignin .pgo{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  padding:15px;background:var(--gold);border:0;color:var(--ink);
+  font-weight:600;cursor:pointer;min-height:44px;
+}
+.psignin .pgo:hover{background:var(--gold-d);color:var(--bone)}
+.psignin .pfoot{
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding-top:6px;
+}
+.psignin .pfoot a{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold-d);text-decoration:none;
+}
+.psignin .pfoot a:hover{text-decoration:underline}
+
+/* ============================================================
+   7. INSIDE A DARK SECTION
+
+   These components are built for paper. Where one has to sit on
+   an ink section, the tones flip rather than the layout, so the
+   same markup works either side.
+   ============================================================ */
+
+.panel:not(.bone) .pgrid{background:var(--line-d);border-block-color:var(--line-d)}
+.panel:not(.bone) .pcard{background:var(--ink)}
+.panel:not(.bone) .pcard--raised{background:var(--ink2)}
+.panel:not(.bone) .pheadline,
+.panel:not(.bone) .ptable td.pname,
+.panel:not(.bone) .plist b,
+.panel:not(.bone) .psession .pday,
+.panel:not(.bone) .psession .pfield b,
+.panel:not(.bone) .pkey b{color:var(--bone)}
+.panel:not(.bone) .ptable th{border-bottom-color:var(--line-d);color:var(--ice)}
+.panel:not(.bone) .ptable td{border-bottom-color:var(--line-d);color:var(--ice)}
+.panel:not(.bone) .ptable tr:hover td{background:rgba(237,234,225,.03)}
+.panel:not(.bone) .ptable td.ppts,
+.panel:not(.bone) .psession .ptime{color:var(--gold)}
+.panel:not(.bone) .plabel{color:var(--ice)}
+.panel:not(.bone) .plist > div{border-bottom-color:var(--line-d)}
+.panel:not(.bone) .plist span,
+.panel:not(.bone) .psession .pnote,
+.panel:not(.bone) .pkey span{color:rgba(237,234,225,.66)}
+
+/* ============================================================
+   6. SCORING (stats.html)
+
+   A scoring page has three numbers it exists to produce - the
+   points, goals and assists leaders - so those come first, as
+   three cards on the hairline grid, and the full table follows
+   for whoever wants the rest. The table is the paper table
+   above with three additions: a rank column (points order, kept
+   whichever column is sorted), a position pill, and a thin gold
+   bar behind the points so the spread reads without the digits.
+   ============================================================ */
+
+/* the meta line at the right end of the section head */
+.scoremeta{display:flex;gap:18px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-l);padding-bottom:4px}
+.scoremeta span+span::before{content:"\00b7";margin-right:18px;opacity:.6}
+
+/* leaders: three cards, gap-as-rule */
+.leaders{margin:0 0 clamp(22px,3vw,34px)}
+.leader{
+  background:var(--bone);padding:clamp(18px,2.4vw,26px);
+  display:flex;flex-direction:column;gap:14px;min-width:0;
+}
+.leader__top{display:flex;align-items:flex-end;gap:16px;min-width:0}
+.leader__n{
+  font-family:var(--disp);font-stretch:66%;font-weight:800;
+  font-size:clamp(54px,6vw,84px);line-height:.82;color:var(--ink);
+  letter-spacing:-.01em;flex:0 0 auto;
+}
+.leader:first-child .leader__n{color:var(--gold-d)}
+.leader__who{display:flex;flex-direction:column;gap:6px;min-width:0;padding-bottom:2px}
+.leader__who b{
+  font-family:var(--disp);font-stretch:78%;font-weight:800;
+  text-transform:uppercase;font-size:clamp(17px,1.7vw,21px);
+  line-height:1;color:var(--ink);
+}
+.leader__who span{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-l);
+}
+.leader__next{list-style:none;margin:2px 0 0;padding:0;
+  border-top:1px solid var(--rule-l1)}
+.leader__next li{
+  display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;
+  align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule-l1);
+}
+.leader__next .ln{font-family:var(--mono);font-size:10px;color:var(--ink-l)}
+.leader__next .lnm{
+  font-family:var(--disp);font-stretch:84%;font-weight:600;font-size:13.5px;
+  color:var(--ink-b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.leader__next .lv{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink)}
+
+/* table additions */
+.ptable th.prk,.ptable td.prk{width:34px;color:var(--ink-l);font-size:11px}
+.ptable th.pno,.ptable td.pno{width:42px}
+/* Jersey numbers only, stats.html - the NY Rangers face
+   already used for the home hero wordmark (components.css). */
+.ptable td.pno{
+  color:var(--ink-l);
+  font-family:"NY Rangers","Archivo",sans-serif;
+  font-size:15px;
+}
+.ptable tr.top3 td.prk{color:var(--gold-d);font-weight:600}
+.ptable td.pname .psq{
+  display:inline-block;margin-left:10px;vertical-align:1px;
+  font-family:var(--mono);font-stretch:100%;font-weight:400;
+  font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-l);
+}
+.ptable th.ppos,.ptable td.ppos{width:44px;text-align:center}
+.pospill{
+  display:inline-block;min-width:22px;padding:3px 0;text-align:center;
+  font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.06em;
+  border:1px solid var(--rule-l3);color:var(--ink-m);border-radius:3px;
+}
+.pospill.pos-F{color:var(--ink);border-color:var(--ink-m)}
+.ptable td.pnum.sorted{color:var(--ink);font-weight:600}
+
+/* points: a thin gold bar behind the digits. --w is set per row
+   by the renderer as a share of the leader's points. */
+.ptable td.ppts{position:relative;padding-left:18px}
+.ptable th.ppts{padding-left:18px}
+.ptsbar{
+  position:absolute;left:0;bottom:8px;height:3px;width:var(--w,0%);
+  max-width:calc(100% - 4px);background:var(--gold);opacity:.55;
+  border-radius:2px;pointer-events:none;
+}
+/* the whole ppts column is a fixed width so bars are comparable */
+.ptable th.ppts,.ptable td.ppts{width:96px;min-width:96px}
+
+/* sortable heads */
+.ptable th.sortable{cursor:pointer;user-select:none;transition:color .15s}
+.ptable th.sortable:hover{color:var(--ink)}
+.ptable th.sortable i{
+  display:inline-block;width:0;height:0;margin-left:6px;vertical-align:2px;
+  border-left:3.5px solid transparent;border-right:3.5px solid transparent;
+  border-top:5px solid currentColor;opacity:0;transition:opacity .15s;
+}
+.ptable th.sortable.on{color:var(--ink)}
+.ptable th.sortable.on i{opacity:1}
+.ptable th.sortable.on.ppts{color:var(--gold-d)}
+
+/* show all / show top */
+.scoremore{display:flex;justify-content:center;padding:18px 0 0}
+.sshow{
+  background:none;border:1px solid var(--rule-l3);color:var(--ink-b);
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  padding:11px 20px;cursor:pointer;transition:border-color .15s,color .15s;
+}
+.sshow:hover{border-color:var(--ink);color:var(--ink)}
+
+/* Narrow screens: the table has to fit without a horizontal
+   scroll, because points is the column people came for and it
+   was the one that ended up off-screen. Jersey number, GP and
+   PIM go; rank, name, position, G, A and Pts stay. */
+@media (max-width:640px){
+  .leader__n{font-size:52px}
+  .scoretable{min-width:0}
+  .scoretable th.pno,.scoretable td.pno,
+  .scoretable th:nth-child(5),.scoretable td:nth-child(5),
+  .scoretable th:nth-child(9),.scoretable td:nth-child(9){display:none}
+  .scoretable th.prk,.scoretable td.prk{width:24px}
+  .scoretable td.pname{font-size:14px}
+  .scoretable td.pname .psq{display:block;margin:3px 0 0}
+  .scoretable th.ppts,.scoretable td.ppts{width:64px;min-width:64px}
+  .scoretable th,.scoretable td{padding-right:8px}
+}
+
+/* stats.html: the club-record section. The gold strip is the
+   section's floor - the head above it keeps the page's normal top
+   padding, but the bottom padding is cut so the strip lands on
+   the paper section, not on a second band of ink. */
+#record .record__in{padding-bottom:clamp(22px,3vw,36px)}
+#record .record__add{padding:0}
+#record .record__add .addtile{margin:14px 0 24px}
+
+/* ============================================================
+   7. TRAINING (training.html)
+
+   Two things a newcomer wants from this page: what the route in
+   is, and when the ice is. Both are cards on the hairline grid -
+   the steps on ink with a big number, the sessions on paper with
+   a big day - so the page reads at the speed of a poster and the
+   sentences are there for whoever slows down.
+   ============================================================ */
+
+/* --- the four steps (ink section) --- */
+.steps{margin-top:6px}
+.stepcard{
+  position:relative;background:var(--ink);
+  padding:clamp(22px,2.6vw,30px) clamp(20px,2.4vw,28px) clamp(24px,2.8vw,32px);
+  display:flex;flex-direction:column;gap:10px;min-width:0;
+}
+.stepcard__n{
+  font-family:var(--disp);font-stretch:64%;font-weight:800;
+  font-size:clamp(56px,6vw,88px);line-height:.8;color:var(--gold);
+  letter-spacing:-.02em;
+}
+.stepcard__k{
+  margin-top:8px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ice);
+}
+.stepcard__t{
+  margin:0;font-family:var(--disp);font-stretch:74%;font-weight:800;
+  text-transform:uppercase;font-size:clamp(20px,1.9vw,25px);line-height:1;
+  color:var(--bone);text-wrap:balance;
+}
+.stepcard__b{
+  margin:2px 0 0;font-size:14px;line-height:1.55;
+  color:rgba(237,234,225,.66);
+}
+.stepcard__go{margin-top:auto;padding-top:14px;align-self:flex-start}
+.stepcard .itools{top:12px;right:12px}
+
+/* --- the week (paper section) --- */
+.sessions{margin-top:6px}
+.sesscard{
+  position:relative;background:var(--bone);
+  padding:clamp(20px,2.4vw,26px);
+  display:flex;flex-direction:column;gap:16px;min-width:0;
+}
+.sesscard__head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+.sesscard__day{display:flex;flex-direction:column;gap:6px}
+.sesscard__day b{
+  font-family:var(--disp);font-stretch:64%;font-weight:800;
+  font-size:clamp(46px,5vw,68px);line-height:.82;color:var(--ink);
+  text-transform:uppercase;letter-spacing:-.01em;
+}
+.sesscard__day span{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-l);
+}
+.sesscard__time{
+  font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.08em;
+  color:var(--gold-d);white-space:nowrap;padding-bottom:16px;
+}
+.sesscard__meta{
+  margin:0;display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  padding-top:14px;border-top:1px solid var(--rule-l1);
+}
+.sesscard__meta div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.sesscard__meta dd{
+  margin:0;font-family:var(--disp);font-stretch:84%;font-weight:600;
+  font-size:14.5px;color:var(--ink);
+}
+.sesscard__note{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink-m)}
+.sesscard .itools{top:12px;right:12px}
+
+/* --- kit + members, side by side under the week --- */
+.kitgrid{
+  display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.9fr);
+  gap:clamp(28px,4vw,62px);align-items:start;
+  margin-top:clamp(36px,5vw,64px);
+}
+.kitgrid .phead-p{margin-bottom:6px}
+.kitlist b{display:flex;align-items:center;gap:10px}
+.kitmark{
+  flex:0 0 auto;width:14px;height:14px;border-radius:50%;
+  box-sizing:border-box;border:1px solid var(--rule-l3);
+  position:relative;
+}
+/* a tick for what the club lends, a hollow ring for what you bring */
+.kit-yes .kitmark{background:var(--gold);border-color:var(--gold)}
+.kit-yes .kitmark::after{
+  content:"";position:absolute;left:4px;top:2px;width:3px;height:6px;
+  border:solid #141210;border-width:0 1.5px 1.5px 0;transform:rotate(45deg);
+}
+.kit-own span{color:var(--ink)}
+.kitgrid #trainmember .gatemsg{margin-top:18px !important}
+
+@media (max-width:860px){
+  .kitgrid{grid-template-columns:1fr;row-gap:40px}
+  .stepcard__n{font-size:56px}
+}
+
+/* ============================================================
+   GOLD-STRIP PAGE HEAD - the stats.html design, shared
+
+   stats.html opens on a short ink head (eyebrow + headline) with a
+   full-bleed gold strip of key numbers on its floor, and goes
+   straight onto paper. about, contact, games, past-games, game and
+   competitions now open the same way: section.panel.panel--strip,
+   its .panel__in, then <div class="strip"><div class="wrap">
+   of .stat tiles. The tiles are the same .stat as the home hero
+   and stats (k = label, v = the headline value, n = note).
+   ============================================================ */
+.panel--strip > .panel__in{padding-bottom:clamp(22px,3vw,36px)}
+.panel--strip .pagelead{margin-top:14px}
+.panel--strip .phead{margin-bottom:0}
+/* a tile that is also a way in (contact) */
+.panel > .strip a.stat{display:block;color:inherit;text-decoration:none;transition:background .15s}
+.panel > .strip a.stat:hover{background:#FFD24A}
+/* values that are words, not numbers (venue, referees, a squad name)
+   need a size step down to sit four across without wrapping */
+.panel > .strip .stat .v.vw{font-size:clamp(19px,1.9vw,28px);line-height:1.05}
+.strip:empty,.strip > .wrap:empty{display:none}
+@media (max-width:640px){
+  .panel > .strip .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .panel > .strip .stat{padding:14px 14px 14px 0}
+  .panel > .strip .stat:nth-child(2n){padding-left:14px}
+  .panel > .strip .stat:nth-child(2n+1){border-left:0;padding-left:0}
+  .panel > .strip .stat:nth-child(n+3){border-top:1px solid rgba(20,18,16,.22)}
+}
+
+/* ---------------- fixture tables on paper --------------------
+   games.html / past-games.html: the same flat ruled table as the
+   scoring table on stats.html - no rounded card, no ink head bar. */
+.gtable td.name{
+  font-family:var(--disp);font-stretch:82%;font-weight:700;
+  font-size:15px;color:var(--ink);white-space:normal;text-transform:none;
+}
+.gtable td.res{
+  font-family:var(--disp);font-stretch:76%;font-weight:800;
+  font-size:17px;color:var(--ink);
+}
+.gtable td.res.w{color:var(--gold-d)}
+.gtable td.res.l{color:var(--ink-m)}
+.gtable th:last-child,.gtable td:last-child{text-align:right;padding-right:0}
+.gtable tr[data-sheet]{cursor:pointer}
+
+/* ---------------- paper cells (about / competitions) ---------
+   The leader-card look from stats.html: gap-as-rule grid, bone
+   cells, display name over a body line. */
+.pcell{background:var(--bone);padding:clamp(18px,2.4vw,26px);position:relative;min-width:0}
+.pcell h3{font-family:var(--disp);font-stretch:78%;font-weight:800;text-transform:uppercase;
+  font-size:clamp(17px,1.7vw,21px);line-height:1.05;color:var(--ink);margin:0}
+.pcell .pk{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-d);margin:0 0 10px}
+.pcell p.body{color:var(--ink-m);margin:12px 0 0;font-size:14.5px;line-height:1.55}
+.pcell .addr{margin:0;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink-b)}
+.psub{margin-top:clamp(40px,5vw,72px)}
+.gs-sheet > .gs-grid:first-child{border-top:1px solid var(--rule-l2)}
+/* a paper section that continues the one above it: no second band of air */
+.panel.bone + .panel.bone.panel--cont > .panel__in{padding-top:0}
+/* competitions.html: the division cards were sized by their table's
+   min-width and pushed the page sideways on phones - pin the column
+   and let the table scroll inside its own wrapper instead */
+#standingstables{grid-template-columns:minmax(0,1fr)}
+#standingstables .pcard{min-width:0}
+#standingstables .phead-p{flex-wrap:wrap;min-width:0}
+
+
+/* ============================================================
+   TRAINING, second pass (training.html)
+
+   The week is three tickets stacked on the left (a day, then who
+   skates when), the checklist sits beside them, and where we skate
+   closes the section: a photo slot and an address card. The strip
+   above carries only the three times.
+   ============================================================ */
+.trgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,4.4vw,64px);align-items:stretch}
+.tkts{display:flex;flex-direction:column;gap:20px;height:100%}
+.tkt{
+  position:relative;flex:1;background:var(--bone3);color:var(--ink);
+  padding:22px 28px;display:grid;grid-template-columns:minmax(0,210px) minmax(0,1fr);
+  gap:20px;align-items:center;
+}
+/* the notches of a ticket */
+.tkt::before,.tkt::after{
+  content:"";position:absolute;top:50%;width:24px;height:24px;margin-top:-12px;
+  border-radius:50%;background:var(--bone);
+}
+.tkt::before{left:-12px}.tkt::after{right:-12px}
+.tkt--dark{background:var(--ink);color:var(--bone)}
+.tkt__day b{
+  display:block;font-family:var(--disp);font-stretch:66%;font-weight:800;
+  text-transform:uppercase;font-size:clamp(32px,3.2vw,42px);line-height:.9;
+}
+.tkt__day span{
+  display:block;margin-top:8px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-l);
+}
+.tkt--dark .tkt__day span{color:var(--ice)}
+.tkt__slot{
+  display:flex;align-items:center;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;
+  padding:10px 0;border-top:1px dashed var(--rule-l3);
+}
+.tkt--dark .tkt__slot{border-top-color:rgba(237,234,225,.3)}
+.tkt__g{
+  flex:0 0 auto;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;padding:6px 10px;
+}
+.tkt__g--a{background:var(--gold);color:#141210}
+.tkt__g--b{background:var(--ink);color:var(--bone)}
+.tkt__g--c{background:var(--ice);color:#141210}
+.tkt__t{
+  font-family:var(--disp);font-stretch:66%;font-weight:800;text-transform:uppercase;
+  font-size:clamp(20px,2vw,28px);white-space:nowrap;
+}
+.tkt--dark .tkt__t{color:var(--gold)}
+.tkt__dates{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tkt__dates span{
+  background:rgba(17,20,23,.08);color:var(--ink);font-family:var(--mono);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;
+}
+.tkt .itools{top:10px;right:10px}
+
+/* the checklist: one row style for "take with you" and "the club lends" */
+.kitpanel{background:var(--bone3);padding:28px 32px;display:flex;flex-direction:column;gap:28px}
+.kp__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.kp__h h3{
+  margin:0;font-family:var(--disp);font-stretch:66%;font-weight:800;text-transform:uppercase;
+  font-size:clamp(24px,2.4vw,32px);line-height:1;
+}
+.kp__list{margin-top:6px}
+.kp__row{
+  position:relative;display:flex;align-items:center;gap:14px;
+  padding:12px 0;border-bottom:1px solid var(--rule-l2);
+}
+.kp__row b{font-size:17px;font-weight:700}
+.kp__row span{
+  margin-left:auto;text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-b);
+}
+.kp__box{
+  flex:0 0 20px;width:20px;height:20px;box-sizing:border-box;
+  border:2px solid var(--ink);position:relative;
+}
+.kp__row--yes .kp__box{background:var(--gold)}
+.kp__row--yes .kp__box::after{
+  content:"";position:absolute;left:5px;top:1px;width:4px;height:9px;
+  border:solid var(--ink);border-width:0 2.2px 2.2px 0;transform:rotate(45deg);
+}
+.kp__row .itools{top:4px;right:0}
+
+/* where we skate */
+.trwhere{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);margin-top:clamp(40px,5vw,72px)}
+.ph.trwhere__photo{
+  min-height:430px;border:0;
+  background:repeating-linear-gradient(135deg,#D8D3C4 0 14px,#E4E0D3 14px 28px);
+  background-size:auto;
+}
+.ph.trwhere__photo.has-photo{background-size:cover;background-position:center}
+.ph.trwhere__photo::before{display:none}
+.ph.trwhere__photo::after{color:var(--ink-l);left:20px;bottom:18px}
+.trwhere__card{
+  background:var(--ink);color:var(--bone);padding:clamp(24px,2.8vw,36px);
+  display:flex;flex-direction:column;justify-content:space-between;gap:28px;
+}
+.trwhere__h{margin:14px 0 0;font-size:clamp(40px,5vw,70px);line-height:.9}
+.trwhere__addr{margin:0;font-size:20px;line-height:1.5}
+.trwhere__bike{margin:8px 0 20px;font-size:14px;line-height:1.5;color:rgba(237,234,225,.7)}
+#trainmember{margin-top:8px}
+#trainmember .gatemsg{margin-top:28px !important}
+
+@media (max-width:860px){
+  .trgrid{grid-template-columns:1fr}
+  .trwhere{grid-template-columns:1fr}
+  .ph.trwhere__photo{min-height:240px}
+}
+@media (max-width:560px){
+  .tkt{grid-template-columns:1fr;gap:14px;padding:20px 22px}
+  .kitpanel{padding:22px 20px}
+  .kp__row{flex-wrap:wrap}
+  .kp__row span{margin-left:34px;text-align:left;flex-basis:100%}
+}
+/* a strip of three tiles on a phone: the odd one takes the full row */
+@media (max-width:640px){
+  #trainstrip .stat:last-child:nth-child(odd){grid-column:1 / -1}
+}

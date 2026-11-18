@@ -1,0 +1,302 @@
+/* ============================================================
+   admin.css — the editing layer ("godmode").
+
+   Two surfaces, two jobs:
+
+   1. On a public page the editing layer is an overlay on someone
+      else's design. It stays cyan (--edit) so an admin can always
+      tell the CMS from the site, and so nothing it draws can be
+      mistaken for club colour.
+
+   2. The console (admin.html) is not a page, it is a back office.
+      Its chrome is neutral — ink grounds, bone text, grey meta,
+      1px rules — and colour appears only on data and status:
+      the record count, the status pills, and the one primary
+      action per view. Gold is that accent; it never lands on a
+      tab, a nav item or a secondary button.
+
+   Second rule, unchanged: admin controls live in a bar pinned to
+   the BOTTOM of the viewport. The site header hides on scroll, so
+   editing tools cannot live up there.
+   ============================================================ */
+
+/* Local scale, shared by the console, the drawer, the bar and the
+   toast — one radius, two hairline weights, nothing else. */
+.adshell,.drawer,.toast,.adminbar,.photomenu{
+  --ad-line:rgba(237,234,225,.12);   /* row rules, quiet frames    */
+  --ad-line2:rgba(237,234,225,.19);  /* control borders, head rule */
+  --ad-r:6px;
+  --ad-meta:var(--ice);              /* grey that still reads      */
+}
+
+body.god{padding-bottom:64px}
+body.god::before{content:"";position:fixed;top:0;left:0;right:0;height:2px;background:var(--edit);z-index:100;pointer-events:none}
+
+/* ---------------- bottom admin bar -------------------------
+   Neutral chrome: it has to sit under twenty different pages
+   without competing with any of them. The one cyan mark is the
+   godmode dot. */
+.adminbar{position:fixed;left:0;right:0;bottom:0;z-index:95;background:var(--ink2);border-top:1px solid var(--ad-line2);display:none;align-items:center;gap:8px;padding:9px var(--pad);flex-wrap:wrap}
+body.god .adminbar,body.isadmin .adminbar{display:flex}
+.abbrand{display:flex;align-items:center;gap:8px;font-family:var(--disp);font-stretch:100%;font-size:13px;letter-spacing:0;color:var(--bone);margin-right:6px}
+.abbrand .pulse{width:6px;height:6px;border-radius:50%;background:var(--edit)}
+.abtn{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;font-family:var(--disp);font-stretch:100%;font-size:13px;letter-spacing:0;border:1px solid var(--ad-line2);border-radius:var(--ad-r);background:transparent;color:rgba(237,234,225,.82);cursor:pointer}
+.abtn:hover{background:var(--ink3);color:var(--bone);border-color:rgba(237,234,225,.3)}
+.abtn.on{background:var(--ink3);color:var(--bone);border-color:rgba(237,234,225,.34)}
+.abspacer{flex:1}
+.abmeta{font-family:var(--disp);font-stretch:100%;font-size:13px;letter-spacing:0;color:var(--ice)}
+.abrule{width:1px;height:20px;background:var(--ad-line);margin:0 4px}
+
+/* ---------------- inline editing ---------------------------
+   [data-ed]   = a text block the admin can rewrite in place
+   [data-item] = one record in a collection (news post, player…)
+   Affordances stay at 30% until you hover the thing you want
+   to change, so edit mode does not shout over the design.     */
+body.editing [data-ed]{outline:1px dashed rgba(98,201,222,.45);outline-offset:4px;cursor:text;transition:outline-color .15s}
+body.editing [data-ed]:hover{outline-color:var(--edit);background:rgba(98,201,222,.06)}
+body.editing [data-ed]:focus{outline:1px solid var(--edit);background:rgba(98,201,222,.09)}
+body.editing [data-item]{outline:1px dashed rgba(98,201,222,.28);outline-offset:3px}
+
+.itools{position:absolute;top:6px;right:6px;display:none;gap:4px;z-index:12;opacity:.3;transition:opacity .15s}
+body.editing [data-item] .itools{display:flex}
+body.editing [data-item]:hover .itools{opacity:1}
+.itools button{width:23px;height:23px;display:grid;place-items:center;border:1px solid rgba(98,201,222,.5);background:#0A1417;color:#BFEAF3;font-family:var(--mono);font-size:13px;cursor:pointer;line-height:1}
+.itools button:hover{background:var(--edit);color:#08181C}
+
+.addtile{display:none;width:100%;padding:20px;border:1px dashed rgba(98,201,222,.5);background:rgba(98,201,222,.05);color:var(--edit);font-family:var(--mono);font-size:13px;letter-spacing:0;cursor:pointer;margin-top:14px}
+body.editing .addtile{display:block}
+.addtile:hover{background:rgba(98,201,222,.13)}
+
+/* Small row buttons rendered by views.js into tables on the
+   public pages while godmode is on — the CMS overlay again, so
+   they keep the cyan. The console has its own (.adacts). */
+.rowacts{display:flex;gap:6px}
+.rowacts button{font-family:var(--disp);font-stretch:100%;font-size:13px;letter-spacing:0;padding:5px 9px;border:1px solid var(--line-d);border-radius:4px;background:transparent;color:rgba(237,234,225,.6);cursor:pointer}
+.rowacts button:hover{border-color:var(--edit);color:var(--edit)}
+.rowacts button.del:hover{border-color:var(--danger);color:var(--danger)}
+
+/* Kept for any .btn in the editing layer that still asks for them. */
+.btn-edit{background:var(--edit);border-color:var(--edit);color:#08181C;font-weight:600}
+.btn-edit:hover{background:#8adcec;border-color:#8adcec;color:#08181C}
+.btn-del{border-color:rgba(224,107,90,.6);color:var(--danger)}
+.btn-del:hover{background:var(--danger);border-color:var(--danger);color:var(--ink)}
+
+/* ============================================================
+   THE CONSOLE
+
+   A back office on paper, the same family as the member area:
+   bone ground, a deeper bone for each surface, ink text. The one
+   filled action per view is an ink pill. Tables are the one place
+   a rule belongs, so rows keep their hairlines.
+   ============================================================ */
+body[data-page="admin"]{background:var(--bone)}
+body[data-page="admin"] .panel{background:var(--bone);color:var(--ink)}
+
+.adshell,.drawer{
+  --ad-line:var(--rule-l1);
+  --ad-line2:var(--rule-l2);
+  --ad-meta:var(--ink-m);
+  --ad-text:var(--ink);
+  --ad-body:var(--ink-b);
+  --ad-card:var(--bone3);
+  --ad-hover:var(--bone2);
+}
+
+.adshell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:clamp(22px,2.6vw,40px);align-items:start;
+  font-family:var(--disp);font-stretch:100%;color:var(--ad-body)}
+.adshell *{letter-spacing:0}
+.adshell :focus-visible,.drawer :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* --- sidebar ------------------------------------------------ */
+.adside{position:sticky;top:92px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.adtitle{margin:0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:26px;line-height:1.2;text-transform:none;color:var(--ad-text)}
+.adsub{margin:7px 0 0;font-size:15px;line-height:1.5;color:var(--ad-meta)}
+
+.adnav{display:block;overflow-y:auto;max-height:calc(100vh - 230px);padding-right:4px}
+.adnav__g+.adnav__g{margin-top:18px}
+.adnav__gt{margin:0 0 4px;padding:0 10px;font-size:13px;font-weight:700;line-height:1.4;color:var(--ad-meta);text-transform:none}
+.adnav__b{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;
+  min-height:36px;padding:6px 10px;border:0;border-radius:var(--ad-r);
+  background:none;color:var(--ad-body);font-family:inherit;font-size:15px;line-height:1.3;
+  text-align:left;cursor:pointer}
+.adnav__b:hover{background:var(--ad-card);color:var(--ad-text)}
+.adnav__b.is-on{background:var(--bone4);color:var(--ad-text);font-weight:700}
+.adnav__l{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adnav__n{flex:0 0 auto;font-size:13px;color:var(--ad-meta);font-variant-numeric:tabular-nums}
+.adnav__b.is-on .adnav__n{color:var(--ad-text)}
+.adnav__b--danger{color:var(--danger-d)}
+.adnav__b--danger:hover,.adnav__b--danger.is-on{color:var(--danger-d)}
+
+/* --- view: one card with a head and a table ----------------- */
+.adview{min-width:0;background:var(--ad-card);border-radius:8px;padding:24px 28px 20px}
+.adview__h{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding-bottom:18px}
+.adview__ht{min-width:0}
+.adview__area{margin:0;font-size:13px;line-height:1.4;color:var(--ad-meta)}
+.adview__t{margin:4px 0 0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:24px;
+  line-height:1.25;text-transform:none;color:var(--ad-text)}
+.adview__meta{margin:7px 0 0;font-size:14px;line-height:1.5;color:var(--ad-meta)}
+.adview__n{color:var(--ad-text);font-weight:700;font-variant-numeric:tabular-nums}
+.adview__note::before{content:"·";margin:0 7px;color:var(--ad-meta)}
+
+/* --- table -------------------------------------------------- */
+.adtwrap{overflow-x:auto}
+.adtable{width:100%;min-width:640px;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.adtable th{padding:10px 14px 10px 0;font-family:var(--disp);font-stretch:100%;font-size:13px;font-weight:700;
+  text-align:left;text-transform:none;color:var(--ad-meta);background:transparent;
+  border-bottom:1px solid var(--rule-l3);white-space:nowrap}
+.adtable td{padding:12px 14px 12px 0;font-size:15px;line-height:1.45;color:var(--ad-body);
+  border-top:0;border-bottom:1px solid var(--ad-line2);white-space:nowrap;vertical-align:middle}
+.adtable tbody tr:hover td{background:var(--ad-hover)}
+.adtable td.adid{color:var(--ad-text);font-weight:700;white-space:normal;max-width:30ch}
+.adtable td.adcell{white-space:normal;max-width:34ch}
+.adtable th.adth-n,.adtable td.adnum{text-align:right}
+.adtable td.adnum{color:var(--ad-text)}
+.adtable th.adth-a,.adtable td.adacts{text-align:right;padding-right:0}
+.adtable th.adth-p{width:64px}
+.adtable tr.adempty td{padding:30px 14px;text-align:center;color:var(--ad-meta);white-space:normal}
+
+.adacts{white-space:nowrap}
+.adacts button{min-height:30px;padding:0 10px;margin-left:2px;border:0;border-radius:4px;
+  background:none;font-family:inherit;font-size:14px;font-weight:700;color:var(--ad-body);cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-l3)}
+.adacts button:hover{color:var(--ad-text);text-decoration-color:var(--ad-text)}
+.adacts button.is-danger{color:var(--danger-d)}
+.adacts button.is-danger:hover{text-decoration-color:var(--danger-d)}
+
+.adthumb{width:64px}
+.adthumb__i{display:block;width:46px;height:32px;border-radius:4px;
+  background-color:var(--bone4);background-position:center;background-size:cover;background-repeat:no-repeat}
+.adthumb__i.is-empty{background-color:transparent;border:1px dashed var(--rule-l3)}
+
+/* --- status pills ------------------------------------------- */
+.adpill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:4px;
+  font-size:13px;font-weight:700;line-height:1;white-space:nowrap}
+.adpill--good{background:#BFE3CE;color:#13402A}
+.adpill--warn{background:var(--gold);color:var(--ink)}
+.adpill--bad{background:#F0C9C1;color:#5A2319}
+.adpill--neutral{background:var(--bone4);color:var(--ink-b)}
+.adpill--none{background:none;padding:0;color:var(--ad-meta)}
+
+/* --- figures and blocks (danger zone) ----------------------- */
+.adcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:8px}
+.adcard{background:var(--bone2);border-radius:var(--ad-r);padding:16px 18px}
+.adcard__k{margin:0;font-size:13px;color:var(--ad-meta)}
+.adcard__v{margin:7px 0 0;font-size:26px;font-weight:700;line-height:1.1;color:var(--ad-text);font-variant-numeric:tabular-nums}
+.adcard__n{margin:5px 0 0;font-size:13px;color:var(--ad-meta)}
+.adblock{margin-top:16px;padding:18px 20px;background:var(--bone2);border-radius:var(--ad-r)}
+.adblock__t{margin:0;font-family:var(--disp);font-stretch:100%;font-size:17px;font-weight:700;text-transform:none;color:var(--ad-text)}
+.adblock__b{margin:8px 0 14px;max-width:64ch;font-size:15px;line-height:1.55;color:var(--ad-body)}
+.adblock code{font-size:14px;color:var(--ad-text)}
+
+/* --- console buttons ---------------------------------------- */
+.abtn2{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 18px;
+  border:1px solid var(--rule-l3);border-radius:999px;background:transparent;color:var(--ad-text);
+  font-family:var(--disp);font-stretch:100%;font-size:14px;font-weight:700;line-height:1;cursor:pointer}
+.abtn2:hover{background:var(--bone4)}
+.abtn2.is-primary{background:var(--ink);border-color:var(--ink);color:var(--bone)}
+.abtn2.is-primary:hover{background:var(--ink3);border-color:var(--ink3)}
+.abtn2.is-danger{border-color:var(--danger-d);color:var(--danger-d)}
+.abtn2.is-danger:hover{background:var(--danger-d);color:var(--bone)}
+
+/* ---------------- record drawer ---------------------------- */
+.scrim{position:fixed;inset:0;background:rgba(17,20,23,.5);z-index:110;opacity:0;visibility:hidden;transition:.22s}
+.scrim.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--bone);color:var(--ad-body);z-index:120;
+  transform:translateX(100%);transition:transform .28s cubic-bezier(.4,.02,.2,1);display:flex;flex-direction:column;
+  font-family:var(--disp);font-stretch:100%}
+.drawer.on{transform:none}
+.dwh{padding:22px var(--pad) 16px;border-bottom:1px solid var(--ad-line2);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.dwh__k{margin:0;font-size:13px;line-height:1.4;color:var(--ad-meta)}
+.dwh__t{margin:4px 0 0;font-family:var(--disp);font-stretch:100%;font-weight:700;font-size:22px;line-height:1.25;text-transform:none;color:var(--ad-text)}
+.dwh__s{margin:5px 0 0;font-size:14px;line-height:1.4;color:var(--ad-meta)}
+.dwx{flex:0 0 auto;min-width:38px;height:38px;padding:0 12px;border:1px solid var(--rule-l3);border-radius:999px;
+  background:none;color:var(--ad-text);font-family:var(--disp);font-size:14px;font-weight:700;cursor:pointer}
+.dwx:hover{background:var(--bone4)}
+.dwb{padding:0 var(--pad) 22px;overflow-y:auto;flex:1}
+.dwb form{display:block;max-width:100%;gap:0}
+.dwg{padding:20px 0;border-bottom:1px solid var(--ad-line2)}
+.dwg:last-child{border-bottom:0;padding-bottom:4px}
+.dwg__t{margin:0 0 14px;font-family:var(--disp);font-stretch:100%;font-size:14px;font-weight:700;
+  text-transform:none;color:var(--ad-text)}
+.dwfield+.dwfield{margin-top:16px}
+.dwl{display:block;margin-bottom:6px;font-family:var(--disp);font-stretch:100%;font-size:14px;font-weight:500;color:var(--ad-text)}
+.dwhint{margin:-3px 0 6px;font-size:13px;line-height:1.45;color:var(--ad-meta)}
+.dwb input[type="text"],.dwb select,.dwb textarea{
+  width:100%;min-height:40px;padding:8px 12px;border:1px solid var(--rule-l3);border-radius:var(--ad-r);
+  background:var(--bone3);color:var(--ad-text);font-family:var(--disp);font-stretch:100%;font-size:15px;line-height:1.45}
+.dwb textarea{min-height:108px;resize:vertical}
+.dwb input[type="text"]:focus,.dwb select:focus,.dwb textarea:focus{border-color:var(--ink);outline:none}
+.dwf{padding:14px var(--pad);border-top:1px solid var(--ad-line2);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* --- the photo on a record ----------------------------------
+   Stored in the slot the public pages already read
+   ("news:<id>"), so setting it here is all there is to it. */
+.dwphoto{display:flex;gap:14px;align-items:flex-start}
+.dwphoto__i{flex:0 0 auto;display:grid;place-items:center;width:132px;height:88px;border-radius:var(--ad-r);
+  background-color:var(--bone4);background-position:center;background-size:cover;background-repeat:no-repeat}
+.dwphoto__i.is-empty{background-color:transparent;border:1px dashed var(--rule-l3)}
+.dwphoto__e{font-size:13px;color:var(--ad-meta)}
+.dwphoto__b{min-width:0}
+.dwphoto__m{margin:0 0 11px;font-size:14px;line-height:1.5;color:var(--ad-body)}
+.dwphoto__a{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------------- toast ------------------------------------
+   Deletes use an undo toast, never a browser confirm() —
+   a modal dialog interrupts, an undo does not.                */
+.toast{position:fixed;left:50%;bottom:82px;transform:translate(-50%,20px);background:var(--ink3);
+  border:1px solid var(--ad-line2);border-radius:var(--ad-r);padding:12px 16px;display:flex;align-items:center;gap:16px;
+  z-index:130;opacity:0;visibility:hidden;transition:.22s;font-family:var(--disp);font-stretch:100%;font-size:14px;
+  color:var(--bone);box-shadow:0 18px 46px rgba(0,0,0,.55)}
+.toast.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.toast button{background:none;border:0;border-bottom:1px solid var(--gold);color:var(--gold);
+  font-family:inherit;font-size:14px;cursor:pointer;padding:0 0 2px}
+
+/* ---------------- photo slots on public pages ---------------
+   Pictures can also be edited from the site itself: every .ph
+   with a slot grows a button in edit mode. Uploads are
+   downscaled and kept in the same store as the rest. */
+.phedit{position:absolute;left:10px;top:10px;z-index:13;
+  font-family:var(--mono);font-size:13px;letter-spacing:0;
+  padding:6px 10px;border:1px solid var(--edit);background:rgba(10,20,23,.88);color:#BFEAF3;
+  cursor:pointer;opacity:0;transition:opacity .15s}
+body.editing .ph:hover .phedit,body.editing .phedit:focus{opacity:1}
+.phedit:hover{background:var(--edit);color:#08181C}
+/* the hero slot fills the top of the page, where the fixed header
+   would swallow the click — put its button down at the bottom */
+.hero .phedit{top:auto;bottom:20px;left:var(--pad)}
+body.editing .hero:hover .phedit{opacity:1}
+
+.photomenu{position:absolute;z-index:140;background:var(--ink2);border:1px solid var(--ad-line2);border-radius:var(--ad-r);
+  box-shadow:0 18px 44px rgba(0,0,0,.55);padding:6px;display:flex;flex-direction:column;min-width:180px}
+.photomenu button{background:none;border:0;border-radius:4px;text-align:left;padding:9px 12px;cursor:pointer;
+  font-family:var(--disp);font-stretch:100%;font-size:14px;letter-spacing:0;color:rgba(237,234,225,.84)}
+.photomenu button:hover{background:var(--ink3);color:var(--bone)}
+
+/* ---------------- narrow ------------------------------------
+   The sidebar stops being a rail and becomes a panel above the
+   view, scrolling inside its own frame so the table is never
+   thirty buttons down the page. */
+@media (max-width:960px){
+  .adshell{grid-template-columns:minmax(0,1fr);gap:22px}
+  .adside{position:static;gap:16px}
+  .adnav{max-height:270px;padding:12px;background:var(--ad-card);border-radius:var(--ad-r)}
+  .adview{padding:18px 16px}
+  /* two to a row, so the panel shows three areas rather than one */
+  .adnav__g{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px}
+  .adnav__gt{grid-column:1/-1}
+}
+@media (max-width:640px){
+  .adview__h{align-items:flex-start}
+  .adnav__g{grid-template-columns:1fr}
+  .adtable{min-width:520px}
+  .adtable th,.adtable td{padding-left:10px;padding-right:10px;white-space:normal}
+  .adtable th.adth-a,.adtable td.adacts{white-space:nowrap}
+  /* one row that scrolls sideways, rather than four stacked rows
+     of buttons eating the bottom of a phone screen */
+  .adminbar{flex-wrap:nowrap;overflow-x:auto;gap:6px}
+  .adminbar .abtn{flex:0 0 auto}
+  .abmeta,.abrule{display:none}
+  .dwf{gap:8px}
+  .dwphoto{flex-direction:column}
+  .dwphoto__i{width:100%;height:150px}
+}
